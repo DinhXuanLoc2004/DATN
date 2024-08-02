@@ -38,7 +38,7 @@ const LoginScreen = () => {
 
     return (
         <ContainerComponent isHeader back isScroll>
-            <SpaceComponent height={20} />
+            <SpaceComponent height={18} />
 
             {/* Section Tille */}
             <SectionComponent>
@@ -49,7 +49,7 @@ const LoginScreen = () => {
                 />
             </SectionComponent>
 
-            <SpaceComponent height={30} />
+            <SpaceComponent height={68}/>
 
             {/* Section Input */}
             <SectionComponent>
@@ -73,11 +73,11 @@ const LoginScreen = () => {
                 />
             </SectionComponent>
 
-            <SpaceComponent height={10} />
+            <SpaceComponent height={16} />
 
             <ButtonScreenSwitchAuth text='Forgot your password'/>
 
-            <SpaceComponent height={20} />
+            <SpaceComponent height={32} />
 
             {/* Section Button Login */}
             <SectionComponent>

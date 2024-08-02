@@ -16,7 +16,7 @@ function App(): React.JSX.Element {
   return (
     <SafeAreaView style={{flex: 1}}>
       <StatusBar/>
-      <RegisterScreen/>
+      <LoginScreen/>
     </SafeAreaView>
   );
 }

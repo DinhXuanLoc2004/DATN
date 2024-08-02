@@ -10,6 +10,7 @@ import ButtonComponent from '../../components/buttons/ButtonComponent';
 import {handleTextInput, Success} from '../../utils/handleTextInput';
 import SectionComponent from '../../components/layouts/SectionComponent';
 import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
+import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
 
 const RegisterScreen = () => {
   const [Name, setName] = useState<string>('');
@@ -50,14 +51,14 @@ const RegisterScreen = () => {
 
   return (
     <ContainerComponent isHeader back isScroll>
-      <SpaceComponent height={20} />
+      <SpaceComponent height={18} />
 
       {/* Section Tille */}
       <SectionComponent>
         <TitleComponent text="Sign up" size={34} font={fontFamilies.bold} />
       </SectionComponent>
 
-      <SpaceComponent height={30} />
+      <SpaceComponent height={68} />
 
       {/* Section Input */}
       <SectionComponent>
@@ -103,16 +104,21 @@ const RegisterScreen = () => {
         />
       </SectionComponent>
 
-      <SpaceComponent height={30} />
+      <SpaceComponent height={16} />
+
+      <ButtonScreenSwitchAuth text='Already have an account?'/>
+
+      <SpaceComponent height={28}/>
 
       {/* Section Button Sign up */}
       <SectionComponent>
-        <ButtonComponent text="Sign up" onPress={() => handleLogin()} />
+        <ButtonComponent 
+        text="SIGN UP" 
+        onPress={() => handleLogin()} 
+        />
       </SectionComponent>
 
-      <GGAndFbComponent 
-      text='Or sign up with social account' 
-      marginTop={54}/>
+      <GGAndFbComponent text="Or sign up with social account" marginTop={54} />
     </ContainerComponent>
   );
 };
