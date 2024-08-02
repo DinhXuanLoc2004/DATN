@@ -1,13 +1,14 @@
-import { View, Text } from 'react-native'
+import { View, Text, StyleProp, ViewStyle } from 'react-native'
 import React, { FC, ReactNode } from 'react'
 
 interface Props {
-    children: ReactNode
+    children: ReactNode,
+    style?: StyleProp<ViewStyle>
 }
 
-const SectionComponent: FC<Props> = ({children}) => {
+const SectionComponent: FC<Props> = ({children, style}) => {
   return (
-    <View>
+    <View style={[style]}>
       {children}
     </View>
   )

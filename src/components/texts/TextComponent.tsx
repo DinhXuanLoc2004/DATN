@@ -1,5 +1,5 @@
 import { View, Text, StyleProp, TextStyle } from 'react-native'
-import React, { FC } from 'react'
+import React, { FC, memo } from 'react'
 import { globalStyles } from '../../styles/globalStyle'
 import { fontFamilies } from '../../constants/fontFamilies'
 import { colors } from '../../constants/colors'
@@ -32,4 +32,4 @@ const TextComponent: FC<Props> = ({ text, size, font, color, line, heightLine, s
     )
 }
 
-export default TextComponent
+export default memo(TextComponent) 

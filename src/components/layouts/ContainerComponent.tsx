@@ -8,6 +8,8 @@ import { ArrowLeft2 } from "iconsax-react-native";
 import TitleComponent from "../texts/TitleComponent";
 import { useNavigation } from "@react-navigation/native";
 import SpaceComponent from "./SpaceComponent";
+import IonIcon from 'react-native-vector-icons/Ionicons';
+
 
 interface Props {
     children: ReactNode
@@ -28,7 +30,7 @@ const ContainerComponent: FC<Props> = ({ children, style, isScroll, back, title,
                 isHeader && <RowComponent justify="space-between" style={{width: '100%', marginTop: 10}}>
                     {
                         back ? <TouchableOpacity onPress={() => {}}>
-                            <ArrowLeft2 size={24} color={colors.Text_Color}/>
+                            <IonIcon name="chevron-back-outline" size={24} color={colors.Text_Color}/>
                         </TouchableOpacity> : <SpaceComponent width={10}/>
                     }
                     {
@@ -42,7 +44,10 @@ const ContainerComponent: FC<Props> = ({ children, style, isScroll, back, title,
                 </RowComponent>
             }
             {
-                isScroll ? <ScrollView style={[globalStyles.container, style]}>
+                isScroll ? <ScrollView 
+                style={[globalStyles.container, style]}
+                showsVerticalScrollIndicator={false}
+                >
                     {children}
                 </ScrollView>
                     : <View style={[globalStyles.container, style]}>
