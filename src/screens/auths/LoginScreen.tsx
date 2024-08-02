@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ContainerComponent from '../../components/layouts/ContainerComponent'
 import TextComponent from '../../components/texts/TextComponent'
@@ -9,6 +9,12 @@ import TextInputComponent from '../../components/inputs/TextInputComponent'
 import ButtonComponent from '../../components/buttons/ButtonComponent'
 import { handleTextInput, Success } from '../../utils/handleTextInput'
 import SectionComponent from '../../components/layouts/SectionComponent'
+import RowComponent from '../../components/layouts/RowComponent'
+import IonIcon from 'react-native-vector-icons/Ionicons';
+import { ArrowRight } from 'iconsax-react-native'
+import { colors } from '../../constants/colors'
+import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth'
+import GGAndFbComponent from '../../components/layouts/GGAndFbComponent'
 
 const LoginScreen = () => {
     const [Email, setEmail] = useState<string>('');
@@ -31,7 +37,7 @@ const LoginScreen = () => {
     }
 
     return (
-        <ContainerComponent isHeader back>
+        <ContainerComponent isHeader back isScroll>
             <SpaceComponent height={20} />
 
             {/* Section Tille */}
@@ -67,7 +73,11 @@ const LoginScreen = () => {
                 />
             </SectionComponent>
 
-            <SpaceComponent height={30} />
+            <SpaceComponent height={10} />
+
+            <ButtonScreenSwitchAuth text='Forgot your password'/>
+
+            <SpaceComponent height={20} />
 
             {/* Section Button Login */}
             <SectionComponent>
@@ -76,6 +86,12 @@ const LoginScreen = () => {
                     onPress={() => handleLogin()}
                 />
             </SectionComponent>
+
+            <GGAndFbComponent 
+            text='Or login with social account'
+            marginTop={194}
+            />
+
         </ContainerComponent>
     )
 }

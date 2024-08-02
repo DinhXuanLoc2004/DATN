@@ -22,10 +22,6 @@ export function validatePhoneNumber(phoneNumber: string): boolean {
   return phoneRegex.test(phoneNumber);
 }
 //
-export function validateName(name: string): boolean {
-  const nameRegex = /^[a-zA-Z\s]+$/;
-  return nameRegex.test(name) && name.trim().length > 0;
-}
 
 export function validateConfirmPassword(
   password: string,
@@ -70,13 +66,13 @@ export const handleTextInput = (
       return messageError;
     }
   }
-  //
+
   if (key === 'name') {
-    if (validateName(value)) {
-      return Success;
+    if (value === '' || !value) {
+      messageError = 'Please enter name information'
+      return messageError
     } else {
-      messageError = `Invalid ${key}! Name must contain only letters and spaces.`;
-      return messageError;
+      return Success
     }
   }
 
@@ -88,5 +84,6 @@ export const handleTextInput = (
       return messageError;
     }
   }
+
   return '';
 };

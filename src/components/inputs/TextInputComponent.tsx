@@ -1,5 +1,5 @@
 import { StyleProp, StyleSheet, Text, TextInput, TouchableOpacity, View, ViewStyle } from 'react-native'
-import React, { FC, ReactNode, useState } from 'react'
+import React, { FC, ReactNode, useState, memo } from 'react'
 import { globalStyles } from '../../styles/globalStyle'
 import { colors } from '../../constants/colors'
 import TextComponent from '../texts/TextComponent'
@@ -131,7 +131,7 @@ const TextInputComponent: FC<Props> = ({ value, onChange, plahoder, isPassword, 
     )
 }
 
-export default TextInputComponent
+export default memo(TextInputComponent)
 
 const styles = StyleSheet.create({
     label: {
