@@ -18,7 +18,7 @@ const ButtonScreenSwitchAuth: FC<Props> = ({text, onPress}) => {
     <SectionComponent>
       <RowComponent justify="flex-end">
         <TouchableOpacity onPress={onPress}>
-          <RowComponent justify="flex-start">
+          <RowComponent justify="flex-start" style={{alignItems: 'center'}}>
             <TextComponent text={text} size={14} font={fontFamilies.regular} />
             <SpaceComponent width={5} />
             <ArrowRight

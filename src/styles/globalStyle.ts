@@ -14,11 +14,13 @@ export const globalStyles = StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.Primary_Color,
     // Shadow for iOS
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4}, 
-    shadowOpacity: 0.3, 
-    shadowRadius: 4.65, 
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
     // Elevation for Android
     elevation: 4,
   },
@@ -30,9 +32,9 @@ export const globalStyles = StyleSheet.create({
     borderRadius: 8,
     // Shadow for iOS
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4}, 
-    shadowOpacity: 0.3, 
-    shadowRadius: 4.65, 
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
     // Elevation for Android
     elevation: 3,
   },
