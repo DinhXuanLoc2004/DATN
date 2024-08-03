@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
   SafeAreaView,
@@ -12,11 +12,9 @@ import {
 import LoginScreen from './src/screens/auths/LoginScreen';
 import RegisterScreen from './src/screens/auths/RegisterScreen';
 function App(): React.JSX.Element {
-
   return (
     <SafeAreaView style={{flex: 1}}>
-      <StatusBar/>
-      <LoginScreen/>
+      <StatusBar />
     </SafeAreaView>
   );
 }
