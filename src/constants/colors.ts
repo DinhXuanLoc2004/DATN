@@ -8,5 +8,6 @@ export const colors = {
     Success_Color: '#2AA952',
     Error_Color: '#F01F0E',
     Star_Color: '#FFBA49',
+    Gray_Color: '#9B9B9B'
 }
 
