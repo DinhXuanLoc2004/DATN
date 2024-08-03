@@ -1,16 +1,15 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import ContainerComponent from '../../components/layouts/ContainerComponent';
-import TextComponent from '../../components/texts/TextComponent';
-import TitleComponent from '../../components/texts/TitleComponent';
-import {fontFamilies} from '../../constants/fontFamilies';
-import SpaceComponent from '../../components/layouts/SpaceComponent';
-import TextInputComponent from '../../components/inputs/TextInputComponent';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import ButtonComponent from '../../components/buttons/ButtonComponent';
-import {handleTextInput, Success} from '../../utils/handleTextInput';
-import SectionComponent from '../../components/layouts/SectionComponent';
-import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
 import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
+import TextInputComponent from '../../components/inputs/TextInputComponent';
+import ContainerComponent from '../../components/layouts/ContainerComponent';
+import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
+import SectionComponent from '../../components/layouts/SectionComponent';
+import SpaceComponent from '../../components/layouts/SpaceComponent';
+import TitleComponent from '../../components/texts/TitleComponent';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { handleTextInput, Success } from '../../utils/handleTextInput';
 
 const RegisterScreen = () => {
   const [Name, setName] = useState<string>('');
@@ -106,16 +105,13 @@ const RegisterScreen = () => {
 
       <SpaceComponent height={16} />
 
-      <ButtonScreenSwitchAuth text='Already have an account?'/>
+      <ButtonScreenSwitchAuth text="Already have an account?" />
 
-      <SpaceComponent height={28}/>
+      <SpaceComponent height={28} />
 
       {/* Section Button Sign up */}
       <SectionComponent>
-        <ButtonComponent 
-        text="SIGN UP" 
-        onPress={() => handleLogin()} 
-        />
+        <ButtonComponent text="SIGN UP" onPress={() => handleLogin()} />
       </SectionComponent>
 
       <GGAndFbComponent text="Or sign up with social account" marginTop={54} />

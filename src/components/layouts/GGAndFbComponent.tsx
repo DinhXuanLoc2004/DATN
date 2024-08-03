@@ -1,13 +1,13 @@
-import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
-import React, {FC} from 'react';
-import SectionComponent from './SectionComponent';
-import TextComponent from '../texts/TextComponent';
-import {globalStyles} from '../../styles/globalStyle';
-import SpaceComponent from './SpaceComponent';
-import RowComponent from './RowComponent';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
+import React, { FC } from 'react';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { globalStyles } from '../../styles/globalStyle';
+import TextComponent from '../texts/TextComponent';
+import RowComponent from './RowComponent';
+import SectionComponent from './SectionComponent';
+import SpaceComponent from './SpaceComponent';
 
 interface Props {
   text: string;
