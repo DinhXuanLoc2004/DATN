@@ -1,13 +1,10 @@
-import { View, Text, ViewStyle } from 'react-native'
-import React, { FC } from 'react'
-import { ViewProps } from 'react-native-svg/lib/typescript/fabric/utils'
+import React, {FC} from 'react';
+import {View, ViewStyle} from 'react-native';
 
-type Props = Pick<ViewStyle, 'width' | 'height'>
+type Props = Pick<ViewStyle, 'width' | 'height'>;
 
 const SpaceComponent: FC<Props> = ({width, height}) => {
-  return (
-    <View style={{width: width, height: height}}/>
-  )
-}
+  return <View style={{width: width, height: height}} />;
+};
 
-export default SpaceComponent
+export default SpaceComponent;

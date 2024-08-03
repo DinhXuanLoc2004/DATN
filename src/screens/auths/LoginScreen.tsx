@@ -1,20 +1,15 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import { StyleSheet } from 'react-native'
+import ButtonComponent from '../../components/buttons/ButtonComponent'
+import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth'
+import TextInputComponent from '../../components/inputs/TextInputComponent'
 import ContainerComponent from '../../components/layouts/ContainerComponent'
-import TextComponent from '../../components/texts/TextComponent'
+import GGAndFbComponent from '../../components/layouts/GGAndFbComponent'
+import SectionComponent from '../../components/layouts/SectionComponent'
+import SpaceComponent from '../../components/layouts/SpaceComponent'
 import TitleComponent from '../../components/texts/TitleComponent'
 import { fontFamilies } from '../../constants/fontFamilies'
-import SpaceComponent from '../../components/layouts/SpaceComponent'
-import TextInputComponent from '../../components/inputs/TextInputComponent'
-import ButtonComponent from '../../components/buttons/ButtonComponent'
 import { handleTextInput, Success } from '../../utils/handleTextInput'
-import SectionComponent from '../../components/layouts/SectionComponent'
-import RowComponent from '../../components/layouts/RowComponent'
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import { ArrowRight } from 'iconsax-react-native'
-import { colors } from '../../constants/colors'
-import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth'
-import GGAndFbComponent from '../../components/layouts/GGAndFbComponent'
 
 const LoginScreen = () => {
     const [Email, setEmail] = useState<string>('');

@@ -1,10 +1,9 @@
-import {View, Text, StyleProp, ViewStyle, TouchableOpacity, ActivityIndicator} from 'react-native';
-import React, {FC} from 'react';
-import {globalStyles} from '../../styles/globalStyle';
+import React, { FC } from 'react';
+import { ActivityIndicator, StyleProp, TouchableOpacity, ViewStyle } from 'react-native';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { globalStyles } from '../../styles/globalStyle';
 import TextComponent from '../texts/TextComponent';
-import {fontFamilies} from '../../constants/fontFamilies';
-import {colors} from '../../constants/colors';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
 interface Props {
   text: string;

@@ -1,10 +1,10 @@
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import React, {FC, memo} from 'react';
-import {colors} from '../../constants/colors';
-import RowComponent from './RowComponent';
+import {StyleSheet, TouchableOpacity} from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import TextComponent from '../texts/TextComponent';
+import {colors} from '../../constants/colors';
 import {fontFamilies} from '../../constants/fontFamilies';
+import TextComponent from '../texts/TextComponent';
+import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
 
 interface Props {
