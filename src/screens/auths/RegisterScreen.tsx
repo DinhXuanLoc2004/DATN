@@ -106,16 +106,13 @@ const RegisterScreen = () => {
 
       <SpaceComponent height={16} />
 
-      <ButtonScreenSwitchAuth text='Already have an account?'/>
+      <ButtonScreenSwitchAuth text="Already have an account?" />
 
-      <SpaceComponent height={28}/>
+      <SpaceComponent height={28} />
 
       {/* Section Button Sign up */}
       <SectionComponent>
-        <ButtonComponent 
-        text="SIGN UP" 
-        onPress={() => handleLogin()} 
-        />
+        <ButtonComponent text="SIGN UP" onPress={() => handleLogin()} />
       </SectionComponent>
 
       <GGAndFbComponent text="Or sign up with social account" marginTop={54} />

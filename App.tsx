@@ -9,12 +9,12 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import LoginScreen from './src/screens/auths/LoginScreen';
-import RegisterScreen from './src/screens/auths/RegisterScreen';
+import ItemFavoriteComponent from './src/components/layouts/ItemFavoriteComponent';
 function App(): React.JSX.Element {
   return (
     <SafeAreaView style={{flex: 1}}>
       <StatusBar />
+      <ItemFavoriteComponent></ItemFavoriteComponent>
     </SafeAreaView>
   );
 }
