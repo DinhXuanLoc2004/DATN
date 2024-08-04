@@ -69,6 +69,6 @@ export default memo(StarComponent);
 
 const styles = StyleSheet.create({
   icon: {
-    marginHorizontal: 2,
+    marginEnd: 3.5,
   },
 });

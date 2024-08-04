@@ -10,7 +10,7 @@ interface Props {
   font?: string;
   color?: string;
   line?: number;
-  heightLine?: number;
+  lineHeight?: number;
   style?: StyleProp<TextStyle>;
   flex?: number;
 }
@@ -21,7 +21,7 @@ const TextComponent: FC<Props> = ({
   font,
   color,
   line,
-  heightLine,
+  lineHeight,
   style,
   flex,
 }) => {
@@ -34,6 +34,7 @@ const TextComponent: FC<Props> = ({
           fontFamily: font ?? fontFamilies.regular,
           color: color ?? colors.Text_Color,
           flex: flex ?? 0,
+          lineHeight: lineHeight ?? size,
         },
         style,
       ]}>
