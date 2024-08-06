@@ -1,15 +1,15 @@
 import React, {FC} from 'react';
-import {StyleSheet, Image} from 'react-native';
+import {Image, StyleSheet} from 'react-native';
 
-import SectionComponent from './SectionComponent';
-import RowComponent from './RowComponent';
-import SpaceComponent from './SpaceComponent';
-import StarComponent from './StarComponent';
+import IonIcon from 'react-native-vector-icons/AntDesign';
+import IonIcon1 from 'react-native-vector-icons/Entypo';
+import {fontFamilies} from '../../constants/fontFamilies';
 import TextComponent from '../texts/TextComponent';
 import TitleComponent from '../texts/TitleComponent';
-import IonIcon from 'react-native-vector-icons/AntDesign';
-import {fontFamilies} from '../../constants/fontFamilies';
-import IonIcon1 from 'react-native-vector-icons/Entypo';
+import RowComponent from './RowComponent';
+import SectionComponent from './SectionComponent';
+import SpaceComponent from './SpaceComponent';
+import StarComponent from './StarComponent';
 
 interface ItemFavoriteComponentProps {
   product: {
@@ -29,22 +29,23 @@ interface ItemFavoriteComponentProps {
 }
 
 const ItemFavoriteComponent: FC<ItemFavoriteComponentProps> = ({
-  trademark = 'Longsleeve Violeta',
-  category = 'Shirt',
-  price = 10,
-  color = 'white',
-  size = 'L',
-  discount = 10,
-  stock = 1,
-  star = 4,
-  status = 'NEW',
+  id,
+  trademark,
+  category,
+  price,
+  color,
+  size,
+  discount,
+  stock,
+  star,
+  status,
   onFavoriteToggle,
 }) => {
   const newPrice = price * (1 - discount / 100);
   const isOutOfStock = stock === 0;
 
   return (
-    <SectionComponent style={{backgroundColor:'white'}}>
+    <SectionComponent style={{backgroundColor: 'white'}}>
       <SectionComponent
         style={[styles.container, isOutOfStock && styles.outOfStock]}>
         <SectionComponent style={styles.imageContainer}>
