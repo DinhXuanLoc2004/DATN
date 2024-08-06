@@ -1,14 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect, useState } from 'react'
+import { StyleSheet } from 'react-native'
+import ButtonComponent from '../../components/buttons/ButtonComponent'
+import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth'
+import TextInputComponent from '../../components/inputs/TextInputComponent'
 import ContainerComponent from '../../components/layouts/ContainerComponent'
-import TextComponent from '../../components/texts/TextComponent'
+import GGAndFbComponent from '../../components/layouts/GGAndFbComponent'
+import SectionComponent from '../../components/layouts/SectionComponent'
+import SpaceComponent from '../../components/layouts/SpaceComponent'
 import TitleComponent from '../../components/texts/TitleComponent'
 import { fontFamilies } from '../../constants/fontFamilies'
-import SpaceComponent from '../../components/layouts/SpaceComponent'
-import TextInputComponent from '../../components/inputs/TextInputComponent'
-import ButtonComponent from '../../components/buttons/ButtonComponent'
 import { handleTextInput, Success } from '../../utils/handleTextInput'
-import SectionComponent from '../../components/layouts/SectionComponent'
 
 const LoginScreen = () => {
     const [Email, setEmail] = useState<string>('');
@@ -31,9 +32,9 @@ const LoginScreen = () => {
     }
 
     return (
-        <ContainerComponent isHeader back>
-            <SpaceComponent height={20} />
-
+        <ContainerComponent isHeader back isScroll>
+            <SpaceComponent height={18} />
+            
             {/* Section Tille */}
             <SectionComponent>
                 <TitleComponent
@@ -43,7 +44,7 @@ const LoginScreen = () => {
                 />
             </SectionComponent>
 
-            <SpaceComponent height={30} />
+            <SpaceComponent height={68}/>
 
             {/* Section Input */}
             <SectionComponent>
@@ -67,7 +68,11 @@ const LoginScreen = () => {
                 />
             </SectionComponent>
 
-            <SpaceComponent height={30} />
+            <SpaceComponent height={16} />
+
+            <ButtonScreenSwitchAuth text='Forgot your password'/>
+
+            <SpaceComponent height={32} />
 
             {/* Section Button Login */}
             <SectionComponent>
@@ -76,6 +81,12 @@ const LoginScreen = () => {
                     onPress={() => handleLogin()}
                 />
             </SectionComponent>
+
+            <GGAndFbComponent 
+            text='Or login with social account'
+            marginTop={194}
+            />
+
         </ContainerComponent>
     )
 }
