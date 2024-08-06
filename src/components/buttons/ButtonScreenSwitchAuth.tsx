@@ -1,12 +1,12 @@
-import {View, Text, TouchableOpacity} from 'react-native';
-import React, {FC} from 'react';
-import SectionComponent from '../layouts/SectionComponent';
+import { ArrowRight } from 'iconsax-react-native';
+import React, { FC } from 'react';
+import { TouchableOpacity } from 'react-native';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
 import RowComponent from '../layouts/RowComponent';
-import TextComponent from '../texts/TextComponent';
+import SectionComponent from '../layouts/SectionComponent';
 import SpaceComponent from '../layouts/SpaceComponent';
-import {ArrowRight} from 'iconsax-react-native';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
+import TextComponent from '../texts/TextComponent';
 
 interface Props {
   text: string;

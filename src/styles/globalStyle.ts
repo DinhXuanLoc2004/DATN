@@ -3,6 +3,12 @@ import {colors} from '../constants/colors';
 import {fontFamilies} from '../constants/fontFamilies';
 
 export const globalStyles = StyleSheet.create({
+  linearGradient: {
+    width: '100%',
+    height: 50,
+    position: 'absolute',
+    bottom: 0
+  },
   containerGGAndFB: {
     flex: 1,
     justifyContent: 'flex-end',
