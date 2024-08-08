@@ -1,11 +1,10 @@
-import React, {FC, memo} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import React, { FC, memo } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
 import TextComponent from '../texts/TextComponent';
 import RowComponent from './RowComponent';
-import SpaceComponent from './SpaceComponent';
 
 interface Props {
   star?: number;
@@ -13,6 +12,7 @@ interface Props {
   maxStar?: number;
   onPress?: (star: number) => void;
   numberReviews?: number;
+  flex?: number
 }
 
 const StarComponent: FC<Props> = ({
@@ -21,11 +21,12 @@ const StarComponent: FC<Props> = ({
   maxStar,
   onPress,
   numberReviews,
+  flex
 }) => {
   const roudingStar = Math.floor(star ?? 1);
   const lengthListStar = maxStar ?? 5;
   return (
-    <RowComponent>
+    <RowComponent flex={flex} justify='flex-start'>
       {Array.from({length: lengthListStar}).map((_, index) => (
         <TouchableOpacity
           key={index}
@@ -52,13 +53,14 @@ const StarComponent: FC<Props> = ({
       ))}
       {numberReviews && (
         <RowComponent>
-          <SpaceComponent width={2} />
-          <TextComponent
-            text={`(${numberReviews})`}
-            size={10}
-            font={fontFamilies.regular}
-            color={colors.Gray_Color}
-          />
+          <View>
+            <TextComponent
+              text={` (${numberReviews})`}
+              size={10}
+              font={fontFamilies.regular}
+              color={colors.Gray_Color}
+            />
+          </View>
         </RowComponent>
       )}
     </RowComponent>
