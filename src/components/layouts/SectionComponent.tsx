@@ -1,17 +1,21 @@
-import React, { FC, ReactNode } from 'react'
-import { StyleProp, View, ViewStyle } from 'react-native'
+import React, {FC, memo, ReactNode} from 'react';
+import {StyleProp, TouchableOpacity, View, ViewStyle} from 'react-native';
 
 interface Props {
-    children: ReactNode,
-    style?: StyleProp<ViewStyle>
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  flex?: number;
+  onPress?: () => void;
 }
 
-const SectionComponent: FC<Props> = ({children, style}) => {
-  return (
-    <View style={[{flex: 1},style]}>
+const SectionComponent: FC<Props> = ({children, style, flex, onPress}) => {
+  return onPress ? (
+    <TouchableOpacity style={[{flex: flex ?? 1}, style]}>
       {children}
-    </View>
-  )
-}
+    </TouchableOpacity>
+  ) : (
+    <View style={[{flex: flex ?? 1}, style]}>{children}</View>
+  );
+};
 
-export default SectionComponent
+export default memo(SectionComponent);

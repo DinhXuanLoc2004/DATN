@@ -14,14 +14,16 @@ interface Props {
     | undefined;
     onPress?: () => void;
     style?: StyleProp<ViewStyle>;
-    disable?: boolean
+    disable?: boolean,
+    flex?: number
 }
 
-const RowComponent: FC<Props> = ({ children, justify, onPress, style, disable }) => {
+const RowComponent: FC<Props> = ({ children, justify, onPress, style, disable, flex }) => {
     const LocalStyle = [
         globalStyles.row,
         {
             justifyContent: justify ?? 'center',
+            flex: flex ?? 0
         },
         style
     ]

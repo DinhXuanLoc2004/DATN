@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet } from 'react-native';
+import React, {useEffect, useRef} from 'react';
+import {Animated, StyleSheet} from 'react-native';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
 import HeaderAnimatinonComponent from '../../../components/layouts/HeaderAnimatinonComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';

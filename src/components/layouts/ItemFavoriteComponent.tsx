@@ -1,211 +1,188 @@
 import React, {FC} from 'react';
-import {Image, StyleSheet} from 'react-native';
-
+import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
 import IonIcon from 'react-native-vector-icons/AntDesign';
-import IonIcon1 from 'react-native-vector-icons/Entypo';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {colors} from '../../constants/colors';
 import {fontFamilies} from '../../constants/fontFamilies';
 import TextComponent from '../texts/TextComponent';
-import TitleComponent from '../texts/TitleComponent';
+import NewOrDiscountComponent from './NewOrDiscountComponent';
 import RowComponent from './RowComponent';
+import SalePriceComponent from './SalePriceComponent';
 import SectionComponent from './SectionComponent';
 import SpaceComponent from './SpaceComponent';
 import StarComponent from './StarComponent';
 
-interface ItemFavoriteComponentProps {
-  product: {
-    id: string;
-    trademark: string;
-    category: string;
-    price: number;
-    color: string;
-    size: string;
-    stock: number;
-    star: number;
-    discount: number;
-    status: string;
-    isFavorite: boolean;
-  };
+interface Props {
+  id: string;
+  trademark: string;
+  name: string;
+  price: number;
+  color: string;
+  size: string;
+  stock: number;
+  star: number;
+  numberReviews: number;
+  discount: number;
+  createAt: Date;
+  img: string;
+  isFavorite: boolean;
   onFavoriteToggle: () => void;
 }
 
-const ItemFavoriteComponent: FC<ItemFavoriteComponentProps> = ({
+const ItemFavoriteComponent: FC<Props> = ({
   id,
   trademark,
-  category,
+  name,
   price,
   color,
   size,
   discount,
   stock,
   star,
-  status,
+  img,
+  createAt,
+  numberReviews,
   onFavoriteToggle,
 }) => {
-  const newPrice = price * (1 - discount / 100);
-  const isOutOfStock = stock === 0;
-
   return (
-    <SectionComponent style={{backgroundColor: 'white'}}>
-      <SectionComponent
-        style={[styles.container, isOutOfStock && styles.outOfStock]}>
-        <SectionComponent style={styles.imageContainer}>
-          <Image
-            source={{
-              uri: 'https://cdn.pixabay.com/photo/2022/05/22/16/50/outdoors-7213961_1280.jpg',
-            }}
-            style={styles.image}
-          />
-          {discount > 0 ? (
-            <TitleComponent
-              text={`-${discount}%`}
-              size={11}
-              color="white"
-              style={styles.discountLabel}
+    <SectionComponent style={{opacity: stock === 0 ? 0.5 : 1}}>
+      <SectionComponent style={styles.container}>
+        <RowComponent justify="space-between" style={styles.containerItem}>
+          <View style={styles.imageContainer}>
+            <Image source={{uri: img}} style={styles.image} />
+            <NewOrDiscountComponent
+              discount={discount}
+              createAt={createAt}
+              top={5}
+              left={4}
             />
-          ) : (
-            <TitleComponent
-              text={status}
-              size={11}
-              color="white"
-              style={styles.statusLabel}
-            />
-          )}
-        </SectionComponent>
-        <SectionComponent style={styles.detailsContainer}>
-          <IonIcon
-            name="close"
-            size={24}
-            style={{position: 'absolute', right: 1, top: 0}}
-          />
-          {!isOutOfStock && (
-            <SectionComponent
-              style={{position: 'absolute', bottom: -30, right: 0}}>
-              <IonIcon1
-                name="shopping-bag"
-                size={16}
-                color="white"
-                style={{
-                  backgroundColor: '#DB3022',
-                  padding: 10,
-                  borderRadius: 50,
-                }}
-              />
-            </SectionComponent>
-          )}
+          </View>
+          <SectionComponent style={styles.detailsContainer}>
+            <TouchableOpacity
+              style={{position: 'absolute', right: 10, top: 15}}>
+              <IonIcon name="close" size={24} />
+            </TouchableOpacity>
 
-          <TitleComponent
-            text={category}
-            font={fontFamilies.regular}
-            size={11}
-          />
-          <TitleComponent text={trademark} size={16} />
-          <RowComponent justify="flex-start">
-            <TitleComponent
-              text="Color:"
-              color="gray"
-              font={fontFamilies.regular}
-              size={11}
-            />
-            <TitleComponent
-              text={color}
-              size={11}
-              color="black"
-              font={fontFamilies.regular}
-            />
-            <SpaceComponent width={30} />
-
-            <TitleComponent
-              text="Size:"
-              color="gray"
-              font={fontFamilies.regular}
-              size={11}
-            />
-            <TitleComponent text={size} size={11} font={fontFamilies.regular} />
-          </RowComponent>
-          <SpaceComponent height={10} />
-
-          <RowComponent justify="flex-start">
-            {discount > 0 && (
-              <TextComponent
-                color="gray"
-                size={14}
-                font={fontFamilies.medium}
-                text={`${price}$`}
-                style={styles.originalPrice}
-              />
-            )}
-            <SpaceComponent width={10} />
             <TextComponent
-              color="red"
-              size={14}
-              font={fontFamilies.medium}
-              text={`${discount > 0 ? newPrice.toFixed(2) : price.toFixed(2)}$`}
-            />
-
-            <SectionComponent style={{position: 'absolute', left: 90}}>
-              <StarComponent star={star} />
-            </SectionComponent>
-            <TextComponent
-              style={{position: 'absolute', right: 40}}
-              text={`(${star})`}
-              size={10}
+              text={trademark}
               font={fontFamilies.regular}
+              color={colors.Gray_Color}
+              size={11}
             />
-          </RowComponent>
-        </SectionComponent>
+            <SpaceComponent height={3} />
+            <TextComponent text={name} font={fontFamilies.semiBold} />
+            <SpaceComponent height={8} />
+            <RowComponent justify="space-between">
+              <RowComponent justify="flex-start" flex={1}>
+                <TextComponent
+                  text="Color: "
+                  color={colors.Gray_Color}
+                  font={fontFamilies.regular}
+                  size={11}
+                />
+                <TextComponent
+                  text={color}
+                  size={11}
+                  color={colors.Text_Color}
+                  font={fontFamilies.regular}
+                />
+              </RowComponent>
+              <RowComponent justify="flex-start" flex={1}>
+                <TextComponent
+                  text="Size: "
+                  color={colors.Gray_Color}
+                  font={fontFamilies.regular}
+                  size={11}
+                />
+                <TextComponent
+                  text={size}
+                  size={11}
+                  font={fontFamilies.regular}
+                />
+              </RowComponent>
+              <View style={{flex: 1}} />
+            </RowComponent>
+            <SpaceComponent height={12} />
+            <RowComponent justify="space-between">
+              <SalePriceComponent discount={discount} price={price} flex={1} />
+              <StarComponent
+                star={star}
+                numberReviews={numberReviews}
+                flex={1}
+              />
+              <View style={{flex: 1}} />
+            </RowComponent>
+          </SectionComponent>
+        </RowComponent>
+        {stock > 0 && (
+          <SectionComponent
+            onPress={() => {}}
+            style={styles.containerIconShopping}>
+            <FontAwesome5
+              name="shopping-bag"
+              size={16}
+              color={colors.White_Color}
+            />
+          </SectionComponent>
+        )}
       </SectionComponent>
-
-      {isOutOfStock && (
-        <TextComponent
-          color="lightgray"
-          size={12}
-          text="Sorry, this item is currently sold out"
-        />
+      {stock === 0 && (
+        <View>
+          <SpaceComponent height={7} />
+          <TextComponent
+            text="Sorry, this item is currently sold out"
+            size={11}
+            color={colors.Text_Color}
+          />
+        </View>
       )}
     </SectionComponent>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
+  containerIconShopping: {
+    width: 36,
+    height: 36,
+    borderRadius: 100,
+    backgroundColor: colors.Primary_Color,
+    position: 'absolute',
     alignItems: 'center',
-    borderRadius: 5,
+    justifyContent: 'center',
+    end: 0,
+    bottom: -18,
+    // Shadow for iOS
+    shadowColor: colors.Primary_Color,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.3,
+    shadowRadius: 4.65,
+    // Elevation for Android
+    elevation: 3,
+  },
+  containerItem: {
+    height: 116,
+    alignItems: 'flex-start',
+  },
+  container: {
+    width: '100%',
+    height: 'auto',
+    backgroundColor: colors.White_Color,
+    borderRadius: 8,
+    flex: 0,
   },
   imageContainer: {
-    position: 'relative',
+    width: 116,
+    height: '100%',
   },
   image: {
-    width: 116,
-    height: 104,
+    flex: 1,
     borderTopLeftRadius: 8,
     borderBottomLeftRadius: 8,
   },
-  discountLabel: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'red',
-    padding: 5,
-    borderRadius: 50,
-  },
-  statusLabel: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'black',
-    padding: 5,
-    borderRadius: 50,
-  },
   detailsContainer: {
     flex: 1,
-    marginLeft: 10,
-  },
-  originalPrice: {
-    textDecorationLine: 'line-through',
-  },
-  outOfStock: {
-    opacity: 0.5,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
   },
 });
 
