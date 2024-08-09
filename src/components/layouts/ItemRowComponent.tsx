@@ -1,10 +1,11 @@
 import React, {FC} from 'react';
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import IonIcon from 'react-native-vector-icons/AntDesign';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {Image, StyleSheet, View} from 'react-native';
 import {colors} from '../../constants/colors';
 import {fontFamilies} from '../../constants/fontFamilies';
+import TextColorAndSizeComponent from '../texts/TextColorAndSizeComponent';
 import TextComponent from '../texts/TextComponent';
+import IconBagOrFavoriteComponent from './IconBagOrFavoriteComponent';
+import IconDeleteItemComponent from './IconDeleteItemComponent';
 import NewOrDiscountComponent from './NewOrDiscountComponent';
 import RowComponent from './RowComponent';
 import SalePriceComponent from './SalePriceComponent';
@@ -13,7 +14,7 @@ import SpaceComponent from './SpaceComponent';
 import StarComponent from './StarComponent';
 
 interface Props {
-  id: string;
+  id?: string;
   trademark: string;
   name: string;
   price: number;
@@ -26,10 +27,11 @@ interface Props {
   createAt: Date;
   img: string;
   isFavorite: boolean;
-  onFavoriteToggle: () => void;
+  onFavoriteToggle?: () => void;
+  isItemFavorite?: boolean;
 }
 
-const ItemFavoriteComponent: FC<Props> = ({
+const ItemRowComponent: FC<Props> = ({
   id,
   trademark,
   name,
@@ -43,6 +45,8 @@ const ItemFavoriteComponent: FC<Props> = ({
   createAt,
   numberReviews,
   onFavoriteToggle,
+  isFavorite,
+  isItemFavorite,
 }) => {
   return (
     <SectionComponent style={{opacity: stock === 0 ? 0.5 : 1}}>
@@ -58,11 +62,7 @@ const ItemFavoriteComponent: FC<Props> = ({
             />
           </View>
           <SectionComponent style={styles.detailsContainer}>
-            <TouchableOpacity
-              style={{position: 'absolute', right: 10, top: 15}}>
-              <IonIcon name="close" size={24} />
-            </TouchableOpacity>
-
+            {isItemFavorite && <IconDeleteItemComponent />}
             <TextComponent
               text={trademark}
               font={fontFamilies.regular}
@@ -72,58 +72,34 @@ const ItemFavoriteComponent: FC<Props> = ({
             <SpaceComponent height={3} />
             <TextComponent text={name} font={fontFamilies.semiBold} />
             <SpaceComponent height={8} />
-            <RowComponent justify="space-between">
-              <RowComponent justify="flex-start" flex={1}>
-                <TextComponent
-                  text="Color: "
-                  color={colors.Gray_Color}
-                  font={fontFamilies.regular}
-                  size={11}
-                />
-                <TextComponent
-                  text={color}
-                  size={11}
-                  color={colors.Text_Color}
-                  font={fontFamilies.regular}
-                />
-              </RowComponent>
-              <RowComponent justify="flex-start" flex={1}>
-                <TextComponent
-                  text="Size: "
-                  color={colors.Gray_Color}
-                  font={fontFamilies.regular}
-                  size={11}
-                />
-                <TextComponent
-                  text={size}
-                  size={11}
-                  font={fontFamilies.regular}
-                />
-              </RowComponent>
-              <View style={{flex: 1}} />
-            </RowComponent>
-            <SpaceComponent height={12} />
-            <RowComponent justify="space-between">
-              <SalePriceComponent discount={discount} price={price} flex={1} />
+            {isItemFavorite ? (
+              <TextColorAndSizeComponent color={color} size={size} />
+            ) : (
               <StarComponent
                 star={star}
                 numberReviews={numberReviews}
                 flex={1}
               />
+            )}
+            <SpaceComponent height={12} />
+            <RowComponent justify="space-between">
+              <SalePriceComponent discount={discount} price={price} flex={1} />
+              {isItemFavorite && (
+                <StarComponent
+                  star={star}
+                  numberReviews={numberReviews}
+                  flex={1}
+                />
+              )}
               <View style={{flex: 1}} />
             </RowComponent>
           </SectionComponent>
         </RowComponent>
         {stock > 0 && (
-          <SectionComponent
-            onPress={() => {}}
-            style={styles.containerIconShopping}>
-            <FontAwesome5
-              name="shopping-bag"
-              size={16}
-              color={colors.White_Color}
-            />
-          </SectionComponent>
+          <IconBagOrFavoriteComponent
+            isFavorite={isFavorite}
+            isItemFavorite={isItemFavorite}
+          />
         )}
       </SectionComponent>
       {stock === 0 && (
@@ -141,24 +117,6 @@ const ItemFavoriteComponent: FC<Props> = ({
 };
 
 const styles = StyleSheet.create({
-  containerIconShopping: {
-    width: 36,
-    height: 36,
-    borderRadius: 100,
-    backgroundColor: colors.Primary_Color,
-    position: 'absolute',
-    alignItems: 'center',
-    justifyContent: 'center',
-    end: 0,
-    bottom: -18,
-    // Shadow for iOS
-    shadowColor: colors.Primary_Color,
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    // Elevation for Android
-    elevation: 3,
-  },
   containerItem: {
     height: 116,
     alignItems: 'flex-start',
@@ -186,4 +144,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ItemFavoriteComponent;
+export default ItemRowComponent;
