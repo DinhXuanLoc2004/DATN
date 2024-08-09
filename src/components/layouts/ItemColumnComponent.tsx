@@ -1,10 +1,13 @@
 import React, {FC} from 'react';
-import {Image, StyleSheet, TouchableOpacity} from 'react-native';
-import IonIcon from 'react-native-vector-icons/Ionicons';
+import {Image, StyleSheet} from 'react-native';
 import {colors} from '../../constants/colors';
 import {fontFamilies} from '../../constants/fontFamilies';
+import TextColorAndSizeComponent from '../texts/TextColorAndSizeComponent';
 import TextComponent from '../texts/TextComponent';
+import IconBagOrFavoriteComponent from './IconBagOrFavoriteComponent';
+import IconDeleteItemComponent from './IconDeleteItemComponent';
 import NewOrDiscountComponent from './NewOrDiscountComponent';
+import RowComponent from './RowComponent';
 import SalePriceComponent from './SalePriceComponent';
 import SectionComponent from './SectionComponent';
 import SpaceComponent from './SpaceComponent';
@@ -20,9 +23,13 @@ interface ItemProps {
   reviewCount?: number;
   createAt: Date;
   isFavorite?: boolean;
+  stock?: number;
+  isItemFavorite?: boolean;
+  color?: string;
+  size?: string;
 }
 
-const ItemHomeComponent: FC<ItemProps> = ({
+const ItemColumnComponent: FC<ItemProps> = ({
   imageUrl,
   name,
   trademark,
@@ -32,25 +39,34 @@ const ItemHomeComponent: FC<ItemProps> = ({
   reviewCount,
   createAt,
   isFavorite,
+  stock,
+  isItemFavorite,
+  color,
+  size,
 }) => {
   return (
-    <SectionComponent style={styles.container}>
+    <SectionComponent
+      style={[styles.container, {opacity: stock === 0 ? 0.5 : 1}]}>
       <SectionComponent style={{flex: 0}}>
         <Image source={{uri: imageUrl}} style={styles.image} />
         <NewOrDiscountComponent discount={discount} createAt={createAt} />
-        <SectionComponent style={styles.favoriteContainer}>
-          <TouchableOpacity onPress={() => {}} style={{}}>
-            {isFavorite ? (
-              <IonIcon name="heart" color={colors.Primary_Color} size={18} />
-            ) : (
-              <IonIcon
-                name="heart-outline"
-                color={colors.Gray_Color}
-                size={18}
-              />
-            )}
-          </TouchableOpacity>
-        </SectionComponent>
+        {stock !== 0 && (
+          <IconBagOrFavoriteComponent
+            isItemFavorite={isItemFavorite}
+            isFavorite={isFavorite}
+          />
+        )}
+        {stock === 0 && (
+          <RowComponent style={styles.containerTextSorry}>
+            <TextComponent
+              text="Sorry, this item is currently sold out"
+              size={11}
+            />
+          </RowComponent>
+        )}
+        {isItemFavorite && (
+          <IconDeleteItemComponent size={25} top={8} right={8} />
+        )}
       </SectionComponent>
       <SpaceComponent height={10} />
       <StarComponent star={star} size={14} numberReviews={reviewCount} />
@@ -58,23 +74,34 @@ const ItemHomeComponent: FC<ItemProps> = ({
       <TextComponent text={trademark} size={11} color={colors.Gray_Color} />
       <TextComponent text={name} font={fontFamilies.semiBold} />
       <SpaceComponent height={4} />
+      {isItemFavorite && (
+        <TextColorAndSizeComponent color={color ?? ''} size={size ?? ''} />
+      )}
       <SalePriceComponent price={price} discount={discount} />
     </SectionComponent>
   );
 };
 
-export default ItemHomeComponent;
+export default ItemColumnComponent;
 
 const styles = StyleSheet.create({
+  containerTextSorry: {
+    width: '100%',
+    padding: 10,
+    position: 'absolute',
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+  },
   image: {
     width: '100%',
-    height: 184,
+    height: 'auto',
     left: 1,
     borderRadius: 10,
+    aspectRatio: 0.8,
   },
   favoriteContainer: {
     position: 'absolute',
-    top: 164,
+    bottom: -18,
     end: -1,
     width: 36,
     height: 36,
@@ -85,7 +112,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   container: {
-    width: 148,
+    width: '50%',
     height: 'auto',
   },
 });
