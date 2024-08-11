@@ -4,11 +4,12 @@ import {
   StatusBar,
   StyleSheet
 } from 'react-native';
-
+import VerifyOTPScreen from './src/screens/auths/VerifyOTPScreen';
+VerifyOTPScreen
 function App(): React.JSX.Element {
   return (
     <SafeAreaView style={{flex: 1, padding: 20}}>
-      <StatusBar />
+      <VerifyOTPScreen />
     </SafeAreaView>
   );
 }

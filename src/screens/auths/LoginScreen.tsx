@@ -1,20 +1,20 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import ContainerComponent from '../../components/layouts/ContainerComponent'
-import TextComponent from '../../components/texts/TextComponent'
-import TitleComponent from '../../components/texts/TitleComponent'
-import { fontFamilies } from '../../constants/fontFamilies'
-import SpaceComponent from '../../components/layouts/SpaceComponent'
-import TextInputComponent from '../../components/inputs/TextInputComponent'
-import ButtonComponent from '../../components/buttons/ButtonComponent'
-import { handleTextInput, Success } from '../../utils/handleTextInput'
-import SectionComponent from '../../components/layouts/SectionComponent'
-import RowComponent from '../../components/layouts/RowComponent'
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import ContainerComponent from '../../components/layouts/ContainerComponent';
+import TextComponent from '../../components/texts/TextComponent';
+import TitleComponent from '../../components/texts/TitleComponent';
+import {fontFamilies} from '../../constants/fontFamilies';
+import SpaceComponent from '../../components/layouts/SpaceComponent';
+import TextInputComponent from '../../components/inputs/TextInputComponent';
+import ButtonComponent from '../../components/buttons/ButtonComponent';
+import {handleTextInput, Success} from '../../utils/handleTextInput';
+import SectionComponent from '../../components/layouts/SectionComponent';
+import RowComponent from '../../components/layouts/RowComponent';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { ArrowRight } from 'iconsax-react-native'
-import { colors } from '../../constants/colors'
-import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth'
-import GGAndFbComponent from '../../components/layouts/GGAndFbComponent'
+import {ArrowRight} from 'iconsax-react-native';
+import {colors} from '../../constants/colors';
+import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
+import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState<string>('');
@@ -36,18 +36,14 @@ const LoginScreen = () => {
     setErrorPassword(handleTextInput('password', Password));
   };
 
-    return (
-        <ContainerComponent isHeader back isScroll>
-            <SpaceComponent height={18} />
+  return (
+    <ContainerComponent isHeader back isScroll>
+      <SpaceComponent height={18} />
 
-            {/* Section Tille */}
-            <SectionComponent>
-                <TitleComponent
-                    text='Login'
-                    size={34}
-                    font={fontFamilies.bold}
-                />
-            </SectionComponent>
+      {/* Section Tille */}
+      <SectionComponent>
+        <TitleComponent text="Login" size={34} font={fontFamilies.bold} />
+      </SectionComponent>
 
       <SpaceComponent height={68} />
 
