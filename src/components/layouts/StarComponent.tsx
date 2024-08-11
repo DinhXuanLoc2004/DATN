@@ -1,5 +1,5 @@
 import React, { FC, memo } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
 import { fontFamilies } from '../../constants/fontFamilies';
@@ -12,7 +12,9 @@ interface Props {
   maxStar?: number;
   onPress?: (star: number) => void;
   numberReviews?: number;
-  flex?: number
+  flex?: number;
+  starOutline?: boolean;
+  style?: ViewStyle
 }
 
 const StarComponent: FC<Props> = ({
@@ -21,36 +23,35 @@ const StarComponent: FC<Props> = ({
   maxStar,
   onPress,
   numberReviews,
-  flex
+  flex,
+  starOutline = false,
+  style
 }) => {
   const roudingStar = Math.floor(star ?? 1);
   const lengthListStar = maxStar ?? 5;
+
   return (
-    <RowComponent flex={flex} justify='flex-start'>
-      {Array.from({length: lengthListStar}).map((_, index) => (
-        <TouchableOpacity
-          key={index}
-          disabled={onPress ? false : true}
-          onPress={() => {
-            onPress && onPress(index + 1);
-          }}>
-          {roudingStar >= index + 1 ? (
+    <RowComponent flex={flex} justify="flex-start" style={style}>
+      {Array.from({ length: lengthListStar }).map((_, index) => {
+        if (starOutline && roudingStar < index + 1) {
+          return null; // Ẩn staroutline nếu starOutline là true
+        }
+        return (
+          <TouchableOpacity
+            key={index}
+            disabled={!onPress}
+            onPress={() => {
+              onPress && onPress(index + 1);
+            }}>
             <IonIcon
-              name="star"
-              color={colors.Star_Color}
+              name={roudingStar >= index + 1 ? "star" : "star-outline"}
+              color={roudingStar >= index + 1 ? colors.Star_Color : colors.Gray_Color}
               size={size ?? 14}
               style={styles.icon}
             />
-          ) : (
-            <IonIcon
-              name="star-outline"
-              color={colors.Gray_Color}
-              size={size ?? 14}
-              style={styles.icon}
-            />
-          )}
-        </TouchableOpacity>
-      ))}
+          </TouchableOpacity>
+        );
+      })}
       {numberReviews && (
         <RowComponent>
           <View>
