@@ -55,44 +55,32 @@ const VerifyOTPScreen = () => {
       <SpaceComponent height={10} />
       <RowComponent justify="space-around" style={{right: 3, width: '100%'}}>
         <InputOTPComponent
-          maxLength={1}
-          keyboardType="number-pad"
           ref={number1}
           onChangeText={val => {
             val.length > 0 && number2.current?.focus();
             handleChangeCode(val, 0);
           }}
-          placeholder=""
         />
         <InputOTPComponent
-          maxLength={1}
-          keyboardType="number-pad"
           ref={number2}
           onChangeText={val => {
             val.length > 0 && number3.current?.focus();
             handleChangeCode(val, 1);
           }}
-          placeholder=""
         />
         <InputOTPComponent
-          maxLength={1}
-          keyboardType="number-pad"
           ref={number3}
           onChangeText={val => {
             val.length > 0 && number4.current?.focus();
             handleChangeCode(val, 2);
           }}
-          placeholder=""
         />
         <InputOTPComponent
-          maxLength={1}
-          keyboardType="number-pad"
           ref={number4}
           onChangeText={val => {
             val.length > 0 && console.log(newCode);
             handleChangeCode(val, 3);
           }}
-          placeholder=""
         />
       </RowComponent>
       <SpaceComponent height={73} />

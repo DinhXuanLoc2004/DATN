@@ -1,9 +1,10 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
 import {TextInput, StyleSheet} from 'react-native';
 import {fontFamilies} from '../../constants/fontFamilies';
+import { colors } from '../../constants/colors';
 
 const InputOTPComponent = forwardRef(
-  ({maxLength, keyboardType, onChangeText, placeholder, style}, ref) => {
+  ({maxLength=1, keyboardType ="number-pad", onChangeText, placeholder="", style}, ref) => {
     const inputRef = useRef(null);
     const [isFocused, setIsFocused] = useState(false);
 
@@ -23,7 +24,7 @@ const InputOTPComponent = forwardRef(
         style={[
           styles.input,
           style,
-          {borderColor: isFocused ? '#DB3022' : 'black'}, // Change border color based on focus
+          {borderColor: isFocused ? colors.Primary_Color : colors.Text_Color}, // Change border color based on focus
         ]}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
@@ -34,7 +35,6 @@ const InputOTPComponent = forwardRef(
 
 const styles = StyleSheet.create({
   input: {
-    borderColor: 'black',
     borderWidth: 1,
     width: 50,
     height: 45,
