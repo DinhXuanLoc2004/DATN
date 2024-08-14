@@ -4,6 +4,7 @@ import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
 import SectionComponent from './SectionComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   isItemFavorite?: boolean;
@@ -35,13 +36,13 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
       {isItemFavorite ? (
         <FontAwesome5Icon
           name="shopping-bag"
-          size={16}
+          size={handleSize(16)}
           color={colors.White_Color}
         />
       ) : isFavorite ? (
-        <IonIcon name="heart" color={colors.Primary_Color} size={18} />
+        <IonIcon name="heart" color={colors.Primary_Color} size={handleSize(18)} />
       ) : (
-        <IonIcon name="heart-outline" color={colors.Gray_Color} size={18} />
+        <IonIcon name="heart-outline" color={colors.Gray_Color} size={handleSize(18)} />
       )}
     </SectionComponent>
   );
@@ -51,8 +52,8 @@ export default IconBagOrFavoriteComponent;
 
 const styles = StyleSheet.create({
   containerIconShopping: {
-    width: 36,
-    height: 36,
+    width: handleSize(36),
+    height: handleSize(36),
     borderRadius: 100,
     position: 'absolute',
     alignItems: 'center',

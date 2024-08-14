@@ -5,6 +5,7 @@ import { colors } from '../../constants/colors';
 import { fontFamilies } from '../../constants/fontFamilies';
 import TextComponent from '../texts/TextComponent';
 import RowComponent from './RowComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   star?: number;
@@ -38,14 +39,14 @@ const StarComponent: FC<Props> = ({
             <IonIcon
               name="star"
               color={colors.Star_Color}
-              size={size ?? 14}
+              size={size ? handleSize(size) : 14}
               style={styles.icon}
             />
           ) : (
             <IonIcon
               name="star-outline"
               color={colors.Gray_Color}
-              size={size ?? 14}
+              size={size ? handleSize(size) : 14}
               style={styles.icon}
             />
           )}

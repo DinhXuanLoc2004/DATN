@@ -11,6 +11,7 @@ import {
 import Animated, {
   Extrapolation,
   interpolate,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -22,6 +23,7 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import {globalStyles} from '../../styles/globalStyle';
 import RowComponent from '../layouts/RowComponent';
 import TextComponent from '../texts/TextComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   value: string;
@@ -123,7 +125,7 @@ const TextInputComponent: FC<Props> = ({
             {!hidePassword ? (
               <IonIcon
                 name="eye-outline"
-                size={24}
+                size={handleSize(24)}
                 color={
                   isSuccess
                     ? colors.Success_Color
@@ -135,7 +137,7 @@ const TextInputComponent: FC<Props> = ({
             ) : (
               <IonIcon
                 name="eye-off-outline"
-                size={24}
+                size={handleSize(24)}
                 color={
                   isSuccess
                     ? colors.Success_Color
@@ -150,12 +152,12 @@ const TextInputComponent: FC<Props> = ({
           <TouchableOpacity onPress={() => onChange('')}>
             <AntDesign
               name="close"
-              size={24}
+              size={handleSize(24)}
               color={isError ? colors.Error_Color : colors.Text_Color}
             />
           </TouchableOpacity>
         ) : isSuccess ? (
-          <TickCircle size={24} color={colors.Success_Color} />
+          <TickCircle size={handleSize(24)} color={colors.Success_Color} />
         ) : (
           <View />
         )}
@@ -182,24 +184,16 @@ const styles = StyleSheet.create({
     opacity: 0,
     color: colors.Text_Color,
     fontFamily: fontFamilies.regular,
-    fontSize: 16,
+    fontSize: handleSize(16),
   },
   input: {
     padding: 0,
     margin: 0,
   },
-  container: {
-    // borderColor: 'black',
-    // flexDirection: 'row',
-    // alignItems: 'stretch',
-    // paddingVertical: 16,
-    // borderBottomWidth: 1,
-    // borderBottomColor: 'black',
-  },
   textInput: {
     flex: 1,
     fontFamily: fontFamilies.medium,
-    fontSize: 14,
+    fontSize: handleSize(14),
   },
   containerInput: {
     alignItems: 'center',

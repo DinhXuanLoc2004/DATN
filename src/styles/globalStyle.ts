@@ -1,11 +1,12 @@
 import {StyleSheet} from 'react-native';
 import {colors} from '../constants/colors';
 import {fontFamilies} from '../constants/fontFamilies';
+import { handleSize } from '../utils/handleSize';
 
 export const globalStyles = StyleSheet.create({
   linearGradient: {
     width: '100%',
-    height: 50,
+    height: handleSize(50),
     position: 'absolute',
     bottom: 0
   },
@@ -16,11 +17,12 @@ export const globalStyles = StyleSheet.create({
   },
   button: {
     width: '100%',
-    height: 48,
-    borderRadius: 25,
+    height: 'auto',
+    aspectRatio: '7.29',
+    borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: handleSize(1),
     borderColor: colors.Primary_Color,
     // Shadow for iOS
     shadowColor: '#000',
@@ -32,10 +34,10 @@ export const globalStyles = StyleSheet.create({
   },
   input: {
     width: '100%',
-    height: 64,
+    height: handleSize(64),
     backgroundColor: colors.White_Color,
-    padding: 10,
-    borderRadius: 8,
+    padding: handleSize(10),
+    borderRadius: handleSize(8),
     // Shadow for iOS
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
@@ -46,7 +48,7 @@ export const globalStyles = StyleSheet.create({
   },
   text: {
     fontFamily: fontFamilies.regular,
-    fontSize: 16,
+    fontSize: handleSize(16),
     color: colors.Text_Color,
   },
   row: {

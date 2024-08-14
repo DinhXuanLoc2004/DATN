@@ -6,6 +6,7 @@ import {colors} from '../../constants/colors';
 import TextComponent from '../texts/TextComponent';
 import {discountString} from '../../utils/handleDiscount';
 import {fontFamilies} from '../../constants/fontFamilies';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   createAt: Date;
@@ -23,8 +24,8 @@ const NewOrDiscountComponent: FC<Props> = ({createAt, discount, style, left, top
         styles.container,
         {
           backgroundColor: isNew ? colors.Text_Color : colors.Primary_Color,
-          top: top ?? 9,
-          left: left ?? 9
+          top: top ? handleSize(top) : 9,
+          left: left ? handleSize(left) : 9
         },
         style
       ]}
