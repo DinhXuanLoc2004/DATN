@@ -15,6 +15,7 @@ import {ArrowRight} from 'iconsax-react-native';
 import {colors} from '../../constants/colors';
 import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
 import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
+import { handleSize } from '../../utils/handleSize';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState<string>('');
@@ -38,7 +39,7 @@ const LoginScreen = () => {
 
   return (
     <ContainerComponent isHeader back isScroll>
-      <SpaceComponent height={18} />
+      <SpaceComponent height={30} />
 
       {/* Section Tille */}
       <SectionComponent>

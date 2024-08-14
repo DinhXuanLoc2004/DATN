@@ -1,6 +1,7 @@
 import React, {FC} from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
+import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   onPress?: () => {};
@@ -13,8 +14,12 @@ const IconDeleteItemComponent: FC<Props> = ({onPress, top, right, size}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={{position: 'absolute', right: right ?? 10, top: top ?? 15}}>
-      <IonIcon name="close" size={size ?? 24} />
+      style={{
+        position: 'absolute',
+        right: right ? handleSize(right) : 10,
+        top: top ? handleSize(top) : 15,
+      }}>
+      <IonIcon name="close" size={size ? handleSize(size) : 24} />
     </TouchableOpacity>
   );
 };

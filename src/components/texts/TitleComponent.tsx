@@ -2,6 +2,7 @@ import React, {FC, memo} from 'react';
 import {StyleProp, TextStyle} from 'react-native';
 import {fontFamilies} from '../../constants/fontFamilies';
 import TextComponent from './TextComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   text: string;
@@ -10,7 +11,7 @@ interface Props {
   size?: number;
   style?: StyleProp<TextStyle>;
   flex?: number;
-  heightLine?: number;
+  lineHeight?: number;
 }
 
 const TitleComponent: FC<Props> = ({
@@ -20,17 +21,17 @@ const TitleComponent: FC<Props> = ({
   size,
   style,
   flex,
-  heightLine,
+  lineHeight,
 }) => {
   return (
     <TextComponent
       text={text}
-      size={size ?? 18}
+      size={size ?? handleSize(18)}
       font={font ?? fontFamilies.semiBold}
       color={color}
       flex={flex}
       style={style}
-      heightLine={heightLine ?? 22}
+      lineHeight={lineHeight ? lineHeight : size ? size : 18}
     />
   );
 };

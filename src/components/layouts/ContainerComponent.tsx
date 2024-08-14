@@ -14,6 +14,7 @@ import {globalStyles} from '../../styles/globalStyle';
 import TitleComponent from '../texts/TitleComponent';
 import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   children: ReactNode;
@@ -51,7 +52,7 @@ const ContainerComponent: FC<Props> = ({
             <TouchableOpacity onPress={() => {}}>
               <IonIcon
                 name="chevron-back-outline"
-                size={24}
+                size={handleSize(24)}
                 color={colors.Text_Color}
               />
             </TouchableOpacity>

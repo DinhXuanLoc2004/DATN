@@ -1,14 +1,13 @@
-import {StyleSheet} from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import ContainerComponent from '../../components/layouts/ContainerComponent';
-import TitleComponent from '../../components/texts/TitleComponent';
-import {fontFamilies} from '../../constants/fontFamilies';
-import SpaceComponent from '../../components/layouts/SpaceComponent';
-import TextComponent from '../../components/texts/TextComponent';
-import {colors} from '../../constants/colors';
-import RowComponent from '../../components/layouts/RowComponent';
+import React, { useEffect, useRef, useState } from 'react';
 import ButtonComponent from '../../components/buttons/ButtonComponent';
 import InputOTPComponent from '../../components/inputs/InputOTPComponent';
+import ContainerComponent from '../../components/layouts/ContainerComponent';
+import RowComponent from '../../components/layouts/RowComponent';
+import SpaceComponent from '../../components/layouts/SpaceComponent';
+import TextComponent from '../../components/texts/TextComponent';
+import TitleComponent from '../../components/texts/TitleComponent';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
 
 const VerifyOTPScreen = () => {
   const [code, setCode] = useState<string[]>([]);
@@ -37,23 +36,20 @@ const VerifyOTPScreen = () => {
 
   return (
     <ContainerComponent isHeader back isScroll>
-      <SpaceComponent height={18} />
+      <SpaceComponent height={30} />
       <TitleComponent
         text="Verify account"
-        size={34}
+        size={30}
         font={fontFamilies.bold}
       />
-      <SpaceComponent height={94} />
-
+      <SpaceComponent height={102} />
       <TextComponent
-        text="Please enter the otp code sent to your email"
+        text="Please enter the OTP code sent to your email"
         size={14}
-        font={fontFamilies.semiBold}
         color={colors.Text_Color}
       />
-
-      <SpaceComponent height={10} />
-      <RowComponent justify="space-around" style={{right: 3, width: '100%'}}>
+      <SpaceComponent height={22} />
+      <RowComponent justify="space-between">
         <InputOTPComponent
           ref={number1}
           onChangeText={val => {
