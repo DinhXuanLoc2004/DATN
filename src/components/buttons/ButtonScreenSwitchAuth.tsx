@@ -7,6 +7,7 @@ import RowComponent from '../layouts/RowComponent';
 import SectionComponent from '../layouts/SectionComponent';
 import SpaceComponent from '../layouts/SpaceComponent';
 import TextComponent from '../texts/TextComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   text: string;
@@ -22,7 +23,7 @@ const ButtonScreenSwitchAuth: FC<Props> = ({text, onPress}) => {
             <TextComponent text={text} size={14} font={fontFamilies.regular} />
             <SpaceComponent width={5} />
             <ArrowRight
-              size={24}
+              size={handleSize(24)}
               variant="Outline"
               color={colors.Primary_Color}
             />

@@ -8,6 +8,7 @@ import TextComponent from '../texts/TextComponent';
 import RowComponent from './RowComponent';
 import SectionComponent from './SectionComponent';
 import SpaceComponent from './SpaceComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
   text: string;
@@ -26,21 +27,21 @@ const GGAndFbComponent: FC<Props> = ({
     <SectionComponent
       style={[
         globalStyles.containerGGAndFB,
-        {marginTop: marginTop, paddingBottom: 23},
+        {marginTop: marginTop ? handleSize(marginTop) : 0, paddingBottom: handleSize(23)},
       ]}>
       <SectionComponent>
         <TextComponent text={text} size={14} font={fontFamilies.regular} />
         <SpaceComponent height={12} />
-        <RowComponent justify="space-between">
-          <RowComponent justify="flex-end">
-            <TouchableOpacity style={styles.button}>
-              <Image source={require('../../assets/images/GG.png')} />
-            </TouchableOpacity>
-          </RowComponent>
-          <SpaceComponent width={16} />
+        <RowComponent justify="center">
           <RowComponent justify="center">
             <TouchableOpacity style={styles.button}>
-              <IonIcon name="logo-facebook" size={26} color={'#3B5998'} />
+              <Image source={require('../../assets/images/GG.png')} style={{width: handleSize(24), height: handleSize(24)}}/>
+            </TouchableOpacity>
+          </RowComponent>
+          <SpaceComponent width={16}/>
+          <RowComponent justify="center">
+            <TouchableOpacity style={styles.button}>
+              <IonIcon name="logo-facebook" size={handleSize(26)} color={'#3B5998'} />
             </TouchableOpacity>
           </RowComponent>
         </RowComponent>
@@ -53,8 +54,10 @@ export default GGAndFbComponent;
 
 const styles = StyleSheet.create({
   button: {
-    width: 92,
-    height: 64,
+    width: 'auto',
+    height: 'auto',
+    paddingHorizontal: 34.31,
+    paddingVertical: 20,
     borderRadius: 24,
     backgroundColor: colors.White_Color,
     justifyContent: 'center',
