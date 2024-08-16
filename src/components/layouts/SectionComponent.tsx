@@ -1,5 +1,6 @@
 import React, {FC, memo, ReactNode} from 'react';
 import {StyleProp, TouchableOpacity, View, ViewStyle} from 'react-native';
+import { colors } from '../../constants/colors';
 
 interface Props {
   children: ReactNode;
@@ -10,7 +11,7 @@ interface Props {
 
 const SectionComponent: FC<Props> = ({children, style, flex, onPress}) => {
   return onPress ? (
-    <TouchableOpacity style={[{flex: flex ?? 1}, style]}>
+    <TouchableOpacity style={[{flex: flex ?? 1, backgroundColor: colors.Backgournd_Color}, style]}>
       {children}
     </TouchableOpacity>
   ) : (
