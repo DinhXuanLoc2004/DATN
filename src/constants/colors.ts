@@ -10,4 +10,5 @@ export const colors = {
   Gray_Color: '#9B9B9B',
   Transperen_Color: 'transparent',
   Black_Color_RGBA: 'rgba(0,0,0,0.4)',
+  Text_Rating_Color: '#4F4F4F'
 };

@@ -1,11 +1,18 @@
-import React, { FC, memo } from 'react';
-import { StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import React, {FC, memo} from 'react';
+import {
+  StyleProp,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { colors } from '../../constants/colors';
-import { fontFamilies } from '../../constants/fontFamilies';
+import {colors} from '../../constants/colors';
+import {fontFamilies} from '../../constants/fontFamilies';
+import {handleSize} from '../../utils/handleSize';
 import TextComponent from '../texts/TextComponent';
 import RowComponent from './RowComponent';
-import { handleSize } from '../../utils/handleSize';
+import SpaceComponent from './SpaceComponent';
 
 interface Props {
   star?: number;
@@ -14,8 +21,8 @@ interface Props {
   onPress?: (star: number) => void;
   numberReviews?: number;
   flex?: number;
-  starOutline?: boolean;
-  style?: ViewStyle
+  itemRating?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 const StarComponent: FC<Props> = ({
@@ -25,8 +32,8 @@ const StarComponent: FC<Props> = ({
   onPress,
   numberReviews,
   flex,
-  starOutline = false,
-  style
+  itemRating,
+  style,
 }) => {
   const roudingStar = Math.floor(star ?? 1);
   const lengthListStar = maxStar ?? 5;
@@ -40,20 +47,37 @@ const StarComponent: FC<Props> = ({
           onPress={() => {
             onPress && onPress(index + 1);
           }}>
-          {roudingStar >= index + 1 ? (
-            <IonIcon
-              name="star"
-              color={colors.Star_Color}
-              size={size ? handleSize(size) : 14}
-              style={styles.icon}
-            />
+          {!itemRating ? (
+            <View>
+              {roudingStar >= index + 1 ? (
+                <IonIcon
+                  name="star"
+                  color={colors.Star_Color}
+                  size={size ? handleSize(size) : handleSize(14)}
+                  style={styles.icon}
+                />
+              ) : (
+                <IonIcon
+                  name="star-outline"
+                  color={colors.Gray_Color}
+                  size={size ? handleSize(size) : handleSize(14)}
+                  style={styles.icon}
+                />
+              )}
+            </View>
           ) : (
-            <IonIcon
-              name="star-outline"
-              color={colors.Gray_Color}
-              size={size ? handleSize(size) : 14}
-              style={styles.icon}
-            />
+            <View>
+              {roudingStar <= index + 1 ? (
+                <IonIcon
+                  name="star"
+                  color={colors.Star_Color}
+                  size={size ? handleSize(size) : handleSize(14)}
+                  style={styles.icon}
+                />
+              ) : (
+                <SpaceComponent />
+              )}
+            </View>
           )}
         </TouchableOpacity>
       ))}

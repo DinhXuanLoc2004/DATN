@@ -23,7 +23,7 @@ const RowComponent: FC<Props> = ({ children, justify, onPress, style, disable, f
         globalStyles.row,
         {
             justifyContent: justify ?? 'center',
-            flex: flex ?? 0
+            flex: flex ?? 0,
         },
         style
     ]
