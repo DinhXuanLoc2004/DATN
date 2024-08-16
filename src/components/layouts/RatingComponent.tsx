@@ -1,45 +1,46 @@
-import React, {FC} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {colors} from '../../constants/colors';
+import React, { FC } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { handleSize } from '../../utils/handleSize';
 import TextComponent from '../texts/TextComponent';
 import RowComponent from './RowComponent';
 import SectionComponent from './SectionComponent';
 import StarComponent from './StarComponent';
 
 interface Props {
-  star: number;
+  avegare_star: number;
+  arr_star: number[];
 }
 
-const RatingComponent: FC<Props> = ({star}) => {
-  const ratings = [12, 5, 4, 2, 0];
-  const sumRating = ratings.reduce((acc, curr) => acc + curr, 0);
-  const tbRating = sumRating / ratings.length;
-  const maxRating = Math.max(...ratings);
+const RatingComponent: FC<Props> = ({avegare_star, arr_star}) => {
+  const sumRating = arr_star.reduce((acc, curr) => acc + curr, 0);
+  const maxRating = Math.max(...arr_star);
 
   return (
     <SectionComponent style={styles.container}>
-      <RowComponent style={styles.containerItem}>
+      <RowComponent justify="space-between" style={styles.containerItem}>
         <SectionComponent>
           <TextComponent
-            font="bold"
-            text={`${tbRating}`}
+            font={fontFamilies.semiBold}
+            text={`${avegare_star}`}
             size={44}
-            color="black"
+            color={colors.Text_Color}
           />
           <TextComponent
             text={`${sumRating} ratings `}
             size={14}
-            color="gray"
+            color={colors.Gray_Color}
           />
         </SectionComponent>
 
-        <SectionComponent style={styles.starsContainer}>
-          {ratings.map((count, index) => (
-            <View key={index} style={styles.row}>
+        <SectionComponent>
+          {arr_star.map((count, index) => (
+            <RowComponent key={index} style={styles.row}>
               <View style={styles.starWrapper}>
                 <StarComponent
-                  star={5 - index}
-                  starOutline={true}
+                  star={index + 1}
+                  itemRating={true}
                   style={styles.star}
                 />
               </View>
@@ -48,13 +49,23 @@ const RatingComponent: FC<Props> = ({star}) => {
                 <View
                   style={[
                     styles.redBar,
-                    {width: `${(count / maxRating) * 100}%`},
+                    {
+                      width:
+                        count === 0
+                          ? handleSize(8)
+                          : `${(count / maxRating) * 100}%`,
+                    },
                   ]}
                 />
               </View>
 
-              <TextComponent text={String(count)} style={styles.ratingText} />
-            </View>
+              <TextComponent
+                text={`${count}`}
+                style={styles.ratingText}
+                size={14}
+                color={colors.Text_Rating_Color}
+              />
+            </RowComponent>
           ))}
         </SectionComponent>
       </RowComponent>
@@ -63,25 +74,15 @@ const RatingComponent: FC<Props> = ({star}) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 0,
+  },
   containerItem: {
     alignItems: 'flex-start',
     flex: 0,
-    paddingHorizontal: 5,
-    paddingVertical: 10,
-  },
-  container: {
-    width: '100%',
-    height: 'auto',
-    borderRadius: 8,
-    flex: 0,
-  },
-  starsContainer: {
-    width: '100%',
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: handleSize(5),
   },
   starWrapper: {
     flex: 0.15,
@@ -92,16 +93,13 @@ const styles = StyleSheet.create({
   },
   barContainer: {
     flex: 0.7,
-    height: 8,
-    backgroundColor: colors.Backgournd_Color,
-    borderRadius: 4,
+    height: handleSize(8),
     marginLeft: 10,
-    justifyContent: 'center',
   },
   redBar: {
     height: '100%',
-    backgroundColor: 'red',
-    borderRadius: 4,
+    backgroundColor: colors.Primary_Color,
+    borderRadius: handleSize(4),
   },
   ratingText: {
     flex: 0.15,
