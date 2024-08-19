@@ -24,8 +24,8 @@ const NewOrDiscountComponent: FC<Props> = ({createAt, discount, style, left, top
         styles.container,
         {
           backgroundColor: isNew ? colors.Text_Color : colors.Primary_Color,
-          top: top ? handleSize(top) : 9,
-          left: left ? handleSize(left) : 9
+          top: handleSize(top ?? 9),
+          left: handleSize(left ?? 9)
         },
         style
       ]}
@@ -46,9 +46,9 @@ export default NewOrDiscountComponent;
 
 const styles = StyleSheet.create({
   container: {
-    width: 40,
-    height: 24,
-    borderRadius: 29,
+    width: handleSize(40),
+    height: handleSize(24),
+    borderRadius: handleSize(29),
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute',
