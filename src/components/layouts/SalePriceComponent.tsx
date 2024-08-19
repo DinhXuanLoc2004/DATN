@@ -16,15 +16,17 @@ interface Props {
 const SalePriceComponent: FC<Props> = ({price, discount, size, flex}) => {
   const newPrice = discount > 0 ? price - price * discount : price;
   return (
-    <RowComponent justify="flex-start" flex={flex}>
+    <RowComponent justify="flex-end" flex={flex}>
       {discount > 0 && (
-        <RowComponent>
+        <RowComponent style={{flexShrink: 1}}>
           <TextComponent
             color={colors.Gray_Color}
             size={size ?? 14}
             font={fontFamilies.medium}
             text={`${price}$`}
             style={{textDecorationLine: 'line-through'}}
+            numberOfLines={1}
+            ellipsizeMode='tail'
           />
           <SpaceComponent width={4} />
         </RowComponent>

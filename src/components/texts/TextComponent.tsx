@@ -3,7 +3,7 @@ import {StyleProp, Text, TextStyle} from 'react-native';
 import {colors} from '../../constants/colors';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {globalStyles} from '../../styles/globalStyle';
-import { handleSize } from '../../utils/handleSize';
+import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   text: string;
@@ -14,6 +14,8 @@ interface Props {
   lineHeight?: number;
   style?: StyleProp<TextStyle>;
   flex?: number;
+  numberOfLines?: number;
+  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip'
 }
 
 const TextComponent: FC<Props> = ({
@@ -25,20 +27,28 @@ const TextComponent: FC<Props> = ({
   lineHeight,
   style,
   flex,
+  numberOfLines,
+  ellipsizeMode
 }) => {
   return (
     <Text
       style={[
         globalStyles.text,
         {
-          fontSize: size ? handleSize(size) : handleSize(16),
+          fontSize: handleSize(size ?? 16),
           fontFamily: font ?? fontFamilies.regular,
           color: color ?? colors.Text_Color,
           flex: flex ?? 0,
-          lineHeight: lineHeight ? handleSize(lineHeight) : size ? handleSize(size) : handleSize(16),
+          lineHeight: lineHeight
+            ? handleSize(lineHeight)
+            : size
+            ? handleSize(size)
+            : handleSize(16),
         },
         style,
-      ]}>
+      ]}
+      numberOfLines={numberOfLines}
+      ellipsizeMode={ellipsizeMode}>
       {text}
     </Text>
   );
