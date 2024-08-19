@@ -1,24 +1,7 @@
 import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
-import LoginScreen from './src/screens/auths/LoginScreen';
-
+import {SafeAreaView, StyleSheet} from 'react-native';
 function App(): React.JSX.Element {
-
-  return (
-    <SafeAreaView style={{flex: 1}}>
-      <StatusBar/>
-      <LoginScreen/>
-    </SafeAreaView>
-  );
+  return <SafeAreaView style={{flex: 1}}></SafeAreaView>;
 }
 
 const styles = StyleSheet.create({});
