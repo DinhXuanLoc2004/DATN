@@ -15,7 +15,8 @@ interface Props {
   style?: StyleProp<TextStyle>;
   flex?: number;
   numberOfLines?: number;
-  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip'
+  ellipsizeMode?: 'head' | 'middle' | 'tail' | 'clip';
+  letterSpacing?: number
 }
 
 const TextComponent: FC<Props> = ({
@@ -28,7 +29,8 @@ const TextComponent: FC<Props> = ({
   style,
   flex,
   numberOfLines,
-  ellipsizeMode
+  ellipsizeMode,
+  letterSpacing
 }) => {
   return (
     <Text
@@ -44,11 +46,13 @@ const TextComponent: FC<Props> = ({
             : size
             ? handleSize(size)
             : handleSize(16),
+          letterSpacing: handleSize(letterSpacing ?? 0)
         },
         style,
       ]}
       numberOfLines={numberOfLines}
-      ellipsizeMode={ellipsizeMode}>
+      ellipsizeMode={ellipsizeMode}
+      >
       {text}
     </Text>
   );

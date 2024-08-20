@@ -1,10 +1,10 @@
-import React, {useState} from 'react';
-import {Image, StyleSheet, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
-import {handleSize} from '../../utils/handleSize';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { handleSize } from '../../utils/handleSize';
 import TextColorAndSizeComponent from '../texts/TextColorAndSizeComponent';
 import TextComponent from '../texts/TextComponent';
 import NewOrDiscountComponent from './NewOrDiscountComponent';
@@ -146,8 +146,8 @@ const styles = StyleSheet.create({
   image: {
     width: handleSize(120),
     height: '100%',
-    // borderBottomStartRadius: handleSize(8),
-    // borderTopStartRadius: handleSize(8),
+    borderBottomStartRadius: handleSize(8),
+    borderTopStartRadius: handleSize(8),
     borderBottomEndRadius: 20
   },
   containerContent: {
