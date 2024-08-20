@@ -10,5 +10,9 @@ export const colors = {
   Gray_Color: '#9B9B9B',
   Transperen_Color: 'transparent',
   Black_Color_RGBA: 'rgba(0,0,0,0.4)',
-  Text_Rating_Color: '#4F4F4F'
+  Text_Rating_Color: '#4F4F4F',
+  Gray_Light_Color : '#F6F6F6',
+  Gray_Dark_Color:'#BEA9A9',
+  Yellow_Light_Color:'#E2BB8D',
+  Blue_Dark_Color:'#151867'
 };
