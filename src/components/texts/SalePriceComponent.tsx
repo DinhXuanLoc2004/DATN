@@ -1,9 +1,9 @@
 import React, {FC} from 'react';
 import {StyleSheet} from 'react-native';
-import RowComponent from './RowComponent';
-import TextComponent from '../texts/TextComponent';
+import RowComponent from '../layouts/RowComponent';
+import TextComponent from './TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
-import SpaceComponent from './SpaceComponent';
+import SpaceComponent from '../layouts/SpaceComponent';
 import {colors} from '../../constants/colors';
 
 interface Props {
@@ -26,7 +26,7 @@ const SalePriceComponent: FC<Props> = ({price, discount, size, flex}) => {
             text={`${price}$`}
             style={{textDecorationLine: 'line-through'}}
             numberOfLines={1}
-            ellipsizeMode='tail'
+            ellipsizeMode="tail"
           />
           <SpaceComponent width={4} />
         </RowComponent>

@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {Image, StyleSheet, TouchableOpacity} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import { colors } from '../../constants/colors';
-import { fontFamilies } from '../../constants/fontFamilies';
-import { handleSize } from '../../utils/handleSize';
-import TextColorAndSizeComponent from '../texts/TextColorAndSizeComponent';
-import TextComponent from '../texts/TextComponent';
-import NewOrDiscountComponent from './NewOrDiscountComponent';
-import RowComponent from './RowComponent';
-import SalePriceComponent from './SalePriceComponent';
-import SectionComponent from './SectionComponent';
-import SpaceComponent from './SpaceComponent';
+import {colors} from '../../../constants/colors';
+import {fontFamilies} from '../../../constants/fontFamilies';
+import {handleSize} from '../../../utils/handleSize';
+import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
+import TextComponent from '../../texts/TextComponent';
+import NewOrDiscountComponent from '../../texts/NewOrDiscountComponent';
+import RowComponent from '../RowComponent';
+import SalePriceComponent from '../../texts/SalePriceComponent';
+import SectionComponent from '../SectionComponent';
+import SpaceComponent from '../SpaceComponent';
 
 interface Props {
   name: string;
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     height: '100%',
     borderBottomStartRadius: handleSize(8),
     borderTopStartRadius: handleSize(8),
-    borderBottomEndRadius: 20
+    borderBottomEndRadius: 20,
   },
   containerContent: {
     padding: handleSize(11),

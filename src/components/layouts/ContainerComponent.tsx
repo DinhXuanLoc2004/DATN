@@ -14,7 +14,7 @@ import {globalStyles} from '../../styles/globalStyle';
 import TitleComponent from '../texts/TitleComponent';
 import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
-import { handleSize } from '../../utils/handleSize';
+import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   children: ReactNode;
@@ -27,6 +27,7 @@ interface Props {
   rightOnPress?: () => void;
   onSroll?: (e: NativeSyntheticEvent<NativeScrollEvent>) => void;
   scrollEventThrottle?: number;
+  styleHeader?: ViewStyle;
 }
 
 const ContainerComponent: FC<Props> = ({
@@ -40,6 +41,7 @@ const ContainerComponent: FC<Props> = ({
   rightOnPress,
   onSroll,
   scrollEventThrottle,
+  styleHeader,
 }) => {
   // const navigation: any = useNavigation()
   return (
@@ -47,13 +49,19 @@ const ContainerComponent: FC<Props> = ({
       {isHeader && (
         <RowComponent
           justify="space-between"
-          style={{width: '100%', marginTop: 10}}>
+          style={[
+            {
+              paddingVertical: handleSize(11),
+            },
+            styleHeader,
+          ]}>
           {back ? (
             <TouchableOpacity onPress={() => {}}>
               <IonIcon
                 name="chevron-back-outline"
                 size={handleSize(24)}
                 color={colors.Text_Color}
+                style={{marginStart: handleSize(16)}}
               />
             </TouchableOpacity>
           ) : (

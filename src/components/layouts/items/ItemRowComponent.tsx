@@ -1,17 +1,17 @@
 import React, {FC} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
-import TextColorAndSizeComponent from '../texts/TextColorAndSizeComponent';
-import TextComponent from '../texts/TextComponent';
-import IconBagOrFavoriteComponent from './IconBagOrFavoriteComponent';
-import IconDeleteItemComponent from './IconDeleteItemComponent';
-import NewOrDiscountComponent from './NewOrDiscountComponent';
-import RowComponent from './RowComponent';
-import SalePriceComponent from './SalePriceComponent';
-import SectionComponent from './SectionComponent';
-import SpaceComponent from './SpaceComponent';
-import StarComponent from './StarComponent';
+import {colors} from '../../../constants/colors';
+import {fontFamilies} from '../../../constants/fontFamilies';
+import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
+import TextComponent from '../../texts/TextComponent';
+import IconBagOrFavoriteComponent from '../IconBagOrFavoriteComponent';
+import IconDeleteItemComponent from '../IconDeleteItemComponent';
+import NewOrDiscountComponent from '../../texts/NewOrDiscountComponent';
+import RowComponent from '../RowComponent';
+import SalePriceComponent from '../../texts/SalePriceComponent';
+import SectionComponent from '../SectionComponent';
+import SpaceComponent from '../SpaceComponent';
+import StarComponent from '../StarComponent';
 
 interface Props {
   id?: string;

@@ -7,15 +7,15 @@ import {
   View,
 } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
-import {handleDate} from '../../utils/handleDate';
-import {handleSize} from '../../utils/handleSize';
-import TextComponent from '../texts/TextComponent';
-import RowComponent from './RowComponent';
-import SectionComponent from './SectionComponent';
-import SpaceComponent from './SpaceComponent';
-import StarComponent from './StarComponent';
+import {colors} from '../../../constants/colors';
+import {fontFamilies} from '../../../constants/fontFamilies';
+import {handleDate} from '../../../utils/handleDate';
+import {handleSize} from '../../../utils/handleSize';
+import TextComponent from '../../texts/TextComponent';
+import RowComponent from '../RowComponent';
+import SectionComponent from '../SectionComponent';
+import SpaceComponent from '../SpaceComponent';
+import StarComponent from '../StarComponent';
 
 interface Props {
   user_name: string;
