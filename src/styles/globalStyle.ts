@@ -18,7 +18,7 @@ export const globalStyles = StyleSheet.create({
   button: {
     width: '100%',
     height: 'auto',
-    aspectRatio: '7.29',
+    paddingVertical: handleSize(10),
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
@@ -58,6 +58,6 @@ export const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.Backgournd_Color,
-    paddingHorizontal: 14,
+    paddingHorizontal: handleSize(16),
   },
 });

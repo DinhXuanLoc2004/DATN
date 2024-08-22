@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 import { ActivityIndicator, StyleProp, TouchableOpacity, ViewStyle } from 'react-native';
 import { colors } from '../../constants/colors';
 import { fontFamilies } from '../../constants/fontFamilies';
@@ -49,4 +49,4 @@ const ButtonComponent: FC<Props> = ({
   );
 };
 
-export default ButtonComponent;
+export default memo(ButtonComponent);

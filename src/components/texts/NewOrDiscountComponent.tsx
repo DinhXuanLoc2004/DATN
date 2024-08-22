@@ -1,22 +1,28 @@
 import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
 import React, {FC} from 'react';
 import {handleDate} from '../../utils/handleDate';
-import SectionComponent from './SectionComponent';
+import SectionComponent from '../layouts/SectionComponent';
 import {colors} from '../../constants/colors';
-import TextComponent from '../texts/TextComponent';
+import TextComponent from './TextComponent';
 import {discountString} from '../../utils/handleDiscount';
 import {fontFamilies} from '../../constants/fontFamilies';
-import { handleSize } from '../../utils/handleSize';
+import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   createAt: Date;
   discount: number;
   style?: StyleProp<ViewStyle>;
-  top?: number,
-  left?: number
+  top?: number;
+  left?: number;
 }
 
-const NewOrDiscountComponent: FC<Props> = ({createAt, discount, style, left, top}) => {
+const NewOrDiscountComponent: FC<Props> = ({
+  createAt,
+  discount,
+  style,
+  left,
+  top,
+}) => {
   const isNew = handleDate.handleIsNewProduct(createAt);
   return isNew || discount > 0 ? (
     <SectionComponent
@@ -25,9 +31,9 @@ const NewOrDiscountComponent: FC<Props> = ({createAt, discount, style, left, top
         {
           backgroundColor: isNew ? colors.Text_Color : colors.Primary_Color,
           top: handleSize(top ?? 9),
-          left: handleSize(left ?? 9)
+          left: handleSize(left ?? 9),
         },
-        style
+        style,
       ]}
       flex={0}>
       <TextComponent

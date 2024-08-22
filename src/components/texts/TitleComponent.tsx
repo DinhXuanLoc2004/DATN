@@ -31,7 +31,7 @@ const TitleComponent: FC<Props> = ({
       color={color}
       flex={flex}
       style={style}
-      lineHeight={lineHeight ? lineHeight : size ? size : 18}
+      lineHeight={lineHeight ? lineHeight : size ? size : handleSize(18)}
     />
   );
 };
