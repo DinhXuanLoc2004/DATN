@@ -15,6 +15,7 @@ import TextComponent from '../../../components/texts/TextComponent';
 import {colors} from '../../../constants/colors';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {handleSize} from '../../../utils/handleSize';
+import DoubleButtonComponent from '../../../components/buttons/DoubleButtonComponent';
 const FilterScreen = () => {
   const min: number = 0;
   const max: number = 200;
@@ -114,16 +115,15 @@ const FilterScreen = () => {
           </TouchableOpacity>
         </RowComponent>
       </SectionComponent>
-      <RowComponent justify="space-between" style={styles.containerBtn}>
-        <ButtonComponent
-          style={[styles.btn, styles.btnDiscard]}
-          onPress={() => {}}
-          text="Discard"
-          colorText={colors.Text_Color}
-        />
-        <SpaceComponent width={23} />
-        <ButtonComponent style={styles.btn} onPress={() => {}} text="Apply" />
-      </RowComponent>
+      <DoubleButtonComponent
+        textBtnLeft="Discard"
+        textBtnRight="Apply"
+        onPressBtnLeft={() => {}}
+        onPressBtnRigth={() => {}}
+        bottom={0}
+        zIndex={1}
+        backgroundColor={colors.White_Color}
+      />
     </ContainerComponent>
   );
 };
@@ -131,24 +131,6 @@ const FilterScreen = () => {
 export default FilterScreen;
 
 const styles = StyleSheet.create({
-  btnDiscard: {
-    backgroundColor: colors.White_Color,
-    borderColor: colors.Text_Color,
-    borderWidth: 2,
-  },
-  btn: {
-    width: 'auto',
-    flex: 1,
-    elevation: 0,
-  },
-  containerBtn: {
-    bottom: 0,
-    paddingHorizontal: handleSize(16),
-    paddingVertical: handleSize(20),
-    backgroundColor: colors.White_Color,
-    width: '100%',
-    zIndex: 1,
-  },
   containerBrands: {
     paddingHorizontal: handleSize(16),
     paddingVertical: handleSize(14),

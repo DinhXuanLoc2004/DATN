@@ -1,14 +1,21 @@
 import {StyleSheet} from 'react-native';
 import {colors} from '../constants/colors';
 import {fontFamilies} from '../constants/fontFamilies';
-import { handleSize } from '../utils/handleSize';
+import {handleSize} from '../utils/handleSize';
 
 export const globalStyles = StyleSheet.create({
+  headerInContainer: {
+    paddingVertical: handleSize(11),
+    paddingHorizontal: handleSize(16),
+    position: 'absolute',
+    top: 0,
+    zIndex: 1,
+  },
   linearGradient: {
     width: '100%',
     height: handleSize(50),
     position: 'absolute',
-    bottom: 0
+    bottom: 0,
   },
   containerGGAndFB: {
     flex: 1,
