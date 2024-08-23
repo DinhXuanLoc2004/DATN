@@ -1,4 +1,4 @@
-import React, {FC, ReactNode} from 'react';
+import React, {FC, ReactNode, useState} from 'react';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
   ViewStyle,
+  Dimensions
 } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import {colors} from '../../constants/colors';
@@ -15,6 +16,7 @@ import TitleComponent from '../texts/TitleComponent';
 import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
 import {handleSize} from '../../utils/handleSize';
+import { onLayout } from '../../utils/onLayout';
 
 interface Props {
   children: ReactNode;
@@ -44,6 +46,8 @@ const ContainerComponent: FC<Props> = ({
   styleHeader,
 }) => {
   // const navigation: any = useNavigation()
+  const {width: WIDTH_SCREEN} = Dimensions.get('window')
+  const [height, setheight] = useState<number>(0)
   return (
     <View style={[globalStyles.container, style]}>
       {isHeader && (
@@ -51,17 +55,18 @@ const ContainerComponent: FC<Props> = ({
           justify="space-between"
           style={[
             {
-              paddingVertical: handleSize(11),
+              width: WIDTH_SCREEN,
             },
+            globalStyles.headerInContainer,
             styleHeader,
-          ]}>
+          ]}
+          onLayout={(event) => onLayout(event, setheight)}>
           {back ? (
             <TouchableOpacity onPress={() => {}}>
               <IonIcon
                 name="chevron-back-outline"
                 size={handleSize(24)}
                 color={colors.Text_Color}
-                style={{marginStart: handleSize(16)}}
               />
             </TouchableOpacity>
           ) : (
@@ -83,7 +88,7 @@ const ContainerComponent: FC<Props> = ({
       )}
       {isScroll ? (
         <ScrollView
-          style={[globalStyles.container, style]}
+          style={[globalStyles.container, {marginTop: height}, style]}
           showsVerticalScrollIndicator={false}
           onScroll={e => {
             onSroll && onSroll(e);
@@ -92,7 +97,7 @@ const ContainerComponent: FC<Props> = ({
           {children}
         </ScrollView>
       ) : (
-        <View style={[globalStyles.container, style]}>{children}</View>
+        <View style={[globalStyles.container, {marginTop: height},style]}>{children}</View>
       )}
     </View>
   );

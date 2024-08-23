@@ -12,6 +12,7 @@ import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
+import { handleSize } from '../../../utils/handleSize';
 
 interface Props {
   id?: string;
@@ -125,7 +126,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 'auto',
     backgroundColor: colors.White_Color,
-    borderRadius: 8,
+    borderRadius: handleSize(8),
     flex: 0,
   },
   imageContainer: {
