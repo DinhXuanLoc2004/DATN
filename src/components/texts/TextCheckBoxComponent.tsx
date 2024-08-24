@@ -33,7 +33,6 @@ const TextCheckBoxComponent: React.FC<Props> = ({
         <TextComponent
           text={text}
           font={fontFamilies.medium}
-          size={16}
           color={isSelected ? colors.Primary_Color : colors.Text_Color}
         />
         <SectionComponent

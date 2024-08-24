@@ -23,7 +23,7 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import {globalStyles} from '../../styles/globalStyle';
 import RowComponent from '../layouts/RowComponent';
 import TextComponent from '../texts/TextComponent';
-import { handleSize } from '../../utils/handleSize';
+import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   value: string;
@@ -40,7 +40,7 @@ interface Props {
 
 const TextInputAnimated = Animated.createAnimatedComponent(TextInput);
 
-const TextInputComponent: FC<Props> = ({
+const TextInputAnimationComponent: FC<Props> = ({
   value,
   onChange,
   plahoder,
@@ -175,7 +175,7 @@ const TextInputComponent: FC<Props> = ({
   );
 };
 
-export default memo(TextInputComponent);
+export default memo(TextInputAnimationComponent);
 
 const styles = StyleSheet.create({
   label: {

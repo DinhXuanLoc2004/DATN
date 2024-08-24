@@ -1,22 +1,18 @@
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
-import ButtonComponent from '../../../components/buttons/ButtonComponent';
+import React, {useState} from 'react';
+import {StyleSheet} from 'react-native';
+import DoubleButtonComponent from '../../../components/buttons/DoubleButtonComponent';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
-import RowComponent from '../../../components/layouts/RowComponent';
 import SearchComponent from '../../../components/layouts/SearchComponent';
-import SectionComponent from '../../../components/layouts/SectionComponent';
-import SelectsCheckBoxComponent from '../../../components/layouts/selects/SelectsCheckBoxComponent';
+import SelectBrandsComponent from '../../../components/layouts/selects/SelectBrandsComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';
-import { colors } from '../../../constants/colors';
-import { handleSize } from '../../../utils/handleSize';
+import {colors} from '../../../constants/colors';
+import {handleSize} from '../../../utils/handleSize';
 const BrandScreen = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [size_selected, setsize_selected] = useState<string[]>([]);
+  const [brands_selected, setbrands_selected] = useState<string[]>([]);
   return (
     <ContainerComponent
-      style={styles.container}
       isHeader
-      isScroll
       back
       title="Brand"
       styleHeader={{
@@ -24,29 +20,27 @@ const BrandScreen = () => {
         elevation: handleSize(1),
       }}>
       <SpaceComponent height={20} />
-      <SectionComponent>
-        <SearchComponent
-          value={searchQuery}
-          onChange={val => setSearchQuery(val)}
-          onClear={() => setSearchQuery('')}
-          placeholder="Search"
-        />
-      </SectionComponent>
-      <SelectsCheckBoxComponent
-        arr_select={size_selected}
-        set_arr_select={setsize_selected}></SelectsCheckBoxComponent>
-      <SpaceComponent height={120} />
-
-      <RowComponent justify="space-between" style={styles.containerBtn}>
-        <ButtonComponent
-          style={[styles.btn, styles.btnDiscard]}
-          onPress={() => {}}
-          text="Discard"
-          colorText={colors.Text_Color}
-        />
-        <SpaceComponent width={23} />
-        <ButtonComponent style={styles.btn} onPress={() => {}} text="Apply" />
-      </RowComponent>
+      <SearchComponent
+        value={searchQuery}
+        onChange={val => setSearchQuery(val)}
+        onClear
+        placeholder="Search"
+      />
+      <SpaceComponent height={22} />
+      <SelectBrandsComponent
+        arr_select={brands_selected}
+        set_arr_select={setbrands_selected}
+      />
+      <DoubleButtonComponent
+        textBtnLeft="Discard"
+        textBtnRight="Apply"
+        onPressBtnLeft={() => {}}
+        onPressBtnRigth={() => {}}
+        backgroundColor={colors.White_Color}
+        zIndex={1}
+        bottom={0}
+        left={-16}
+      />
     </ContainerComponent>
   );
 };
@@ -54,7 +48,6 @@ const BrandScreen = () => {
 export default BrandScreen;
 
 const styles = StyleSheet.create({
-  container: {paddingHorizontal: 0},
   btnDiscard: {
     backgroundColor: colors.White_Color,
     borderColor: colors.Text_Color,

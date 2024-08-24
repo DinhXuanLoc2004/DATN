@@ -1,7 +1,7 @@
-import React, {FC} from 'react';
-import {StyleSheet, ViewStyle} from 'react-native';
-import {colors} from '../../constants/colors';
-import {handleSize} from '../../utils/handleSize';
+import React, { FC } from 'react';
+import { StyleSheet, ViewStyle } from 'react-native';
+import { colors } from '../../constants/colors';
+import { handleSize, WIDTH_SCREEN } from '../../utils/handleSize';
 import RowComponent from '../layouts/RowComponent';
 import SpaceComponent from '../layouts/SpaceComponent';
 import ButtonComponent from './ButtonComponent';
@@ -14,7 +14,9 @@ interface Props {
   bottom?: number;
   zIndex?: number;
   backgroundColor?: string;
-  style?: ViewStyle
+  style?: ViewStyle;
+  left?: number;
+  onLayout?: (event: any) => void;
 }
 
 const DoubleButtonComponent: FC<Props> = ({
@@ -25,19 +27,24 @@ const DoubleButtonComponent: FC<Props> = ({
   bottom,
   zIndex,
   backgroundColor,
-  style
+  style,
+  left,
+  onLayout,
 }) => {
   return (
     <RowComponent
+      onLayout={onLayout}
       justify="space-between"
       style={[
+        styles.containerBtn,
         {
+          width: WIDTH_SCREEN,
           bottom: bottom,
           zIndex: zIndex ?? 0,
           backgroundColor: backgroundColor ?? colors.Backgournd_Color,
+          left: left ?? 0,
         },
-        styles.containerBtn,
-        style
+        style,
       ]}>
       <ButtonComponent
         style={[styles.btn, styles.btnDiscard]}
@@ -46,7 +53,11 @@ const DoubleButtonComponent: FC<Props> = ({
         colorText={colors.Text_Color}
       />
       <SpaceComponent width={23} />
-      <ButtonComponent style={styles.btn} onPress={onPressBtnRigth} text={textBtnRight} />
+      <ButtonComponent
+        style={styles.btn}
+        onPress={onPressBtnRigth}
+        text={textBtnRight}
+      />
     </RowComponent>
   );
 };
@@ -67,6 +78,7 @@ const styles = StyleSheet.create({
   containerBtn: {
     paddingHorizontal: handleSize(16),
     paddingVertical: handleSize(20),
-    width: '100%',
+    position: 'absolute',
+    elevation: handleSize(1),
   },
 });

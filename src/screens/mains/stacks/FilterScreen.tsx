@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import {StyleSheet, TouchableOpacity} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import ButtonComponent from '../../../components/buttons/ButtonComponent';
+import DoubleButtonComponent from '../../../components/buttons/DoubleButtonComponent';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
 import ContainerFilterComponent from '../../../components/layouts/ContainerFilterComponent';
 import RangeSliderComponent from '../../../components/layouts/RangeSliderComponent';
@@ -12,10 +12,10 @@ import SeclectColorsComponent from '../../../components/layouts/selects/SelectCo
 import SelectSizeComponent from '../../../components/layouts/selects/SelectSizeComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';
 import TextComponent from '../../../components/texts/TextComponent';
-import {colors} from '../../../constants/colors';
-import {fontFamilies} from '../../../constants/fontFamilies';
-import {handleSize} from '../../../utils/handleSize';
-import DoubleButtonComponent from '../../../components/buttons/DoubleButtonComponent';
+import { colors } from '../../../constants/colors';
+import { fontFamilies } from '../../../constants/fontFamilies';
+import { handleSize } from '../../../utils/handleSize';
+import { onLayout } from '../../../utils/onLayout';
 const FilterScreen = () => {
   const min: number = 0;
   const max: number = 200;
@@ -25,19 +25,19 @@ const FilterScreen = () => {
   const [size_selected, setsize_selected] = useState<string[]>([]);
   const [categories_selected, set_categories_selected] = useState<string>('');
   const [brands_selected, setbrands_selected] = useState<string[]>([]);
+  const [height_bottom, setheight_bottom] = useState<number>(0);
   return (
     <ContainerComponent
       style={styles.container}
       isHeader
       back
-      isScroll
       title="Filters"
       styleHeader={{
         backgroundColor: colors.White_Color,
         elevation: handleSize(1),
       }}>
       <SpaceComponent height={25} />
-      <SectionComponent>
+      <ContainerComponent style={[styles.container, {paddingBottom: height_bottom}]} isScroll>
         <TextComponent
           font={fontFamilies.semiBold}
           text="Price range"
@@ -114,15 +114,16 @@ const FilterScreen = () => {
             />
           </TouchableOpacity>
         </RowComponent>
-      </SectionComponent>
+      </ContainerComponent>
       <DoubleButtonComponent
         textBtnLeft="Discard"
         textBtnRight="Apply"
         onPressBtnLeft={() => {}}
         onPressBtnRigth={() => {}}
         bottom={0}
-        zIndex={1}
+        zIndex={10000}
         backgroundColor={colors.White_Color}
+        onLayout={(event) => onLayout(event, setheight_bottom)}
       />
     </ContainerComponent>
   );
@@ -136,7 +137,6 @@ const styles = StyleSheet.create({
     paddingVertical: handleSize(14),
   },
   container: {paddingHorizontal: 0},
-  ContainerFilter: {alignItems: 'center', flexWrap: 'wrap'},
   Margin: {
     marginTop: handleSize(14),
     marginBottom: handleSize(12),

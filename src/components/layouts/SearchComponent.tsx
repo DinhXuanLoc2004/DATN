@@ -16,7 +16,7 @@ interface Props {
   onChange: (val: string) => void;
   placeholder?: string;
   style?: StyleProp<ViewStyle>;
-  onClear?: () => void;
+  onClear?: boolean;
 }
 
 const SearchComponent: FC<Props> = ({
@@ -27,47 +27,40 @@ const SearchComponent: FC<Props> = ({
   onClear,
 }) => {
   return (
-    <SectionComponent style={styles.container}>
-      <RowComponent style={styles.containerSearch}>
-        <IonIcon
-          name="search"
-          size={handleSize(20)}
-          color={colors.Gray_Color}
-        />
-        <TextInput
-          value={value}
-          onChangeText={onChange}
-          placeholder={placeholder}
-          style={styles.textInput}
-        />
-        {value !== '' && (
-          <TouchableOpacity onPress={onClear || (() => onChange(''))}>
-            <IonIcon
-              name="close"
-              size={handleSize(20)}
-              color={colors.Gray_Color}
-            />
-          </TouchableOpacity>
-        )}
-      </RowComponent>
-    </SectionComponent>
+    <RowComponent style={styles.containerSearch}>
+      <IonIcon name="search" size={handleSize(20)} color={colors.Gray_Color} />
+      <TextInput
+        value={value}
+        onChangeText={onChange}
+        placeholder={placeholder}
+        style={styles.textInput}
+      />
+      {value !== '' && onClear && (
+        <TouchableOpacity onPress={() => onChange('')}>
+          <IonIcon
+            name="close"
+            size={handleSize(20)}
+            color={colors.Gray_Color}
+          />
+        </TouchableOpacity>
+      )}
+    </RowComponent>
   );
 };
 
 export default SearchComponent;
 
 const styles = StyleSheet.create({
-  container: {
-    paddingHorizontal: 20,
-  },
   containerSearch: {
     backgroundColor: colors.White_Color,
-    borderRadius: handleSize(20),
-    paddingHorizontal: handleSize(10),
+    borderRadius: handleSize(23),
+    paddingHorizontal: handleSize(15),
+    height: handleSize(40),
+    elevation: handleSize(1)
   },
   textInput: {
     flex: 1,
-    marginLeft: handleSize(10),
+    marginLeft: handleSize(12),
     fontSize: handleSize(16),
     color: colors.Text_Color,
   },

@@ -15,7 +15,7 @@ import {globalStyles} from '../../styles/globalStyle';
 import TitleComponent from '../texts/TitleComponent';
 import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
-import {handleSize} from '../../utils/handleSize';
+import {handleSize, WIDTH_SCREEN} from '../../utils/handleSize';
 import { onLayout } from '../../utils/onLayout';
 
 interface Props {
@@ -46,8 +46,7 @@ const ContainerComponent: FC<Props> = ({
   styleHeader,
 }) => {
   // const navigation: any = useNavigation()
-  const {width: WIDTH_SCREEN} = Dimensions.get('window')
-  const [height, setheight] = useState<number>(0)
+  const [height_header, setheight_header] = useState<number>(0)
   return (
     <View style={[globalStyles.container, style]}>
       {isHeader && (
@@ -60,7 +59,7 @@ const ContainerComponent: FC<Props> = ({
             globalStyles.headerInContainer,
             styleHeader,
           ]}
-          onLayout={(event) => onLayout(event, setheight)}>
+          onLayout={(event) => onLayout(event, setheight_header)}>
           {back ? (
             <TouchableOpacity onPress={() => {}}>
               <IonIcon
@@ -88,7 +87,7 @@ const ContainerComponent: FC<Props> = ({
       )}
       {isScroll ? (
         <ScrollView
-          style={[globalStyles.container, {marginTop: height}, style]}
+          style={[{flex: 1,marginTop: height_header}, style]}
           showsVerticalScrollIndicator={false}
           onScroll={e => {
             onSroll && onSroll(e);
@@ -97,7 +96,7 @@ const ContainerComponent: FC<Props> = ({
           {children}
         </ScrollView>
       ) : (
-        <View style={[globalStyles.container, {marginTop: height},style]}>{children}</View>
+        <View style={[{flex: 1 ,marginTop: height_header},style]}>{children}</View>
       )}
     </View>
   );
