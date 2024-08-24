@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet} from 'react-native';
 import ButtonComponent from '../../components/buttons/ButtonComponent';
 import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
-import TextInputComponent from '../../components/inputs/TextInputComponent';
+import TextInputAnimationComponent from '../../components/inputs/TextInputAnimationComponent';
 import ContainerComponent from '../../components/layouts/ContainerComponent';
 import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
 import SectionComponent from '../../components/layouts/SectionComponent';
 import SpaceComponent from '../../components/layouts/SpaceComponent';
 import TitleComponent from '../../components/texts/TitleComponent';
-import { fontFamilies } from '../../constants/fontFamilies';
-import { handleTextInput, Success } from '../../utils/handleTextInput';
+import {fontFamilies} from '../../constants/fontFamilies';
+import {handleTextInput, Success} from '../../utils/handleTextInput';
 
 const RegisterScreen = () => {
   const [Name, setName] = useState<string>('');
@@ -61,7 +61,7 @@ const RegisterScreen = () => {
 
       {/* Section Input */}
       <SectionComponent>
-        <TextInputComponent
+        <TextInputAnimationComponent
           value={Name}
           onChange={val => setName(val)}
           plahoder="Name"
@@ -69,7 +69,7 @@ const RegisterScreen = () => {
           errorMessage={ErrorName !== Success ? ErrorName : ''}
         />
         <SpaceComponent height={30} />
-        <TextInputComponent
+        <TextInputAnimationComponent
           value={Email}
           onChange={val => setEmail(val)}
           plahoder="Email"
@@ -78,7 +78,7 @@ const RegisterScreen = () => {
           isSuccess={ErrorEmail === Success}
         />
         <SpaceComponent height={30} />
-        <TextInputComponent
+        <TextInputAnimationComponent
           value={Password}
           onChange={val => setPassword(val)}
           plahoder="Password"
@@ -88,7 +88,7 @@ const RegisterScreen = () => {
           isPassword
         />
         <SpaceComponent height={30} />
-        <TextInputComponent
+        <TextInputAnimationComponent
           value={ConfirmPassword}
           onChange={val => setConfirmPassword(val)}
           plahoder="Confirm Password"

@@ -1,6 +1,5 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet} from 'react-native';
-import OrderDetailScreen from './src/screens/mains/tabs/OrderDetailScreen';
+import { SafeAreaView, StyleSheet } from 'react-native';
 function App(): React.JSX.Element {
   return <SafeAreaView style={{flex: 1}}></SafeAreaView>;
 }

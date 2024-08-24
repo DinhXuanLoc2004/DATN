@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import React, {useState} from 'react';
+import {StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DoubleButtonComponent from '../../../components/buttons/DoubleButtonComponent';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
@@ -8,10 +8,11 @@ import RowComponent from '../../../components/layouts/RowComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';
 import TextComponent from '../../../components/texts/TextComponent';
 import TextOrderInformation from '../../../components/texts/TextOrderInformation';
-import { colors } from '../../../constants/colors';
-import { fontFamilies } from '../../../constants/fontFamilies';
-import { handleDate } from '../../../utils/handleDate';
-import { handleSize } from '../../../utils/handleSize';
+import {colors} from '../../../constants/colors';
+import {fontFamilies} from '../../../constants/fontFamilies';
+import {handleDate} from '../../../utils/handleDate';
+import {handleSize} from '../../../utils/handleSize';
+import {onLayout} from '../../../utils/onLayout';
 
 const OrderDetailScreen = () => {
   const [status, setstatus] = useState('Delivered');
@@ -53,6 +54,7 @@ const OrderDetailScreen = () => {
       price: 51,
     },
   ];
+  const [height_bottom, setheight_bottom] = useState<number>(0);
   return (
     <ContainerComponent
       isHeader
@@ -66,92 +68,95 @@ const OrderDetailScreen = () => {
         />
       }
       styleHeader={styles.containerHeader}
-      style={styles.container}
-      isScroll>
-      <SpaceComponent height={31} />
-      <RowComponent>
-        <TextComponent text="Order No1947034" font={fontFamilies.semiBold} />
-        <TextComponent
-          text={handleDate.formatDate(new Date())}
-          size={14}
-          color={colors.Gray_Color}
-        />
-      </RowComponent>
-      <SpaceComponent height={15} />
-      <RowComponent>
-        <RowComponent justify="flex-start" style={{width: '68%'}}>
+      style={styles.container}>
+      <ContainerComponent isScroll style={{paddingBottom: height_bottom}}>
+        <SpaceComponent height={31} />
+        <RowComponent>
+          <TextComponent text="Order No1947034" font={fontFamilies.semiBold} />
           <TextComponent
-            text="Tracking number: "
+            text={handleDate.formatDate(new Date())}
             size={14}
             color={colors.Gray_Color}
           />
+        </RowComponent>
+        <SpaceComponent height={15} />
+        <RowComponent>
+          <RowComponent justify="flex-start" style={{width: '68%'}}>
+            <TextComponent
+              text="Tracking number: "
+              size={14}
+              color={colors.Gray_Color}
+            />
+            <TextComponent
+              text="IW3475453455"
+              size={14}
+              font={fontFamilies.medium}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            />
+          </RowComponent>
           <TextComponent
-            text="IW3475453455"
+            text={status}
             size={14}
             font={fontFamilies.medium}
-            numberOfLines={1}
-            ellipsizeMode="tail"
+            color={
+              status === 'Delivered'
+                ? colors.Success_Color
+                : status === 'Processing'
+                ? colors.Star_Color
+                : colors.Primary_Color
+            }
           />
         </RowComponent>
+        <SpaceComponent height={18} />
         <TextComponent
-          text={status}
+          text={`${productsOrderExample.length} items`}
           size={14}
           font={fontFamilies.medium}
-          color={
-            status === 'Delivered'
-              ? colors.Success_Color
-              : status === 'Processing'
-              ? colors.Star_Color
-              : colors.Primary_Color
-          }
         />
-      </RowComponent>
-      <SpaceComponent height={18} />
-      <TextComponent
-        text={`${productsOrderExample.length} items`}
-        size={14}
-        font={fontFamilies.medium}
-      />
-      <SpaceComponent height={16} />
-      {productsOrderExample.map((item, index) => (
-        <ItemProductOrderComponent
-          category={item.category}
-          brand={item.brand}
-          color={item.color}
-          size={item.size}
-          price={item.price}
-          quantity={item.quantity}
-          thumb={item.img}
-          key={index}
+        <SpaceComponent height={16} />
+        {productsOrderExample.map((item, index) => (
+          <ItemProductOrderComponent
+            category={item.category}
+            brand={item.brand}
+            color={item.color}
+            size={item.size}
+            price={item.price}
+            quantity={item.quantity}
+            thumb={item.img}
+            key={index}
+          />
+        ))}
+        <TextComponent
+          text="Order information"
+          size={14}
+          font={fontFamilies.medium}
         />
-      ))}
-      <TextComponent
-        text="Order information"
-        size={14}
-        font={fontFamilies.medium}
-      />
-      <SpaceComponent height={15} />
-      <TextOrderInformation
-        lable="Shipping Address:"
-        content="74m/1 đường HT44, khu phố 3, phường Hiệp Thành, quận 12, thành phố HCM"
-      />
-      <SpaceComponent height={26} />
-      <TextOrderInformation lable="Payment method:" content="Zalo pay" />
-      <SpaceComponent height={26} />
-      <TextOrderInformation lable="Delivery method:" content="Zalo pay" />
-      <SpaceComponent height={26} />
-      <TextOrderInformation lable="Discount:" content="Zalo pay" />
-      <SpaceComponent height={26} />
-      <TextOrderInformation lable="Total Amount:" content="Zalo pay" />
-      <SpaceComponent height={34} />
+        <SpaceComponent height={15} />
+        <TextOrderInformation
+          lable="Shipping Address:"
+          content="74m/1 đường HT44, khu phố 3, phường Hiệp Thành, quận 12, thành phố HCM"
+        />
+        <SpaceComponent height={26} />
+        <TextOrderInformation lable="Payment method:" content="Zalo pay" />
+        <SpaceComponent height={26} />
+        <TextOrderInformation lable="Delivery method:" content="Zalo pay" />
+        <SpaceComponent height={26} />
+        <TextOrderInformation lable="Discount:" content="Zalo pay" />
+        <SpaceComponent height={26} />
+        <TextOrderInformation lable="Total Amount:" content="Zalo pay" />
+        <SpaceComponent height={34} />
+      </ContainerComponent>
       <DoubleButtonComponent
         textBtnLeft="Reorder"
         textBtnRight="Leave feedback"
         onPressBtnLeft={() => {}}
         onPressBtnRigth={() => {}}
-        style={{paddingHorizontal: 0, paddingVertical: 0}}
+        bottom={0}
+        zIndex={1}
+        backgroundColor={colors.White_Color}
+        onLayout={event => onLayout(event, setheight_bottom)}
       />
-      <SpaceComponent height={37}/>
     </ContainerComponent>
   );
 };
@@ -164,6 +169,6 @@ const styles = StyleSheet.create({
     elevation: handleSize(1),
   },
   container: {
-    paddingHorizontal: 15,
+    paddingHorizontal: 0,
   },
 });

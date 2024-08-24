@@ -5,7 +5,7 @@ import TextComponent from '../../components/texts/TextComponent';
 import TitleComponent from '../../components/texts/TitleComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import SpaceComponent from '../../components/layouts/SpaceComponent';
-import TextInputComponent from '../../components/inputs/TextInputComponent';
+import TextInputAnimationComponent from '../../components/inputs/TextInputAnimationComponent';
 import ButtonComponent from '../../components/buttons/ButtonComponent';
 import {handleTextInput, Success} from '../../utils/handleTextInput';
 import SectionComponent from '../../components/layouts/SectionComponent';
@@ -15,7 +15,7 @@ import {ArrowRight} from 'iconsax-react-native';
 import {colors} from '../../constants/colors';
 import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
 import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
-import { handleSize } from '../../utils/handleSize';
+import {handleSize} from '../../utils/handleSize';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState<string>('');
@@ -50,7 +50,7 @@ const LoginScreen = () => {
 
       {/* Section Input */}
       <SectionComponent>
-        <TextInputComponent
+        <TextInputAnimationComponent
           value={Email}
           onChange={val => setEmail(val)}
           plahoder="Email"
@@ -59,7 +59,7 @@ const LoginScreen = () => {
           isSuccess={ErrorEmail === Success}
         />
         <SpaceComponent height={30} />
-        <TextInputComponent
+        <TextInputAnimationComponent
           value={Password}
           onChange={val => setPassword(val)}
           plahoder="Password"

@@ -1,9 +1,9 @@
-import React, { FC } from 'react';
-import { StyleSheet } from 'react-native';
-import { colors } from '../../constants/colors';
+import React, {FC} from 'react';
+import {StyleSheet} from 'react-native';
+import {colors} from '../../constants/colors';
+import {fontFamilies} from '../../constants/fontFamilies';
 import RowComponent from '../layouts/RowComponent';
 import TextComponent from './TextComponent';
-import { fontFamilies } from '../../constants/fontFamilies';
 
 interface Props {
   lable: string;
@@ -12,12 +12,16 @@ interface Props {
 
 const TextOrderInformation: FC<Props> = ({lable, content}) => {
   return (
-    <RowComponent flex={1} justify="flex-start" style={{alignItems: 'flex-start'}}>
+    <RowComponent
+      flex={1}
+      justify="flex-start"
+      style={{alignItems: 'flex-start'}}>
       <TextComponent
         text={lable}
         size={14}
         color={colors.Gray_Color}
         flex={0.4}
+        lineHeight={20}
       />
       <TextComponent
         text={content}
