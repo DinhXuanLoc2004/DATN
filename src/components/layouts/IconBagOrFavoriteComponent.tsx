@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, ViewStyle } from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../../constants/colors';
@@ -10,12 +10,14 @@ interface Props {
   isItemFavorite?: boolean;
   isFavorite?: boolean;
   onPress?: () => void;
+  styleContainer?: ViewStyle
 }
 
 const IconBagOrFavoriteComponent: FC<Props> = ({
   isItemFavorite,
   isFavorite,
   onPress,
+  styleContainer
 }) => {
   return (
     <SectionComponent
@@ -32,6 +34,7 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
             ? colors.Primary_Color
             : colors.Gray_Color,
         },
+        styleContainer
       ]}>
       {isItemFavorite ? (
         <FontAwesome5Icon

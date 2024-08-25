@@ -1,5 +1,5 @@
 import React, {FC} from 'react';
-import {Image, StyleSheet} from 'react-native';
+import {Image, StyleSheet, StyleProp, ViewStyle} from 'react-native';
 import {colors} from '../../../constants/colors';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
@@ -27,6 +27,7 @@ interface ItemProps {
   isItemFavorite?: boolean;
   color?: string;
   size?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 const ItemColumnComponent: FC<ItemProps> = ({
@@ -43,10 +44,11 @@ const ItemColumnComponent: FC<ItemProps> = ({
   isItemFavorite,
   color,
   size,
+  style,
 }) => {
   return (
     <SectionComponent
-      style={[styles.container, {opacity: stock === 0 ? 0.5 : 1}]}>
+      style={[styles.container, {opacity: stock === 0 ? 0.5 : 1}, style]}>
       <SectionComponent style={{flex: 0}}>
         <Image source={{uri: imageUrl}} style={styles.image} />
         <NewOrDiscountComponent discount={discount} createAt={createAt} />
@@ -72,12 +74,15 @@ const ItemColumnComponent: FC<ItemProps> = ({
       <StarComponent star={star} size={14} numberReviews={reviewCount} />
       <SpaceComponent height={6} />
       <TextComponent text={trademark} size={11} color={colors.Gray_Color} />
+      <SpaceComponent height={5}/>
       <TextComponent text={name} font={fontFamilies.semiBold} />
       <SpaceComponent height={4} />
       {isItemFavorite && (
         <TextColorAndSizeComponent color={color ?? ''} size={size ?? ''} />
       )}
-      <SalePriceComponent price={price} discount={discount} />
+      <RowComponent>
+        <SalePriceComponent price={price} discount={discount} />
+      </RowComponent>
     </SectionComponent>
   );
 };
