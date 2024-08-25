@@ -36,6 +36,7 @@ interface Props {
   isError?: boolean;
   allowClean?: boolean;
   errorMessage?: string;
+  isAnimationEnabled?: boolean;
 }
 
 const TextInputAnimated = Animated.createAnimatedComponent(TextInput);
@@ -51,6 +52,7 @@ const TextInputAnimationComponent: FC<Props> = ({
   isError,
   allowClean,
   errorMessage,
+  isAnimationEnabled = true,
 }) => {
   const [hidePassword, sethidePassword] = useState(isPassword ? true : false);
   const label = useSharedValue(plahoder);
@@ -68,7 +70,7 @@ const TextInputAnimationComponent: FC<Props> = ({
   };
 
   const labelAnimatedStyle = useAnimatedStyle(() => {
-    return {
+    return isAnimationEnabled ? {
       transform: [
         {
           translateY: translateY.value,
@@ -80,7 +82,7 @@ const TextInputAnimationComponent: FC<Props> = ({
         [0, 1],
         Extrapolation.CLAMP,
       ),
-    };
+    }:{};
   });
 
   return (
