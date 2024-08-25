@@ -1,4 +1,4 @@
-import React, {FC, ReactNode, useState} from 'react';
+import React, { FC, ReactNode, useState } from 'react';
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -6,17 +6,16 @@ import {
   StyleProp,
   TouchableOpacity,
   View,
-  ViewStyle,
-  Dimensions
+  ViewStyle
 } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import {colors} from '../../constants/colors';
-import {globalStyles} from '../../styles/globalStyle';
+import { colors } from '../../constants/colors';
+import { globalStyles } from '../../styles/globalStyle';
+import { handleSize, WIDTH_SCREEN } from '../../utils/handleSize';
+import { onLayout } from '../../utils/onLayout';
 import TitleComponent from '../texts/TitleComponent';
 import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
-import {handleSize, WIDTH_SCREEN} from '../../utils/handleSize';
-import { onLayout } from '../../utils/onLayout';
 
 interface Props {
   children: ReactNode;

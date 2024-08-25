@@ -74,12 +74,15 @@ const ItemColumnComponent: FC<ItemProps> = ({
       <StarComponent star={star} size={14} numberReviews={reviewCount} />
       <SpaceComponent height={6} />
       <TextComponent text={trademark} size={11} color={colors.Gray_Color} />
+      <SpaceComponent height={5}/>
       <TextComponent text={name} font={fontFamilies.semiBold} />
       <SpaceComponent height={4} />
       {isItemFavorite && (
         <TextColorAndSizeComponent color={color ?? ''} size={size ?? ''} />
       )}
-      <SalePriceComponent price={price} discount={discount} />
+      <RowComponent>
+        <SalePriceComponent price={price} discount={discount} />
+      </RowComponent>
     </SectionComponent>
   );
 };
