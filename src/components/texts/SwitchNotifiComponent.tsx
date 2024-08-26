@@ -1,39 +1,39 @@
-import React, {memo} from 'react';
-import {StyleSheet, TouchableOpacity, ViewStyle, Switch} from 'react-native';
-import {colors} from '../../constants/colors';
-import {handleSize} from '../../utils/handleSize';
+import React, { memo } from 'react';
+import { StyleSheet, Switch, TouchableOpacity, ViewStyle } from 'react-native';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { handleSize } from '../../utils/handleSize';
 import RowComponent from '../layouts/RowComponent';
+import SpaceComponent from '../layouts/SpaceComponent';
 import TextComponent from './TextComponent';
-import {fontFamilies} from '../../constants/fontFamilies';
 
 interface Props {
   text: string;
-  isSelected: boolean;
-  onPress: () => void;
+  selected: boolean;
+  set_selected: (val: boolean) => void;
   style?: ViewStyle;
 }
 
 const SwitchNotifiComponent: React.FC<Props> = ({
   text,
-  isSelected,
-  onPress,
+  selected,
+  set_selected,
   style,
 }) => {
   return (
-    <TouchableOpacity style={[styles.container, style]} onPress={onPress}>
+    <TouchableOpacity style={[style]}>
       <RowComponent>
-        <TextComponent
-          text={text}
-          font={fontFamilies.medium}
-          size={handleSize(14)}
-          color={colors.Text_Color}
-        />
-        <Switch
-          value={isSelected}
-          onValueChange={onPress}
-          trackColor={{false: colors.Gray_Color, true: colors.Gray_Color}}
-          thumbColor={isSelected ? colors.Success_Color : colors.White_Color}
-        />
+        <TextComponent text={text} font={fontFamilies.medium} size={14} />
+        <RowComponent justify='flex-end'>
+          <Switch
+            value={selected}
+            onValueChange={() => set_selected(!selected)}
+            trackColor={{false: colors.Gray_Color, true: colors.Success_Color}}
+            thumbColor={colors.White_Color}
+            style={styles.switch}
+          />
+          <SpaceComponent width={3} />
+        </RowComponent>
       </RowComponent>
     </TouchableOpacity>
   );
@@ -42,7 +42,12 @@ const SwitchNotifiComponent: React.FC<Props> = ({
 export default memo(SwitchNotifiComponent);
 
 const styles = StyleSheet.create({
-  container: {
-    paddingVertical: handleSize(10),
+  switch: {
+    transform: [
+      {
+        scale: 1.3,
+      },
+    ],
+    elevation: handleSize(2)
   },
 });

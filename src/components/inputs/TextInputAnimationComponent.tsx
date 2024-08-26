@@ -1,5 +1,5 @@
-import {TickCircle} from 'iconsax-react-native';
-import React, {FC, memo, ReactNode, useState} from 'react';
+import { TickCircle } from 'iconsax-react-native';
+import React, { FC, memo, ReactNode, useState } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -11,19 +11,18 @@ import {
 import Animated, {
   Extrapolation,
   interpolate,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withTiming
 } from 'react-native-reanimated';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
-import {globalStyles} from '../../styles/globalStyle';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { globalStyles } from '../../styles/globalStyle';
+import { handleSize } from '../../utils/handleSize';
 import RowComponent from '../layouts/RowComponent';
 import TextComponent from '../texts/TextComponent';
-import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   value: string;
