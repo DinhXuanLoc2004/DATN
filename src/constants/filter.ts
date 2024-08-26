@@ -15,6 +15,7 @@ export const colors_select = [
 ];
 
 export const sizes_select = ['XS', 'S', 'M', 'L', 'XL'];
+export const notifications_select = ['Sales', 'New arrivals', 'Delivery status changes'];
 
 export const categories_select = ['All', 'Women', 'Men', 'Boys', 'Girls'];
 

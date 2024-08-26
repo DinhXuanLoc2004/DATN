@@ -1,5 +1,5 @@
-import {TickCircle} from 'iconsax-react-native';
-import React, {FC, memo, ReactNode, useState} from 'react';
+import { TickCircle } from 'iconsax-react-native';
+import React, { FC, memo, ReactNode, useState } from 'react';
 import {
   StyleProp,
   StyleSheet,
@@ -11,19 +11,18 @@ import {
 import Animated, {
   Extrapolation,
   interpolate,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withTiming
 } from 'react-native-reanimated';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
-import {globalStyles} from '../../styles/globalStyle';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { globalStyles } from '../../styles/globalStyle';
+import { handleSize } from '../../utils/handleSize';
 import RowComponent from '../layouts/RowComponent';
 import TextComponent from '../texts/TextComponent';
-import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   value: string;
@@ -36,6 +35,7 @@ interface Props {
   isError?: boolean;
   allowClean?: boolean;
   errorMessage?: string;
+  isAnimationEnabled?: boolean;
 }
 
 const TextInputAnimated = Animated.createAnimatedComponent(TextInput);
@@ -51,6 +51,7 @@ const TextInputAnimationComponent: FC<Props> = ({
   isError,
   allowClean,
   errorMessage,
+  isAnimationEnabled = true,
 }) => {
   const [hidePassword, sethidePassword] = useState(isPassword ? true : false);
   const label = useSharedValue(plahoder);
@@ -68,7 +69,7 @@ const TextInputAnimationComponent: FC<Props> = ({
   };
 
   const labelAnimatedStyle = useAnimatedStyle(() => {
-    return {
+    return isAnimationEnabled ? {
       transform: [
         {
           translateY: translateY.value,
@@ -80,7 +81,7 @@ const TextInputAnimationComponent: FC<Props> = ({
         [0, 1],
         Extrapolation.CLAMP,
       ),
-    };
+    }:{};
   });
 
   return (
