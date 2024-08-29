@@ -1,32 +1,39 @@
-import { View, Text, StyleProp, TextStyle, TextProps } from 'react-native'
-import React, { FC } from 'react'
-import { colors } from '../../constants/colors'
-import { globalStyles } from '../../styles/globalStyle'
-import { fontFamilies } from '../../constants/fontFamilies'
-import TextComponent from './TextComponent'
+import React, {FC, memo} from 'react';
+import {StyleProp, TextStyle} from 'react-native';
+import {fontFamilies} from '../../constants/fontFamilies';
+import TextComponent from './TextComponent';
+import { handleSize } from '../../utils/handleSize';
 
 interface Props {
-  text: string,
-  color?: string,
-  font?: string,
-  size?: number,
-  style?: StyleProp<TextStyle>,
-  flex?: number,
-  heightLine?: number
+  text: string;
+  color?: string;
+  font?: string;
+  size?: number;
+  style?: StyleProp<TextStyle>;
+  flex?: number;
+  lineHeight?: number;
 }
 
-const TitleComponent: FC<Props> = ({ text, color, font, size, style, flex, heightLine }) => {
+const TitleComponent: FC<Props> = ({
+  text,
+  color,
+  font,
+  size,
+  style,
+  flex,
+  lineHeight,
+}) => {
   return (
     <TextComponent
       text={text}
-      size={size ?? 18}
+      size={size ?? handleSize(18)}
       font={font ?? fontFamilies.semiBold}
       color={color}
       flex={flex}
       style={style}
-      heightLine={heightLine ?? 22}
+      lineHeight={lineHeight ? lineHeight : size ? size : handleSize(18)}
     />
-  )
-}
+  );
+};
 
-export default TitleComponent
+export default memo(TitleComponent);
