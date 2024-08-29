@@ -1,21 +1,17 @@
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
+import {StyleSheet} from 'react-native';
+import ButtonComponent from '../../components/buttons/ButtonComponent';
+import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
+import TextInputAnimationComponent from '../../components/inputs/TextInputAnimationComponent';
 import ContainerComponent from '../../components/layouts/ContainerComponent';
-import TextComponent from '../../components/texts/TextComponent';
+import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
+import SectionComponent from '../../components/layouts/SectionComponent';
+import SpaceComponent from '../../components/layouts/SpaceComponent';
 import TitleComponent from '../../components/texts/TitleComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
-import SpaceComponent from '../../components/layouts/SpaceComponent';
-import TextInputAnimationComponent from '../../components/inputs/TextInputAnimationComponent';
-import ButtonComponent from '../../components/buttons/ButtonComponent';
+import {store, useAppDispatch, useAppSelector} from '../../helper/store/store';
 import {handleTextInput, Success} from '../../utils/handleTextInput';
-import SectionComponent from '../../components/layouts/SectionComponent';
-import RowComponent from '../../components/layouts/RowComponent';
-import IonIcon from 'react-native-vector-icons/Ionicons';
-import {ArrowRight} from 'iconsax-react-native';
-import {colors} from '../../constants/colors';
-import ButtonScreenSwitchAuth from '../../components/buttons/ButtonScreenSwitchAuth';
-import GGAndFbComponent from '../../components/layouts/GGAndFbComponent';
-import {handleSize} from '../../utils/handleSize';
+import {loginThunk} from '../../helper/store/thunk/auth.thunk';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState<string>('');
@@ -32,9 +28,22 @@ const LoginScreen = () => {
     }
   }, [Email, Password]);
 
+  const {loading} = useAppSelector(state => state.auth.status);
+
+  const dispatch = useAppDispatch();
+
   const handleLogin = () => {
     setErrorEmail(handleTextInput('email', Email));
     setErrorPassword(handleTextInput('password', Password));
+    if (ErrorEmail === Success && ErrorEmail === Success) {
+      dispatch(loginThunk({email: Email, password: Password})).unwrap()
+      .then(res => {
+        console.log('res login::', res.metadata);
+      })
+      .catch(err => {
+        console.log('err login::', err.message);
+      })
+    }
   };
 
   return (
@@ -78,7 +87,7 @@ const LoginScreen = () => {
 
       {/* Section Button Login */}
       <SectionComponent>
-        <ButtonComponent text="LOGIN" onPress={() => handleLogin()} />
+        <ButtonComponent text="LOGIN" onPress={() => handleLogin()} isLoading={loading}/>
       </SectionComponent>
 
       <GGAndFbComponent text="Or login with social account" marginTop={194} />
