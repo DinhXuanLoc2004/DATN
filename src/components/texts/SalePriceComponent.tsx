@@ -14,7 +14,7 @@ interface Props {
 }
 
 const SalePriceComponent: FC<Props> = ({price, discount, size, flex}) => {
-  const newPrice = discount > 0 ? price - price * discount : price;
+  const newPrice = discount > 0 ? price - ((price * discount)/100) : price;
   return (
     <RowComponent justify="flex-end" flex={flex}>
       {discount > 0 && (

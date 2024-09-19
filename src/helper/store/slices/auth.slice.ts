@@ -1,24 +1,32 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import {loginThunk} from '../thunk/auth.thunk';
+import {ref_accessTokenResponse} from '../../types/auth.type';
 const initialState = {
   user: {
     userId: '',
     email: '',
-    status: ''
+    status: '',
   },
   tokens: {
     accessToken: '',
     refreshToken: '',
   },
   status: {
-    loading: false
+    loading: false,
   },
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
-  reducers: {},
+  reducers: {
+    ref_accessToken: (
+      state,
+      action: PayloadAction<ref_accessTokenResponse>,
+    ) => {
+      state.tokens.accessToken = action.payload.metadata.accessToken;
+    },
+  },
   extraReducers: buider => {
     buider
       .addCase(loginThunk.pending, state => {
@@ -33,10 +41,11 @@ const authSlice = createSlice({
         state.tokens.refreshToken = action.payload.metadata.tokens.refreshToken;
       })
       .addCase(loginThunk.rejected, state => {
-        state.status.loading = false
+        state.status.loading = false;
         console.log('err loginThunk.rejected');
-      })
+      });
   },
 });
 
-export const authReducer = authSlice.reducer
+export const authReducer = authSlice.reducer;
+export const {ref_accessToken} = authSlice.actions
