@@ -19,9 +19,9 @@ interface ItemProps {
   name: string;
   price: number;
   discount?: number;
-  star?: number;
-  reviewCount?: number;
-  createAt: Date;
+  star: number;
+  reviewCount: number;
+  createAt: string;
   isFavorite?: boolean;
   stock?: number;
   isItemFavorite?: boolean;
@@ -50,7 +50,7 @@ const ItemColumnComponent: FC<ItemProps> = ({
     <SectionComponent
       style={[styles.container, {opacity: stock === 0 ? 0.5 : 1}, style]}>
       <SectionComponent style={{flex: 0}}>
-        <Image source={{uri: imageUrl}} style={styles.image} />
+        {imageUrl && <Image source={{uri: imageUrl}} style={styles.image} />}
         <NewOrDiscountComponent discount={discount} createAt={createAt} />
         {stock !== 0 && (
           <IconBagOrFavoriteComponent
@@ -71,10 +71,10 @@ const ItemColumnComponent: FC<ItemProps> = ({
         )}
       </SectionComponent>
       <SpaceComponent height={10} />
-      <StarComponent star={star} size={14} numberReviews={reviewCount} />
+      <StarComponent star={star} numberReviews={reviewCount}/>
       <SpaceComponent height={6} />
       <TextComponent text={trademark} size={11} color={colors.Gray_Color} />
-      <SpaceComponent height={5}/>
+      <SpaceComponent height={5} />
       <TextComponent text={name} font={fontFamilies.semiBold} />
       <SpaceComponent height={4} />
       {isItemFavorite && (

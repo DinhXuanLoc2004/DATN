@@ -9,9 +9,10 @@ import SectionComponent from '../../components/layouts/SectionComponent';
 import SpaceComponent from '../../components/layouts/SpaceComponent';
 import TitleComponent from '../../components/texts/TitleComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
-import {store, useAppDispatch, useAppSelector} from '../../helper/store/store';
-import {handleTextInput, Success} from '../../utils/handleTextInput';
+import {useAppDispatch, useAppSelector} from '../../helper/store/store';
 import {loginThunk} from '../../helper/store/thunk/auth.thunk';
+import {handleTextInput, Success} from '../../utils/handleTextInput';
+import {navigationRef} from '../../navigation/RootNavigation';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState<string>('');
@@ -32,17 +33,21 @@ const LoginScreen = () => {
 
   const dispatch = useAppDispatch();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setErrorEmail(handleTextInput('email', Email));
     setErrorPassword(handleTextInput('password', Password));
     if (ErrorEmail === Success && ErrorEmail === Success) {
-      dispatch(loginThunk({email: Email, password: Password})).unwrap()
-      .then(res => {
-        console.log('res login::', res.metadata);
-      })
-      .catch(err => {
-        console.log('err login::', err.message);
-      })
+      dispatch(loginThunk({email: Email, password: Password}))
+        .unwrap()
+        .then(res => {
+          navigationRef.reset({
+            index: 0,
+            routes: [{name: 'HomeScreen'}],
+          });
+        })
+        .catch(err => {
+          console.log('err login::', err.message);
+        });
     }
   };
 
@@ -87,7 +92,11 @@ const LoginScreen = () => {
 
       {/* Section Button Login */}
       <SectionComponent>
-        <ButtonComponent text="LOGIN" onPress={() => handleLogin()} isLoading={loading}/>
+        <ButtonComponent
+          text="LOGIN"
+          onPress={() => handleLogin()}
+          isLoading={loading}
+        />
       </SectionComponent>
 
       <GGAndFbComponent text="Or login with social account" marginTop={194} />
