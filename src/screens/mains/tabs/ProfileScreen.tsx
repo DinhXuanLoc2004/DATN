@@ -9,9 +9,24 @@ import TextComponent from '../../../components/texts/TextComponent';
 import {colors} from '../../../constants/colors';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {handleSize} from '../../../utils/handleSize';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useAppDispatch} from '../../../helper/store/store';
+import {useNavigation} from '@react-navigation/native';
+import {log_out} from '../../../helper/store/slices/auth.slice';
+import { navigationRef } from '../../../navigation/RootNavigation';
 
 const ProfileScreen = () => {
   const handlePress = (screen: string) => {};
+
+  const dispath = useAppDispatch();
+
+  const handleLogout = () => {
+    dispath(log_out());
+    navigationRef.reset({
+      index: 0,
+      routes: [{name: 'LoginScreen'}]
+    })
+  };
 
   return (
     <SectionComponent>
@@ -39,20 +54,32 @@ const ProfileScreen = () => {
           }}
           style={styles.image}
         />
-        <SectionComponent style={styles.name}>
-          <TextComponent
-            text="Matilda Brown"
-            font={fontFamilies.semiBold}
-            size={18}
-          />
-          <SpaceComponent height={5} />
-          <TextComponent
-            text="matildabrown@mail.com"
-            font={fontFamilies.medium}
-            size={14}
-            color={colors.Secondary_Text_Color}
-          />
-        </SectionComponent>
+        <RowComponent
+          justify="space-between"
+          flex={1}
+          style={styles.containerName}>
+          <SectionComponent>
+            <TextComponent
+              text="Matilda Brown"
+              font={fontFamilies.semiBold}
+              size={18}
+            />
+            <SpaceComponent height={5} />
+            <TextComponent
+              text="matildabrown@mail.com"
+              font={fontFamilies.medium}
+              size={14}
+              color={colors.Secondary_Text_Color}
+            />
+          </SectionComponent>
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons
+              name="log-out-outline"
+              size={handleSize(24)}
+              color={colors.Text_Color}
+            />
+          </TouchableOpacity>
+        </RowComponent>
       </RowComponent>
       <SpaceComponent height={28} />
       <ButtonProfileComponent
@@ -103,8 +130,8 @@ const styles = StyleSheet.create({
     height: handleSize(64),
     borderRadius: 100,
   },
-  name: {
-    marginLeft: handleSize(17),
+  containerName: {
+    paddingHorizontal: handleSize(17),
   },
 });
 

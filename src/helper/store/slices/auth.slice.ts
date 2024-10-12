@@ -26,6 +26,11 @@ const authSlice = createSlice({
     ) => {
       state.tokens.accessToken = action.payload.metadata.accessToken;
     },
+    log_out: (state) => {
+      state.user.email = '';
+      state.user.userId = '';
+      state.user.status = ''
+    }
   },
   extraReducers: buider => {
     buider
@@ -48,4 +53,4 @@ const authSlice = createSlice({
 });
 
 export const authReducer = authSlice.reducer;
-export const {ref_accessToken} = authSlice.actions
+export const {ref_accessToken, log_out} = authSlice.actions
