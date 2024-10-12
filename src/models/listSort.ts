@@ -10,10 +10,10 @@ export const listSort: Array<sort> = [
   },
   {
     title: 'Price: lowest to height',
-    value: 'price: 1',
+    value: 'price_min: 1',
   },
   {
     title: 'Price: heightest to low',
-    value: 'price: -1',
+    value: 'price_min: -1',
   },
 ];

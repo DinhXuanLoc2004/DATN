@@ -11,9 +11,10 @@ interface Props {
   discount: number;
   size?: number;
   flex?: number;
+  font?: string;
 }
 
-const SalePriceComponent: FC<Props> = ({price, discount, size, flex}) => {
+const SalePriceComponent: FC<Props> = ({price, discount, size, flex, font}) => {
   const newPrice = discount > 0 ? price - ((price * discount)/100) : price;
   return (
     <RowComponent justify="flex-end" flex={flex}>
@@ -22,7 +23,7 @@ const SalePriceComponent: FC<Props> = ({price, discount, size, flex}) => {
           <TextComponent
             color={colors.Gray_Color}
             size={size ?? 14}
-            font={fontFamilies.medium}
+            font={font ?? fontFamilies.medium}
             text={`${price}$`}
             style={{textDecorationLine: 'line-through'}}
             numberOfLines={1}
@@ -34,7 +35,7 @@ const SalePriceComponent: FC<Props> = ({price, discount, size, flex}) => {
       <TextComponent
         color={discount > 0 ? colors.Primary_Color : colors.Text_Color}
         size={size ?? 14}
-        font={fontFamilies.medium}
+        font={font ?? fontFamilies.medium}
         text={`${discount > 0 ? newPrice : price}$`}
       />
     </RowComponent>

@@ -3,19 +3,63 @@ import {createQueryString} from '../../utils/handleString';
 import axiosIntercreptor from '../config/axiosIntercreptor';
 import {store, useAppSelector} from '../store/store';
 import {
+  colors_size_toProduct,
   getAllProductRequet,
   getAllProductsResponse,
   getDataFilerResponse,
+  getDetailProductResponse,
 } from '../types/product.type';
 
 const URL_PRODUCT = '/product';
 
+const getStore = store.getState();
+const user_id = getStore.auth.user?.userId ?? '';
+
+const getColorsSizesToProduct = async ({
+  queryKey,
+}: {
+  queryKey: [string, string];
+}) => {
+  const [, product_id] = queryKey;
+  const queryString = createQueryString({product_id});
+  try {
+    const data = await axiosIntercreptor.get<undefined, colors_size_toProduct>(
+      `${URL_PRODUCT}/get_colors_sizes_to_product/?${queryString}`,
+    );
+    return data;
+  } catch (error) {
+    console.log('Error fetching colors and sizes to product', error);
+  }
+};
+
 const getDataFiler = async () => {
-  const dataFiler = await axiosIntercreptor.get<
-    undefined,
-    getDataFilerResponse
-  >(`${URL_PRODUCT}/get_data_filter`);
-  return dataFiler;
+  try {
+    const dataFiler = await axiosIntercreptor.get<
+      undefined,
+      getDataFilerResponse
+    >(`${URL_PRODUCT}/get_data_filter`);
+    return dataFiler;
+  } catch (error) {
+    console.log('Error get data filter:: ', error);
+  }
+};
+
+const getDetailProductAPI = async ({
+  queryKey,
+}: {
+  queryKey: [string, string];
+}) => {
+  const [, product_id] = queryKey;
+  const queryString = createQueryString({product_id});
+  try {
+    const product = await axiosIntercreptor.get<
+      undefined,
+      getDetailProductResponse
+    >(`${URL_PRODUCT}/get_detail_product/?${queryString}`);
+    return product;
+  } catch (error) {
+    console.log('Get detail product error::', error);
+  }
 };
 
 const getAllProductAPI = async ({
@@ -23,8 +67,6 @@ const getAllProductAPI = async ({
 }: {
   queryKey: [string, string?, string?, getAllProductRequet?];
 }) => {
-  const getStore = store.getState();
-  const user_id = getStore.auth.user?.userId ?? '';
   const [, category_id, sort, body] = queryKey;
   const queryString = createQueryString({
     user_id,
@@ -44,4 +86,9 @@ const getAllProductAPI = async ({
   }
 };
 
-export {getAllProductAPI, getDataFiler};
+export {
+  getAllProductAPI,
+  getDataFiler,
+  getDetailProductAPI,
+  getColorsSizesToProduct,
+};

@@ -3,14 +3,19 @@ import {Animated, FlatList, StyleSheet, View} from 'react-native';
 import {handleSize, WIDTH_SCREEN} from '../../utils/handleSize';
 import { colors } from '../../constants/colors';
 import SectionComponent from './SectionComponent';
+import { imageType } from '../../helper/types/image.type';
 interface Props {
-  images: string[];
+  images: Array<imageType>;
 }
 
 const width_image = WIDTH_SCREEN * 0.72;
 const spacer_item_size = (WIDTH_SCREEN - width_image) / 2;
 const SliderImageComponent: React.FC<Props> = ({images}) => {
-  const data = ['', ...images, ''];
+  const initData: imageType = {
+    url: '',
+    public_id: ''
+  }
+  const data = [initData, ...images, initData];
   const scrollX = useRef(new Animated.Value(0)).current;
   return (
     <SectionComponent flex={0}>
@@ -45,11 +50,11 @@ const SliderImageComponent: React.FC<Props> = ({images}) => {
             inputRange: inputRage,
             outputRange: [handleSize(20), 0, handleSize(20)]
           })
-          return !item ? (
+          return item.public_id === '' ? (
             <View style={{width: spacer_item_size, height: '100%'}} />
           ) : (
             <Animated.Image
-              source={{uri: item}}
+              source={{uri: item.url}}
               style={[
                 styles.image,
                 {transform: [{scale: change_scale}], opacity: change_opacity, borderRadius: change_borderRadius},

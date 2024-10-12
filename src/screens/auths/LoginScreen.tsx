@@ -42,7 +42,7 @@ const LoginScreen = () => {
         .then(res => {
           navigationRef.reset({
             index: 0,
-            routes: [{name: 'HomeScreen'}],
+            routes: [{name: 'StackMainNavigation'}],
           });
         })
         .catch(err => {

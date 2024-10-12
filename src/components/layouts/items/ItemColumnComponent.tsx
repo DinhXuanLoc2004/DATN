@@ -12,6 +12,10 @@ import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
+import { colorType } from '../../../helper/types/color.type';
+import { sizeType } from '../../../helper/types/size.type';
+import ColorComponent from '../ColorComponent';
+import SizeComponent from '../SizeComponent';
 
 interface ItemProps {
   imageUrl: string;
@@ -28,6 +32,7 @@ interface ItemProps {
   color?: string;
   size?: string;
   style?: StyleProp<ViewStyle>;
+  onPress?: () => void,
 }
 
 const ItemColumnComponent: FC<ItemProps> = ({
@@ -45,9 +50,10 @@ const ItemColumnComponent: FC<ItemProps> = ({
   color,
   size,
   style,
+  onPress,
 }) => {
   return (
-    <SectionComponent
+    <SectionComponent onPress={onPress}
       style={[styles.container, {opacity: stock === 0 ? 0.5 : 1}, style]}>
       <SectionComponent style={{flex: 0}}>
         {imageUrl && <Image source={{uri: imageUrl}} style={styles.image} />}

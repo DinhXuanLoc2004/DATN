@@ -8,6 +8,7 @@ import {store} from './src/helper/store/store';
 import {navigationRef, RootNavigation} from './src/navigation/RootNavigation';
 import {PortalProvider} from '@gorhom/portal';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 
 const queryClient = new QueryClient();
 function App(): React.JSX.Element {
@@ -17,9 +18,11 @@ function App(): React.JSX.Element {
         <Provider store={store}>
           <QueryClientProvider client={queryClient}>
             <NavigationContainer ref={navigationRef}>
-              <PortalProvider>
-                <RootNavigation />
-              </PortalProvider>
+              <BottomSheetModalProvider>
+                <PortalProvider>
+                  <RootNavigation />
+                </PortalProvider>
+              </BottomSheetModalProvider>
             </NavigationContainer>
           </QueryClientProvider>
         </Provider>

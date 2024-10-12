@@ -8,7 +8,7 @@ import ButtonComponent from '../../../components/buttons/ButtonComponent';
 import DoubleButtonComponent from '../../../components/buttons/DoubleButtonComponent';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
 import ContainerFilterComponent from '../../../components/layouts/ContainerFilterComponent';
-import CustomBottomSheet from '../../../components/layouts/CustomBottomSheet';
+import CustomBottomSheet from '../../../components/layouts/bottom_sheets/CustomBottomSheet';
 import RangeSliderComponent from '../../../components/layouts/RangeSliderComponent';
 import RowComponent from '../../../components/layouts/RowComponent';
 import SearchComponent from '../../../components/layouts/SearchComponent';

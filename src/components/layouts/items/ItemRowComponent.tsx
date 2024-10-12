@@ -30,6 +30,7 @@ interface Props {
   isFavorite: boolean;
   onFavoriteToggle?: () => void;
   isItemFavorite?: boolean;
+  onPress?: () => void
 }
 
 const ItemRowComponent: FC<Props> = ({
@@ -48,9 +49,10 @@ const ItemRowComponent: FC<Props> = ({
   onFavoriteToggle,
   isFavorite,
   isItemFavorite,
+  onPress
 }) => {
   return (
-    <SectionComponent style={{opacity: stock === 0 ? 0.5 : 1}}>
+    <SectionComponent style={{opacity: stock === 0 ? 0.5 : 1}} onPress={onPress}>
       <SectionComponent style={styles.container}>
         <RowComponent justify="space-between" style={styles.containerItem}>
           <View style={styles.imageContainer}>

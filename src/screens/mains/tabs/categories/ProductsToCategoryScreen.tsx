@@ -1,13 +1,16 @@
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+} from '@gorhom/bottom-sheet';
 import {Portal} from '@gorhom/portal';
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import ContainerComponent from '../../../../components/layouts/ContainerComponent';
-import CustomBottomSheet from '../../../../components/layouts/CustomBottomSheet';
+import CustomBottomSheet from '../../../../components/layouts/bottom_sheets/CustomBottomSheet';
 import HeaderScreenAnimation from '../../../../components/layouts/HeaderScreenAnimation';
 import ItemColumnComponent from '../../../../components/layouts/items/ItemColumnComponent';
 import ItemRowComponent from '../../../../components/layouts/items/ItemRowComponent';
@@ -53,8 +56,10 @@ const ProductsToCategoryScreen = ({
   const [category_id_choose, setcategory_id_choose] = useState<string>('');
   const [products, setproducts] = useState<Array<productResponse>>([]);
 
-  const isColumn = useAppSelector(state => state.app.layoutItem.columnProductsCategory);
-  const sort = useAppSelector(state => state.sort.sort)
+  const isColumn = useAppSelector(
+    state => state.app.layoutItem.columnProductsCategory,
+  );
+  const sort = useAppSelector(state => state.sort.sort);
 
   const stateFilter = useAppSelector(state => state.sort.filter);
   const price = [stateFilter.price.min, stateFilter.price.max];
@@ -138,7 +143,11 @@ const ProductsToCategoryScreen = ({
     extrapolate: 'clamp',
   });
 
-  const bottomSheet = useRef<BottomSheet>(null);
+  const bottomSheet = useRef<BottomSheetModal>(null);
+
+  const handlePresentModalPress = useCallback(() => {
+    bottomSheet.current?.present();
+  }, []);
 
   return (
     <ContainerComponent style={styles.container}>
@@ -202,16 +211,13 @@ const ProductsToCategoryScreen = ({
             </RowComponent>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => {
-              bottomSheet.current?.expand();
-            }}>
+          <TouchableOpacity onPress={handlePresentModalPress}>
             <RowComponent>
               <FontAwesome5
                 name={
-                  sort.value === 'price: 1'
+                  sort.value === 'price_min: 1'
                     ? 'sort-amount-up-alt'
-                    : sort.value === 'price: -1'
+                    : sort.value === 'price_min: -1'
                     ? 'sort-amount-down-alt'
                     : 'newspaper'
                 }
@@ -276,11 +282,16 @@ const ProductsToCategoryScreen = ({
             <SectionComponent flex={0}>
               {isColumn ? (
                 <ItemColumnComponent
+                  onPress={() =>
+                    navigation.navigate('DetailProductScreen', {
+                      product_id: item._id,
+                    })
+                  }
                   trademark={item.name_category}
                   name={item.name_product}
                   imageUrl={item.thumb}
                   createAt={item.createdAt}
-                  price={item.price}
+                  price={item.price_min}
                   discount={item.discount}
                   stock={item.inventory_quantity}
                   star={item.averageRating}
@@ -290,11 +301,16 @@ const ProductsToCategoryScreen = ({
                 />
               ) : (
                 <ItemRowComponent
+                  onPress={() =>
+                    navigation.navigate('DetailProductScreen', {
+                      product_id: item._id,
+                    })
+                  }
                   trademark={item.name_category}
                   name={item.name_product}
                   img={item.thumb}
                   createAt={item.createdAt}
-                  price={item.price}
+                  price={item.price_min}
                   discount={item.discount}
                   stock={item.inventory_quantity}
                   star={item.averageRating}
@@ -312,12 +328,12 @@ const ProductsToCategoryScreen = ({
         />
       </Animated.View>
 
-      <Portal>
-        <CustomBottomSheet
-          title="Sort by"
-          bottomSheet={bottomSheet}
-          snapPoint={[handleSize(250)]}
-          content={
+      <CustomBottomSheet
+        title="Sort by"
+        bottomSheet={bottomSheet}
+        snapPoint={[100, handleSize(250)]}
+        content={
+          <SectionComponent flex={0}>
             <SectionComponent style={styles.contentBottomSheet}>
               {listSort.map((item, index) => (
                 <TouchableOpacity
@@ -351,9 +367,9 @@ const ProductsToCategoryScreen = ({
                 </TouchableOpacity>
               ))}
             </SectionComponent>
-          }
-        />
-      </Portal>
+          </SectionComponent>
+        }
+      />
     </ContainerComponent>
   );
 };
@@ -368,7 +384,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   contentBottomSheet: {
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-start',
     paddingVertical: handleSize(20),
   },
   row: {
