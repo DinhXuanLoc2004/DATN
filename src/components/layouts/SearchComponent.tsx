@@ -27,7 +27,7 @@ const SearchComponent: FC<Props> = ({
   onClear,
 }) => {
   return (
-    <RowComponent style={styles.containerSearch}>
+    <RowComponent style={[styles.containerSearch, style]}>
       <IonIcon name="search" size={handleSize(20)} color={colors.Gray_Color} />
       <TextInput
         value={value}

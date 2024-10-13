@@ -12,6 +12,13 @@ import RowComponent from '../RowComponent';
 import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
+import {
+  bodyChangeQuantityCart,
+  changeQuantityCartResponse,
+  getAllCartResponse,
+} from '../../../helper/types/cart.type';
+import {changeQuantityCartAPI} from '../../../helper/apis/cart.api';
+import {QueryObserverResult, RefetchOptions} from '@tanstack/react-query';
 
 interface Props {
   name: string;
@@ -21,7 +28,13 @@ interface Props {
   image_url: string;
   quantity: number;
   discount: number;
-  create_at: Date;
+  create_at: string;
+  cart_id: string;
+  fnRefect: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<getAllCartResponse | undefined, Error>>;
+  setisVisibleModal: (val: boolean) => void;
+  setcart_id_delete: (val: string) => void;
 }
 
 const ItemCartComponent: React.FC<Props> = ({
@@ -33,17 +46,32 @@ const ItemCartComponent: React.FC<Props> = ({
   quantity,
   discount,
   create_at,
+  cart_id,
+  fnRefect,
+  setisVisibleModal,
+  setcart_id_delete
 }) => {
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
-  const [quantityLocal, setquantityLocal] = useState<number>(quantity);
 
-  const handleChangeQuantity = (val: number): void => {
-    if (val > 0) {
-      setquantityLocal(quantityLocal + val);
-    } else {
-      if (quantityLocal > 1) {
-        setquantityLocal(quantityLocal + val);
+  const updateQuantity = async (value: number) => {
+    const body: bodyChangeQuantityCart = {
+      cart_id,
+      value,
+    };
+    const data = await changeQuantityCartAPI(body);
+    if (data?.metadata) fnRefect();
+  };
+
+  const handleChangeQuantity = (value: number) => {
+    if (value < 0) {
+      if (quantity <= 1) {
+        setisVisibleModal(true);
+        setcart_id_delete(cart_id)
+      } else {
+        updateQuantity(value);
       }
+    } else {
+      updateQuantity(value);
     }
   };
 
@@ -84,7 +112,7 @@ const ItemCartComponent: React.FC<Props> = ({
             </TouchableOpacity>
             <SpaceComponent width={12} />
             <TextComponent
-              text={`${quantityLocal}`}
+              text={quantity.toString()}
               size={14}
               font={fontFamilies.medium}
             />
@@ -98,7 +126,7 @@ const ItemCartComponent: React.FC<Props> = ({
           <SpaceComponent width={10} />
           <SalePriceComponent
             discount={discount}
-            price={price * quantityLocal}
+            price={price * quantity}
             flex={1}
           />
         </RowComponent>
@@ -140,15 +168,15 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.White_Color,
     borderRadius: handleSize(8),
-    elevation: handleSize(3),
+    elevation: handleSize(5),
     height: handleSize(104),
+    flex: 1
   },
   image: {
     width: handleSize(120),
     height: '100%',
-    borderBottomStartRadius: handleSize(8),
-    borderTopStartRadius: handleSize(8),
-    borderBottomEndRadius: 20,
+    borderBottomLeftRadius: handleSize(8),
+    borderTopLeftRadius: handleSize(8),
   },
   containerContent: {
     padding: handleSize(11),

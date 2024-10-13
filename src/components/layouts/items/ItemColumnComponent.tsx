@@ -12,6 +12,10 @@ import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
+import { colorType } from '../../../helper/types/color.type';
+import { sizeType } from '../../../helper/types/size.type';
+import ColorComponent from '../ColorComponent';
+import SizeComponent from '../SizeComponent';
 
 interface ItemProps {
   imageUrl: string;
@@ -19,15 +23,16 @@ interface ItemProps {
   name: string;
   price: number;
   discount?: number;
-  star?: number;
-  reviewCount?: number;
-  createAt: Date;
+  star: number;
+  reviewCount: number;
+  createAt: string;
   isFavorite?: boolean;
   stock?: number;
   isItemFavorite?: boolean;
   color?: string;
   size?: string;
   style?: StyleProp<ViewStyle>;
+  onPress?: () => void,
 }
 
 const ItemColumnComponent: FC<ItemProps> = ({
@@ -45,12 +50,13 @@ const ItemColumnComponent: FC<ItemProps> = ({
   color,
   size,
   style,
+  onPress,
 }) => {
   return (
-    <SectionComponent
+    <SectionComponent onPress={onPress}
       style={[styles.container, {opacity: stock === 0 ? 0.5 : 1}, style]}>
       <SectionComponent style={{flex: 0}}>
-        <Image source={{uri: imageUrl}} style={styles.image} />
+        {imageUrl && <Image source={{uri: imageUrl}} style={styles.image} />}
         <NewOrDiscountComponent discount={discount} createAt={createAt} />
         {stock !== 0 && (
           <IconBagOrFavoriteComponent
@@ -71,10 +77,10 @@ const ItemColumnComponent: FC<ItemProps> = ({
         )}
       </SectionComponent>
       <SpaceComponent height={10} />
-      <StarComponent star={star} size={14} numberReviews={reviewCount} />
+      <StarComponent star={star} numberReviews={reviewCount}/>
       <SpaceComponent height={6} />
       <TextComponent text={trademark} size={11} color={colors.Gray_Color} />
-      <SpaceComponent height={5}/>
+      <SpaceComponent height={5} />
       <TextComponent text={name} font={fontFamilies.semiBold} />
       <SpaceComponent height={4} />
       {isItemFavorite && (

@@ -12,6 +12,7 @@ interface Props {
   style?: StyleProp<ViewStyle>;
   colorText?: string;
   isLoading?: boolean;
+  disable?: boolean
 }
 
 const ButtonComponent: FC<Props> = ({
@@ -21,10 +22,11 @@ const ButtonComponent: FC<Props> = ({
   style,
   colorText,
   isLoading,
+  disable
 }) => {
   return (
     <TouchableOpacity
-      disabled={isLoading}
+      disabled={disable ?? isLoading}
       onPress={onPress}
       style={[
         globalStyles.button,

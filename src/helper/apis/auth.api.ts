@@ -1,11 +1,24 @@
 import axiosIntercreptor from '../config/axiosIntercreptor';
-import { loginRequest, loginResponse } from '../types/auth.type';
+import {
+  loginRequest,
+  loginResponse,
+  ref_accessTokenResponse,
+} from '../types/auth.type';
 
-const URL_AUTH = '/user/'
+const URL_AUTH = '/auth';
 
 const loginAPI = async (body: loginRequest) => {
-    return await axiosIntercreptor.post<loginRequest, loginResponse>(`${URL_AUTH}login`, body)
-}
+  return await axiosIntercreptor.post<loginRequest, loginResponse>(
+    `${URL_AUTH}/login`,
+    body,
+  );
+};
 
-export {loginAPI}
+const ref_accessTokenAPI = async (body: {refreshToken: string}) => {
+  return await axiosIntercreptor.post<
+    {refreshToken: string},
+    ref_accessTokenResponse
+  >('token/ref_accessToken', body);
+};
 
+export {loginAPI, ref_accessTokenAPI};

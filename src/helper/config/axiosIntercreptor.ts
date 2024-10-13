@@ -1,6 +1,9 @@
 import axios from 'axios';
 import {store} from '../store/store';
-const baseURL = 'http://192.168.1.44:5000/v1/api';
+import {ref_accessTokenAPI} from '../apis/auth.api';
+import {ref_accessToken} from '../store/slices/auth.slice';
+
+const baseURL = 'http://192.168.1.25:5000/v1/api/';
 
 const axiosIntercreptor = axios.create({
   baseURL: baseURL,
@@ -22,10 +25,27 @@ axiosIntercreptor.interceptors.request.use(
     return Promise.reject(err);
   },
 );
+
 axiosIntercreptor.interceptors.response.use(
   response => {
-    return response.data
-  }
-)
+    return response.data;
+  },
+  async err => {
+    const original = err.config;
+    if (
+      err.response.message === 'AccessToken Expired!' &&
+      err.response.status === 401
+    ) {
+      const refreshToken = store.getState()?.auth?.tokens?.refreshToken;
+      const response = await ref_accessTokenAPI({refreshToken});
+      store.dispatch(ref_accessToken(response));
+      original.headers.authorization = `Bearer ${response.metadata.accessToken}`;
+      return await axiosIntercreptor(original);
+    } else if (err.response.message === 'RefreshToken Expired!' && err.response.status === 403) {
+      ///
+    }
+    return Promise.reject(err.response.data);
+  },
+);
 
-export default axiosIntercreptor
+export default axiosIntercreptor;

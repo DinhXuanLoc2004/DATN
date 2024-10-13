@@ -1,3 +1,5 @@
+import { Response } from "./response.type";
+
 export interface loginRequest {
   email: string;
   password: string;
@@ -15,4 +17,10 @@ export interface loginResponse extends Response {
         refreshToken: string
     }
   };
+}
+
+export interface ref_accessTokenResponse extends Response{
+  metadata: {
+    accessToken: string
+  }
 }

@@ -19,17 +19,18 @@ interface Props {
   trademark: string;
   name: string;
   price: number;
-  color: string;
-  size: string;
+  color?: string;
+  size?: string;
   stock: number;
   star: number;
   numberReviews: number;
   discount: number;
-  createAt: Date;
+  createAt: string;
   img: string;
   isFavorite: boolean;
   onFavoriteToggle?: () => void;
   isItemFavorite?: boolean;
+  onPress?: () => void
 }
 
 const ItemRowComponent: FC<Props> = ({
@@ -48,9 +49,10 @@ const ItemRowComponent: FC<Props> = ({
   onFavoriteToggle,
   isFavorite,
   isItemFavorite,
+  onPress
 }) => {
   return (
-    <SectionComponent style={{opacity: stock === 0 ? 0.5 : 1}}>
+    <SectionComponent style={{opacity: stock === 0 ? 0.5 : 1}} onPress={onPress}>
       <SectionComponent style={styles.container}>
         <RowComponent justify="space-between" style={styles.containerItem}>
           <View style={styles.imageContainer}>
@@ -73,7 +75,7 @@ const ItemRowComponent: FC<Props> = ({
             <SpaceComponent height={3} />
             <TextComponent text={name} font={fontFamilies.semiBold} />
             <SpaceComponent height={8} />
-            {isItemFavorite ? (
+            {isItemFavorite && color && size ? (
               <TextColorAndSizeComponent color={color} size={size} />
             ) : (
               <StarComponent
@@ -84,7 +86,7 @@ const ItemRowComponent: FC<Props> = ({
             )}
             <SpaceComponent height={12} />
             <RowComponent justify="space-between">
-              <SalePriceComponent discount={discount} price={price} flex={1} />
+              <SalePriceComponent discount={discount} price={price} flex={0} />
               {isItemFavorite && (
                 <StarComponent
                   star={star}

@@ -9,7 +9,7 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import {handleSize} from '../../utils/handleSize';
 
 interface Props {
-  createAt: Date;
+  createAt: string;
   discount: number;
   style?: StyleProp<ViewStyle>;
   top?: number;
@@ -23,13 +23,13 @@ const NewOrDiscountComponent: FC<Props> = ({
   left,
   top,
 }) => {
-  const isNew = handleDate.handleIsNewProduct(createAt);
+  const isNew = createAt ? handleDate.handleIsNewProduct(createAt) : false;
   return isNew || discount > 0 ? (
     <SectionComponent
       style={[
         styles.container,
         {
-          backgroundColor: isNew ? colors.Text_Color : colors.Primary_Color,
+          backgroundColor: discount > 0 ? colors.Primary_Color : colors.Text_Color,
           top: handleSize(top ?? 9),
           left: handleSize(left ?? 9),
         },
@@ -37,7 +37,7 @@ const NewOrDiscountComponent: FC<Props> = ({
       ]}
       flex={0}>
       <TextComponent
-        text={isNew ? 'NEW' : discountString(discount)}
+        text={discount > 0 ? discountString(discount) : 'NEW'}
         size={11}
         font={fontFamilies.semiBold}
         color={colors.White_Color}

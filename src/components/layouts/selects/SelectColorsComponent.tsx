@@ -1,34 +1,47 @@
 import React, { memo } from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
-import {colors} from '../../../constants/colors';
-import {handleSize} from '../../../utils/handleSize';
+import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { colors } from '../../../constants/colors';
+import { colorType } from '../../../helper/types/color.type';
+import { handleSelect } from '../../../utils/handleSelect';
+import { handleSize } from '../../../utils/handleSize';
 import RowComponent from '../RowComponent';
-import {colors_select, Props_Select} from '../../../constants/filter';
-import {handleSelect} from '../../../utils/handleSelect';
+import SpaceComponent from '../SpaceComponent';
 
-const SelectColorsComponent: React.FC<Props_Select> = ({
+interface Props {
+  data: Array<colorType>;
+  arr_select: Array<string>;
+  set_arr_select: (arr_select: Array<string>) => void;
+}
+
+const SelectColorsComponent: React.FC<Props> = ({
   arr_select,
   set_arr_select,
+  data,
 }) => {
   return (
-    <RowComponent justify="space-between">
-      {colors_select.map((item, index) => (
-        <TouchableOpacity
-          onPress={() =>
-            handleSelect(item, arr_select, set_arr_select)
-          }
-          key={index}
-          style={[
-            styles.btnSelect,
-            {
-              borderColor: arr_select.includes(item)
-                ? colors.Primary_Color
-                : colors.White_Color,
-            },
-          ]}>
-          <View style={[styles.viewBg, {backgroundColor: item}]} />
-        </TouchableOpacity>
-      ))}
+    <RowComponent justify="center">
+      <FlatList
+        data={data}
+        keyExtractor={(_, index) => index.toString()}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            onPress={() => handleSelect(item._id, arr_select, set_arr_select)}
+            style={[
+              styles.btnSelect,
+              {
+                borderColor: arr_select.includes(item._id)
+                  ? colors.Primary_Color
+                  : colors.White_Color,
+              },
+            ]}>
+            <View style={[styles.viewBg, {backgroundColor: item.hex_color}]} />
+          </TouchableOpacity>
+        )}
+        ItemSeparatorComponent={() => (<SpaceComponent width={20}/>)}
+        contentContainerStyle={{justifyContent: 'center', flex: 1}}
+      />
     </RowComponent>
   );
 };
@@ -38,8 +51,8 @@ export default memo(SelectColorsComponent);
 const styles = StyleSheet.create({
   viewBg: {
     borderRadius: 100,
-    width: handleSize(36),
-    height: handleSize(36),
+    width: handleSize(34),
+    height: handleSize(34),
   },
   btnSelect: {
     width: handleSize(44),
@@ -48,5 +61,6 @@ const styles = StyleSheet.create({
     borderWidth: handleSize(1.5),
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: colors.Backgournd_Color
   },
 });
