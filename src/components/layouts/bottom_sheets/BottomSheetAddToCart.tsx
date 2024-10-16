@@ -34,7 +34,11 @@ import {
   ShoppingCart,
   TickCircle,
 } from 'iconsax-react-native';
-import {findProductVariant} from '../../../helper/apis/product_variant.api';
+import {
+  findImageColorProductVariant,
+  findProductVariant,
+  findSizeProductVariant,
+} from '../../../helper/apis/product_variant.api';
 import {product_variant} from '../../../helper/types/product_variant.type';
 import ButtonComponent from '../../buttons/ButtonComponent';
 import Animated, {
@@ -78,6 +82,8 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
   const [size_id, setsize_id] = useState<string>('');
   const [productVariant, setproductVariant] =
     useState<product_variant | null>();
+  const [size_ids, setsize_ids] = useState<string[]>([]);
+  const [image_color_ids, setimage_color_ids] = useState<string[]>([]);
 
   const {
     data: data_colors_sizes,
@@ -100,8 +106,10 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
   });
 
   useEffect(() => {
-    if (data_colors_sizes?.metadata !== undefined)
+    if (data_colors_sizes?.metadata !== undefined) {
       setdataColorsSizes(data_colors_sizes?.metadata);
+      findImageColor();
+    }
   }, [data_colors_sizes?.metadata]);
 
   useEffect(() => {
@@ -119,6 +127,7 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
       }
     }
   };
+
   const [contentHeight, setcontentHeight] = useState<number>(55);
 
   const offsetX = useSharedValue(0);
@@ -203,8 +212,6 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
     );
   };
 
-  const queryClient = useQueryClient();
-
   const handleAddToCart = async () => {
     if (productVariant && productVariant !== null) {
       const dataAddToCart = await addToCartAPI({
@@ -218,6 +225,41 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
         }, DURATION_ANIMATION + 650);
       }
     }
+  };
+
+  const findSize = async () => {
+    if (conditionBtnSize(size_id)) setsize_id('');
+    const data = await findSizeProductVariant(product_id, image_color_id);
+    if (data?.metadata) setsize_ids(data.metadata);
+  };
+
+  const conditionBtnSize = (size_id: string) => {
+    return (
+      size_ids.length > 0 &&
+      size_ids.filter(_id => _id === size_id).length === 0
+    );
+  };
+
+  console.log(size_ids);
+  console.log('product_id::', product_id);
+  console.log('image_color_id::', image_color_id);
+
+  useEffect(() => {
+    if (image_color_id) findSize();
+    else setsize_ids([]);
+  }, [image_color_id]);
+
+  const findImageColor = async () => {
+    if (conditionBtnColor(image_color_id)) setimage_color_id('');
+    const data = await findImageColorProductVariant(product_id);
+    if (data?.metadata) setimage_color_ids(data.metadata);
+  };
+
+  const conditionBtnColor = (image_color_id: string) => {
+    return (
+      image_color_ids.length > 0 &&
+      image_color_ids.filter(_id => _id === image_color_id).length === 0
+    );
   };
 
   return (
@@ -294,9 +336,15 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
                           ? dataColorsSizes.variant.quantity_default.toString()
                           : !image_color_id || !size_id
                           ? 'Please select both size and color!'
-                          : productVariant && productVariant !== null
+                          : !image_color_id
+                          ? 'Please select color'
+                          : !size_id
+                          ? 'Please select size'
+                          : productVariant &&
+                            productVariant !== null &&
+                            productVariant.quantity > 0
                           ? productVariant.quantity.toString()
-                          : 'Product does not exist!'
+                          : 'Please select both size and color!'
                       }
                       size={14}
                       font={fontFamilies.medium}
@@ -314,7 +362,12 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
                     justify="flex-start">
                     {dataColorsSizes.variant.image_colors.map((item, index) => (
                       <RowComponent
-                        onPress={() => setimage_color_id(item._id)}
+                        disable={conditionBtnColor(item._id)}
+                        onPress={() =>
+                          setimage_color_id(
+                            item._id === image_color_id ? '' : item._id,
+                          )
+                        }
                         style={[
                           styles.imageColor,
                           {
@@ -322,6 +375,7 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
                               item._id === image_color_id
                                 ? colors.Primary_Color
                                 : colors.Gray_Light_Color,
+                            opacity: conditionBtnColor(item._id) ? 0.3 : 1,
                           },
                         ]}
                         key={item._id}>
@@ -345,15 +399,20 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
                         style={[
                           styles.containerSize,
                           {
-                            borderColor:
-                              item._id === size_id
-                                ? colors.Primary_Color
-                                : colors.Gray_Light_Color,
+                            borderColor: conditionBtnSize(item._id)
+                              ? colors.Gray_Color
+                              : item._id === size_id
+                              ? colors.Primary_Color
+                              : colors.Gray_Color,
+                            opacity: conditionBtnSize(item._id) ? 0.3 : 1,
                           },
                         ]}
                         justify="center"
                         key={item._id}
-                        onPress={() => setsize_id(item._id)}>
+                        disable={conditionBtnSize(item._id)}
+                        onPress={() =>
+                          setsize_id(item._id === size_id ? '' : item._id)
+                        }>
                         <TextComponent
                           text={item.size}
                           size={14}
