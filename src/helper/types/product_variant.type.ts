@@ -12,3 +12,11 @@ export interface findProductVariantReponse extends Response {
     variant: product_variant | null;
   };
 }
+
+export interface findSizeProductVariantResponse extends Response {
+  metadata: string[]
+}
+
+export interface findImageColorProductVariantResponse extends Response {
+  metadata: string[]
+}

@@ -1,12 +1,11 @@
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import React, {useEffect, useRef, useState} from 'react';
-import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
-import {
-  default as Icon,
-  default as Ionicons,
-} from 'react-native-vector-icons/Ionicons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {default as Ionicons} from 'react-native-vector-icons/Ionicons';
 import ButtonComponent from '../../../components/buttons/ButtonComponent';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
 import RowComponent from '../../../components/layouts/RowComponent';
@@ -14,8 +13,8 @@ import SectionComponent from '../../../components/layouts/SectionComponent';
 import SliderImageComponent from '../../../components/layouts/SliderImageComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';
 import StarComponent from '../../../components/layouts/StarComponent';
+import BottomSheetAddToCart from '../../../components/layouts/bottom_sheets/BottomSheetAddToCart';
 import ItemColumnComponent from '../../../components/layouts/items/ItemColumnComponent';
-import MenuSelectComponent from '../../../components/layouts/selects/MenuSeclectComponent';
 import SalePriceComponent from '../../../components/texts/SalePriceComponent';
 import TextComponent from '../../../components/texts/TextComponent';
 import {colors} from '../../../constants/colors';
@@ -30,9 +29,6 @@ import {
 } from '../../../helper/types/product.type';
 import {stackParamListMain} from '../../../navigation/StackMainNavigation';
 import {handleSize} from '../../../utils/handleSize';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import BottomSheet, { BottomSheetModal } from '@gorhom/bottom-sheet';
-import BottomSheetAddToCart from '../../../components/layouts/bottom_sheets/BottomSheetAddToCart';
 
 type stackProp = NativeStackNavigationProp<
   stackParamListMain,
@@ -44,8 +40,6 @@ type routeProp = RouteProp<stackParamListMain, 'DetailProductScreen'>;
 const DetailProductScreen = ({route}: {route: routeProp}) => {
   const navigation = useNavigation<stackProp>();
   const {product_id} = route.params;
-  const [size_select, setsize_select] = useState<string>('');
-  const [color_select, setcolor_select] = useState<string>('');
   const [numberOfLineTextDetail, setnumberOfLineTextDetail] =
     useState<number>(4);
   const [product, setproduct] = useState<productDetailResponse>();
@@ -88,7 +82,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
         isHeader
         back
         isScroll
-        title={product?.name_category}
+        title={product?.name_product}
         styleHeader={{
           backgroundColor: colors.White_Color,
           elevation: handleSize(1),
@@ -123,16 +117,52 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
             />
           </RowComponent>
           <TextComponent
-            text={product?.name_product ?? ''}
+            text={product?.name_category ?? ''}
             size={13}
             color={colors.Gray_Color}
           />
-          <SpaceComponent height={8} />
+          <SpaceComponent height={4} />
+          <FlatList
+            data={product?.colors}
+            keyExtractor={item => item._id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => (
+              <View style={styles.containerColor}>
+                <View
+                  style={[styles.itemColor, {backgroundColor: item.hex_color}]}
+                />
+              </View>
+            )}
+          />
+          <SpaceComponent height={5}/>
+          <FlatList
+            data={product?.sizes}
+            keyExtractor={item => item._id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            renderItem={({item}) => (
+              <View
+                style={[
+                  styles.containerColor,
+                  {
+                    borderRadius: 4,
+                    borderWidth: 1,
+                    borderColor: colors.Text_Color,
+                  },
+                ]}>
+                <TextComponent text={item.size} font={fontFamilies.medium}/>
+              </View>
+            )}
+            ItemSeparatorComponent={() => (<SpaceComponent width={5}/>)}
+          />
+          <SpaceComponent height={5}/>
           <StarComponent
             star={product?.averageRating ?? 0}
             numberReviews={product?.countReview ?? 0}
           />
           <SpaceComponent height={16} />
+
           <TouchableOpacity
             onPress={() =>
               setnumberOfLineTextDetail(numberOfLineTextDetail === 4 ? 0 : 4)
@@ -145,26 +175,6 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               numberOfLines={numberOfLineTextDetail}
               ellipsizeMode="tail"
             />
-          </TouchableOpacity>
-          <TouchableOpacity style={{paddingVertical: handleSize(16)}}>
-            <RowComponent justify="space-between">
-              <TextComponent text="Shipping info" />
-              <Icon
-                name="chevron-forward-outline"
-                size={handleSize(16)}
-                color={colors.Text_Color}
-              />
-            </RowComponent>
-          </TouchableOpacity>
-          <TouchableOpacity style={{paddingVertical: handleSize(16)}}>
-            <RowComponent justify="space-between">
-              <TextComponent text="Support" lineHeight={16} />
-              <Icon
-                name="chevron-forward-outline"
-                size={handleSize(16)}
-                color={colors.Text_Color}
-              />
-            </RowComponent>
           </TouchableOpacity>
           <SpaceComponent height={24} />
           <RowComponent justify="space-between">
@@ -243,6 +253,18 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
 export default DetailProductScreen;
 
 const styles = StyleSheet.create({
+  itemColor: {
+    width: handleSize(18),
+    height: handleSize(18),
+    borderRadius: handleSize(9),
+  },
+  containerColor: {
+    width: handleSize(24),
+    height: handleSize(24),
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: handleSize(12),
+  },
   btnAddCart: {
     width: handleSize(48),
     height: handleSize(48),
