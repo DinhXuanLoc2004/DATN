@@ -21,9 +21,7 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
 }) => {
   return (
     <SectionComponent
-      onPress={() => {
-        onPress;
-      }}
+      onPress={onPress}
       style={[
         styles.containerIconShopping,
         {

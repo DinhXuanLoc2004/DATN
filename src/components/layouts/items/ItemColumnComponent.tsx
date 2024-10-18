@@ -12,10 +12,12 @@ import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
-import { colorType } from '../../../helper/types/color.type';
-import { sizeType } from '../../../helper/types/size.type';
+import {colorType} from '../../../helper/types/color.type';
+import {sizeType} from '../../../helper/types/size.type';
 import ColorComponent from '../ColorComponent';
 import SizeComponent from '../SizeComponent';
+import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
+import {setDiaLogLogin} from '../../../helper/store/slices/sort.slice';
 
 interface ItemProps {
   imageUrl: string;
@@ -32,7 +34,7 @@ interface ItemProps {
   color?: string;
   size?: string;
   style?: StyleProp<ViewStyle>;
-  onPress?: () => void,
+  onPress?: () => void;
 }
 
 const ItemColumnComponent: FC<ItemProps> = ({
@@ -46,14 +48,26 @@ const ItemColumnComponent: FC<ItemProps> = ({
   createAt,
   isFavorite,
   stock,
-  isItemFavorite,
+  isItemFavorite = false,
   color,
   size,
   style,
   onPress,
 }) => {
+  const userId = useAppSelector(state => state.auth.user.userId);
+  const dispath = useAppDispatch();
+  const handleIconBagOrFavorite = () => {
+    if (!isItemFavorite) {
+      if (!userId) dispath(setDiaLogLogin(true));
+    }
+    console.log(1);
+  };
+
+  console.log(isItemFavorite);
+
   return (
-    <SectionComponent onPress={onPress}
+    <SectionComponent
+      onPress={onPress}
       style={[styles.container, {opacity: stock === 0 ? 0.5 : 1}, style]}>
       <SectionComponent style={{flex: 0}}>
         {imageUrl && <Image source={{uri: imageUrl}} style={styles.image} />}
@@ -62,6 +76,7 @@ const ItemColumnComponent: FC<ItemProps> = ({
           <IconBagOrFavoriteComponent
             isItemFavorite={isItemFavorite}
             isFavorite={isFavorite}
+            onPress={() => handleIconBagOrFavorite()}
           />
         )}
         {stock === 0 && (
@@ -77,7 +92,7 @@ const ItemColumnComponent: FC<ItemProps> = ({
         )}
       </SectionComponent>
       <SpaceComponent height={10} />
-      <StarComponent star={star} numberReviews={reviewCount}/>
+      <StarComponent star={star} numberReviews={reviewCount} />
       <SpaceComponent height={6} />
       <TextComponent text={trademark} size={11} color={colors.Gray_Color} />
       <SpaceComponent height={5} />
