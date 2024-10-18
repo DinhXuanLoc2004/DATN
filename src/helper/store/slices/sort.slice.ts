@@ -34,6 +34,7 @@ const initialState = {
     rating: 0,
     brands: [''],
   },
+  isDiaLogLogin: false,
 };
 
 const sortSlice = createSlice({
@@ -55,13 +56,17 @@ const sortSlice = createSlice({
     removeFilter: state => {
       state.filter.price.min = 0;
       state.filter.price.max = 0;
-      state.filter.colors = ['']
-      state.filter.sizes = ['']
-      state.filter.rating = 0
-      state.filter.brands = ['']
+      state.filter.colors = [''];
+      state.filter.sizes = [''];
+      state.filter.rating = 0;
+      state.filter.brands = [''];
+    },
+    setDiaLogLogin: (state, action) => {
+      state.isDiaLogLogin = action.payload;
     },
   },
 });
 
 export const sortReducer = sortSlice.reducer;
-export const {setSort, setFilter, removeFilter} = sortSlice.actions;
+export const {setSort, setFilter, removeFilter, setDiaLogLogin} =
+  sortSlice.actions;

@@ -8,6 +8,8 @@ import HomeScreen from '../screens/mains/tabs/HomeScreen';
 import ProfileScreen from '../screens/mains/tabs/ProfileScreen';
 import CategoriesStacks from '../screens/mains/tabs/CategoriesStacks';
 import {handleSize} from '../utils/handleSize';
+import RequiredLoginScreen from '../screens/mains/tabs/RequiredLoginScreen';
+import {useAppSelector} from '../helper/store/store';
 
 type RootBottomTabParamList = {
   HomeScreen: undefined;
@@ -20,6 +22,7 @@ type RootBottomTabParamList = {
 const RootTab = createBottomTabNavigator<RootBottomTabParamList>();
 
 export const BottomTab = () => {
+  const userId = useAppSelector(state => state.auth.user.userId);
   return (
     <RootTab.Navigator
       screenOptions={{
@@ -62,7 +65,7 @@ export const BottomTab = () => {
       />
       <RootTab.Screen
         name="CartScreen"
-        component={CartScreen}
+        component={userId ? CartScreen : RequiredLoginScreen}
         options={{
           tabBarIcon: ({focused}) => (
             <FontAwesome5
@@ -75,7 +78,7 @@ export const BottomTab = () => {
       />
       <RootTab.Screen
         name="FavoriteScreen"
-        component={FavoriteScreen}
+        component={userId ? FavoriteScreen : RequiredLoginScreen}
         options={{
           tabBarIcon: ({focused}) => (
             <Heart

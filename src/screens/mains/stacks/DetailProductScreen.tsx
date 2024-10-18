@@ -29,6 +29,8 @@ import {
 } from '../../../helper/types/product.type';
 import {stackParamListMain} from '../../../navigation/StackMainNavigation';
 import {handleSize} from '../../../utils/handleSize';
+import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
+import {setDiaLogLogin} from '../../../helper/store/slices/sort.slice';
 
 type stackProp = NativeStackNavigationProp<
   stackParamListMain,
@@ -74,6 +76,19 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
   }, [products?.metadata.products]);
 
   const bottomSheet = useRef<BottomSheetModal>(null);
+
+  const dispatch = useAppDispatch();
+
+  const userId = useAppSelector(state => state.auth.user.userId);
+
+  const handleIsLogged = () => {
+    if (!userId) dispatch(setDiaLogLogin(true));
+  };
+
+  const handleBottomSheet = () => {
+    if (!userId) dispatch(setDiaLogLogin(true));
+    else bottomSheet.current?.present();
+  };
 
   return (
     <ContainerComponent style={{flex: 1, padding: 0, paddingHorizontal: 0}}>
@@ -135,7 +150,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               </View>
             )}
           />
-          <SpaceComponent height={5}/>
+          <SpaceComponent height={5} />
           <FlatList
             data={product?.sizes}
             keyExtractor={item => item._id}
@@ -151,12 +166,12 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
                     borderColor: colors.Text_Color,
                   },
                 ]}>
-                <TextComponent text={item.size} font={fontFamilies.medium}/>
+                <TextComponent text={item.size} font={fontFamilies.medium} />
               </View>
             )}
-            ItemSeparatorComponent={() => (<SpaceComponent width={5}/>)}
+            ItemSeparatorComponent={() => <SpaceComponent width={5} />}
           />
-          <SpaceComponent height={5}/>
+          <SpaceComponent height={5} />
           <StarComponent
             star={product?.averageRating ?? 0}
             numberReviews={product?.countReview ?? 0}
@@ -232,7 +247,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
           <TouchableOpacity
             style={styles.btnAddCart}
             onPress={() => {
-              bottomSheet.current?.present();
+              handleBottomSheet();
             }}>
             <FontAwesome5
               name="shopping-cart"
