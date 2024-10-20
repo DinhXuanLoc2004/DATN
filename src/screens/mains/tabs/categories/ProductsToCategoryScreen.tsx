@@ -3,7 +3,7 @@ import BottomSheet, {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import {Portal} from '@gorhom/portal';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
@@ -36,6 +36,7 @@ import {listSort, sort} from '../../../../models/listSort';
 import {setSort} from '../../../../helper/store/slices/sort.slice';
 import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
+import { getProductsToCategoryScreen } from '../../../../constants/queryKeys';
 
 type ProductsToCategoryScreenRouteProp = RouteProp<
   StackParamsListCategory,
@@ -113,8 +114,16 @@ const ProductsToCategoryScreen = ({
     [price, colors_id, sizes_id, rating, brands_id],
   );
 
-  const {data, isLoading, error} = useQuery({
-    queryKey: ['getProductsToCate', category_id_choose, sort.value, body],
+  const user_id = useAppSelector(state => state.auth.user.userId);
+
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: [
+      getProductsToCategoryScreen,
+      user_id,
+      category_id_choose,
+      sort.value,
+      body,
+    ],
     queryFn: getAllProductAPI,
     enabled: !!category_id_choose,
   });
@@ -282,6 +291,7 @@ const ProductsToCategoryScreen = ({
             <SectionComponent flex={0}>
               {isColumn ? (
                 <ItemColumnComponent
+                  _id={item._id}
                   onPress={() =>
                     navigation.navigate('DetailProductScreen', {
                       product_id: item._id,
@@ -316,6 +326,7 @@ const ProductsToCategoryScreen = ({
                   star={item.averageRating}
                   numberReviews={item.countReview}
                   isFavorite={item.isFavorite}
+                  _id={item._id}
                 />
               )}
               <SpaceComponent height={26} />

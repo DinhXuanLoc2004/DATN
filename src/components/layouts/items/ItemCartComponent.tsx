@@ -18,7 +18,21 @@ import {
   getAllCartResponse,
 } from '../../../helper/types/cart.type';
 import {changeQuantityCartAPI} from '../../../helper/apis/cart.api';
-import {QueryObserverResult, RefetchOptions} from '@tanstack/react-query';
+import {
+  QueryKey,
+  QueryObserverResult,
+  RefetchOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {stackParamListMain} from '../../../navigation/StackMainNavigation';
+import {useNavigation} from '@react-navigation/native';
+import {addFavoriteResponse} from '../../../helper/types/favorite.type';
+import {addFavoriteAPI} from '../../../helper/apis/favorite.api';
+import {getAllCartQueryKey, getAllFavoritesQueryKey, getAllProductsHomeSreen, getCategoryIdsToFavoritesQueryKey, getProductsToCategoryScreen} from '../../../constants/queryKeys';
+
+type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
 interface Props {
   name: string;
@@ -35,6 +49,10 @@ interface Props {
   ) => Promise<QueryObserverResult<getAllCartResponse | undefined, Error>>;
   setisVisibleModal: (val: boolean) => void;
   setcart_id_delete: (val: string) => void;
+  isFavorite: boolean;
+  cart_id_select_menu: string;
+  setcart_id_select_menu: (val: string) => void;
+  product_id: string;
 }
 
 const ItemCartComponent: React.FC<Props> = ({
@@ -49,10 +67,13 @@ const ItemCartComponent: React.FC<Props> = ({
   cart_id,
   fnRefect,
   setisVisibleModal,
-  setcart_id_delete
+  setcart_id_delete,
+  isFavorite,
+  cart_id_select_menu,
+  setcart_id_select_menu,
+  product_id,
 }) => {
-  const [menuVisible, setMenuVisible] = useState<boolean>(false);
-
+  const navigation = useNavigation<stackProp>();
   const updateQuantity = async (value: number) => {
     const body: bodyChangeQuantityCart = {
       cart_id,
@@ -63,10 +84,11 @@ const ItemCartComponent: React.FC<Props> = ({
   };
 
   const handleChangeQuantity = (value: number) => {
+    setcart_id_select_menu('');
     if (value < 0) {
       if (quantity <= 1) {
         setisVisibleModal(true);
-        setcart_id_delete(cart_id)
+        setcart_id_delete(cart_id);
       } else {
         updateQuantity(value);
       }
@@ -76,21 +98,86 @@ const ItemCartComponent: React.FC<Props> = ({
   };
 
   const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
+    if (cart_id_select_menu === cart_id) {
+      setcart_id_select_menu('');
+    } else {
+      setcart_id_select_menu(cart_id);
+    }
   };
 
+  const queryClient = useQueryClient();
+
+  const {mutate: toggleFavorite} = useMutation<
+    addFavoriteResponse | undefined,
+    Error,
+    string,
+    {preAllCart: [QueryKey, unknown][]}
+  >({
+    mutationFn: (product_id: string) => {
+      return addFavoriteAPI({product_id});
+    },
+
+    onMutate: async (product_id: string) => {
+      await queryClient.cancelQueries({queryKey: [getAllCartQueryKey]});
+
+      const preAllCart = queryClient.getQueriesData({
+        queryKey: [getAllCartQueryKey],
+      });
+
+      queryClient.setQueriesData(
+        {queryKey: [getAllCartQueryKey]},
+        (
+          old_data: getAllCartResponse | undefined,
+        ): getAllCartResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: old_data.metadata.map(cart =>
+              cart.product_id === product_id
+                ? {...cart, isFavorite: !cart.isFavorite}
+                : cart,
+            ),
+          };
+        },
+      );
+
+      return {preAllCart}
+    },
+
+    onError(error, variables, context) {
+      queryClient.setQueriesData({queryKey: [getAllCartQueryKey]}, context?.preAllCart)
+    },
+
+    onSettled(data, error, variables, context) {
+      queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]})
+      queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]})
+      queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]})
+      queryClient.invalidateQueries({queryKey: [getCategoryIdsToFavoritesQueryKey]})
+    },
+  });
+
   const handleAddToFavorites = () => {
-    console.log('Added to favorites');
-    setMenuVisible(false);
+    setcart_id_select_menu('');
+    toggleFavorite(product_id)
   };
 
   const handleDeleteFromList = () => {
-    console.log('Deleted from the list');
-    setMenuVisible(false);
+    setcart_id_delete(cart_id);
+    setisVisibleModal(true);
+    setcart_id_select_menu('');
   };
 
+  const handleGetProductDetail = () => {
+    setcart_id_select_menu('');
+    navigation.navigate('DetailProductScreen', {product_id: product_id});
+  };
   return (
-    <RowComponent flex={0} style={styles.card}>
+    <RowComponent
+      flex={0}
+      style={styles.card}
+      onPress={() => {
+        handleGetProductDetail();
+      }}>
       <Image source={{uri: image_url}} style={styles.image} />
       <SectionComponent style={styles.containerContent}>
         <RowComponent justify="space-between">
@@ -131,12 +218,15 @@ const ItemCartComponent: React.FC<Props> = ({
           />
         </RowComponent>
       </SectionComponent>
-      {menuVisible && (
+      {cart_id_select_menu === cart_id && (
         <SectionComponent style={styles.menu}>
           <TouchableOpacity
             onPress={handleAddToFavorites}
             style={styles.btnMenu}>
-            <TextComponent text="Add to favorite" size={11} />
+            <TextComponent
+              text={isFavorite ? 'Unlike' : 'Add to favorite'}
+              size={11}
+            />
           </TouchableOpacity>
           <SpaceComponent
             height={1}
@@ -170,7 +260,7 @@ const styles = StyleSheet.create({
     borderRadius: handleSize(8),
     elevation: handleSize(5),
     height: handleSize(104),
-    flex: 1
+    flex: 1,
   },
   image: {
     width: handleSize(120),

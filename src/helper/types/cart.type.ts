@@ -26,9 +26,11 @@ export interface item_cart {
   hex_color: string;
   size: string;
   create_at: string;
+  isFavorite: boolean;
+  product_id: string
 }
 
-export interface getAllCartResponse {
+export interface getAllCartResponse extends Response {
   metadata: Array<item_cart>;
 }
 

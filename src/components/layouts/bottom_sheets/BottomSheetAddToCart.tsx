@@ -1,58 +1,39 @@
+import {BottomSheetModalMethods} from '@gorhom/bottom-sheet/lib/typescript/types';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {Add, Minus, ShoppingCart, TickCircle} from 'iconsax-react-native';
+import React, {FC, useEffect, useState} from 'react';
 import {
   ActivityIndicator,
-  ActivityIndicatorComponent,
-  FlatList,
   Image,
   StyleSheet,
-  Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
-import {
-  BottomSheetMethods,
-  BottomSheetModalMethods,
-} from '@gorhom/bottom-sheet/lib/typescript/types';
-import CustomBottomSheet from './CustomBottomSheet';
-import TextComponent from '../../texts/TextComponent';
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
-import {getColorsSizesToProduct} from '../../../helper/apis/product.api';
-import SectionComponent from '../SectionComponent';
-import {onLayout} from '../../../utils/onLayout';
-import {handleSize} from '../../../utils/handleSize';
-import RowComponent from '../RowComponent';
-import {colors_size_toProduct} from '../../../helper/types/product.type';
-import {colorType} from '../../../helper/types/color.type';
-import {sizeType} from '../../../helper/types/size.type';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import {colors} from '../../../constants/colors';
-import SpaceComponent from '../SpaceComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
-import {
-  Add,
-  CardAdd,
-  Minus,
-  ShoppingCart,
-  TickCircle,
-} from 'iconsax-react-native';
+import {getAllCartQueryKey} from '../../../constants/queryKeys';
+import {addToCartAPI} from '../../../helper/apis/cart.api';
+import {getColorsSizesToProduct} from '../../../helper/apis/product.api';
 import {
   findImageColorProductVariant,
   findProductVariant,
   findSizeProductVariant,
 } from '../../../helper/apis/product_variant.api';
 import {product_variant} from '../../../helper/types/product_variant.type';
-import ButtonComponent from '../../buttons/ButtonComponent';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
-import {Portal} from '@gorhom/portal';
-import {addToCartAPI} from '../../../helper/apis/cart.api';
-import {
-  addToCartResponse,
-  bodyAddToCart,
-} from '../../../helper/types/cart.type';
+import {sizeType} from '../../../helper/types/size.type';
+import {handleSize} from '../../../utils/handleSize';
+import {onLayout} from '../../../utils/onLayout';
+import TextComponent from '../../texts/TextComponent';
+import RowComponent from '../RowComponent';
+import SectionComponent from '../SectionComponent';
+import SpaceComponent from '../SpaceComponent';
+import CustomBottomSheet from './CustomBottomSheet';
 
 interface Props {
   product_id: string;
@@ -84,6 +65,8 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
     useState<product_variant | null>();
   const [size_ids, setsize_ids] = useState<string[]>([]);
   const [image_color_ids, setimage_color_ids] = useState<string[]>([]);
+  const [inventoty, setinventoty] = useState<number>(0);
+  const [errQuantity, seterrQuantity] = useState<string>('');
 
   const {
     data: data_colors_sizes,
@@ -108,17 +91,27 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
   useEffect(() => {
     if (data_colors_sizes?.metadata !== undefined) {
       setdataColorsSizes(data_colors_sizes?.metadata);
+      setinventoty(data_colors_sizes.metadata.variant.quantity_default);
       findImageColor();
     }
   }, [data_colors_sizes?.metadata]);
 
   useEffect(() => {
     setproductVariant(data_product_variant?.metadata.variant);
+    if (data_product_variant?.metadata.variant) {
+      setinventoty(data_product_variant.metadata.variant.quantity);
+    } else {
+      setinventoty(data_colors_sizes?.metadata.variant.quantity_default ?? 0);
+    }
   }, [data_product_variant?.metadata.variant]);
 
   const handleSetQuantity = (numUpdate: number) => {
     if (numUpdate > 0) {
-      setquantity(quantity + numUpdate);
+      if (quantity >= inventoty) {
+        setquantity(inventoty);
+      } else {
+        setquantity(quantity + numUpdate);
+      }
     } else {
       if (quantity === 1) {
         setquantity(1);
@@ -167,6 +160,8 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
   }));
 
   const DURATION_ANIMATION: number = 2000;
+
+  const queryClient = useQueryClient();
 
   const handleAnimationBtnAddToCart = () => {
     offsetX.value = withTiming(130, {duration: DURATION_ANIMATION / 2}, () => {
@@ -223,6 +218,7 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
         setTimeout(() => {
           bottomSheet.current?.close();
         }, DURATION_ANIMATION + 650);
+        queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
       }
     }
   };
@@ -239,10 +235,6 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
       size_ids.filter(_id => _id === size_id).length === 0
     );
   };
-
-  console.log(size_ids);
-  console.log('product_id::', product_id);
-  console.log('image_color_id::', image_color_id);
 
   useEffect(() => {
     if (image_color_id) findSize();
@@ -262,6 +254,28 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
     );
   };
 
+  const handleSetQuantityTextInput = (val: number) => {
+    if (val > 0) {
+      if (val > inventoty) {
+        setquantity(inventoty);
+      } else {
+        setquantity(val);
+      }
+    } else {
+      setquantity(1);
+    }
+  };
+
+  useEffect(() => {
+    if (quantity > inventoty) {
+      seterrQuantity(
+        'The quantity of the selected product exceeds the inventory quantity!',
+      );
+    } else {
+      seterrQuantity('');
+    }
+  }, [inventoty, quantity]);
+
   return (
     <CustomBottomSheet
       bottomSheet={bottomSheet}
@@ -277,40 +291,42 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
               flex={0}
               onLayout={e => onLayout(e, setcontentHeight)}>
               <RowComponent justify="flex-start">
-                <View>
-                  <Image
-                    source={{
-                      uri:
-                        image_color_id &&
-                        dataColorsSizes?.variant.image_colors.filter(
-                          item => item._id === image_color_id,
-                        )
-                          ? dataColorsSizes.variant.image_colors.filter(
-                              item => item._id === image_color_id,
-                            )[0].url
-                          : dataColorsSizes?.thumb,
-                    }}
-                    style={styles.thumb}
-                  />
-                  <Animated.Image
-                    source={{
-                      uri:
-                        image_color_id &&
-                        dataColorsSizes?.variant.image_colors.filter(
-                          item => item._id === image_color_id,
-                        )
-                          ? dataColorsSizes.variant.image_colors.filter(
-                              item => item._id === image_color_id,
-                            )[0].url
-                          : dataColorsSizes?.thumb,
-                    }}
-                    style={[
-                      styles.thumb,
-                      {position: 'absolute', zIndex: 1000},
-                      animatedStyle,
-                    ]}
-                  />
-                </View>
+                {dataColorsSizes?.thumb && (
+                  <View>
+                    <Image
+                      source={{
+                        uri:
+                          image_color_id &&
+                          dataColorsSizes?.variant.image_colors.filter(
+                            item => item._id === image_color_id,
+                          )
+                            ? dataColorsSizes.variant.image_colors.filter(
+                                item => item._id === image_color_id,
+                              )[0].url
+                            : dataColorsSizes?.thumb,
+                      }}
+                      style={styles.thumb}
+                    />
+                    <Animated.Image
+                      source={{
+                        uri:
+                          image_color_id &&
+                          dataColorsSizes?.variant.image_colors.filter(
+                            item => item._id === image_color_id,
+                          )
+                            ? dataColorsSizes.variant.image_colors.filter(
+                                item => item._id === image_color_id,
+                              )[0].url
+                            : dataColorsSizes?.thumb,
+                      }}
+                      style={[
+                        styles.thumb,
+                        {position: 'absolute', zIndex: 1000},
+                        animatedStyle,
+                      ]}
+                    />
+                  </View>
+                )}
                 <SpaceComponent width={10} />
                 <SectionComponent style={styles.containerPriceAndInventory}>
                   <SpaceComponent height={20} />
@@ -424,7 +440,7 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
                 )}
               <SpaceComponent style={[styles.line, {marginTop: 0}]} />
               <RowComponent>
-                <TextComponent text="Số lượng:" font={fontFamilies.medium} />
+                <TextComponent text="Quantity:" font={fontFamilies.medium} />
                 <RowComponent
                   justify="flex-start"
                   style={styles.containerQuantity}>
@@ -437,23 +453,44 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
                     onPress={() => handleSetQuantity(-1)}>
                     <Minus size={24} color={colors.Text_Color} />
                   </TouchableOpacity>
-                  <RowComponent style={styles.txtQuantity}>
-                    <TextComponent text={quantity.toString()} />
-                  </RowComponent>
+                  <TextInput
+                    keyboardType="number-pad"
+                    value={quantity.toString()}
+                    onChangeText={(val: string) =>
+                      handleSetQuantityTextInput(Number(val))
+                    }
+                    style={styles.txtQuantity}
+                  />
                   <TouchableOpacity
-                    style={styles.btnRight}
+                    style={[
+                      styles.btnRight,
+                      {opacity: quantity >= inventoty ? 0.5 : 1},
+                    ]}
+                    disabled={quantity >= inventoty}
                     onPress={() => handleSetQuantity(1)}>
                     <Add size={24} color={colors.Text_Color} />
                   </TouchableOpacity>
                 </RowComponent>
               </RowComponent>
+              {errQuantity && (
+                <SectionComponent style={{width: '100%'}} flex={0}>
+                  <SpaceComponent height={10} />
+                  <TextComponent
+                    text={errQuantity}
+                    color={colors.Primary_Color}
+                    size={14}
+                    font={fontFamilies.medium}
+                  />
+                </SectionComponent>
+              )}
               <SpaceComponent height={10} />
               <TouchableOpacity
                 onPress={handleAddToCart}
                 disabled={
                   !productVariant ||
                   productVariant === null ||
-                  productVariant.quantity === 0
+                  productVariant.quantity === 0 ||
+                  quantity > inventoty
                 }
                 style={[
                   styles.btnAddToCart,
@@ -461,13 +498,15 @@ const BottomSheetAddToCart: FC<Props> = ({product_id, bottomSheet}) => {
                     backgroundColor:
                       productVariant &&
                       productVariant !== null &&
-                      productVariant.quantity > 0
+                      productVariant.quantity > 0 &&
+                      quantity <= inventoty
                         ? colors.Primary_Color
                         : colors.Gray_Color,
                     borderColor:
                       productVariant &&
                       productVariant !== null &&
-                      productVariant.quantity > 0
+                      productVariant.quantity > 0 &&
+                      quantity <= inventoty
                         ? colors.Primary_Color
                         : colors.Gray_Color,
                   },
@@ -529,6 +568,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderTopWidth: 1,
     borderBottomWidth: 1,
+    color: colors.Text_Color,
+    fontSize: handleSize(14),
+    textAlign: 'center',
+    paddingVertical: 0,
   },
   btnMinus: {
     height: '100%',

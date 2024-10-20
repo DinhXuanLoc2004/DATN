@@ -39,9 +39,9 @@ const changeQuantityCartAPI = async (body: bodyChangeQuantityCart) => {
   }
 };
 
-const getAllCartAPI = async () => {
-  const queryString = createQueryString({user_id});
-  console.log('user_id::', user_id);
+const getAllCartAPI = async ({queryKey}: {queryKey: [string, string]}) => {
+  const [, userId] = queryKey
+  const queryString = createQueryString({user_id: userId});
   try {
     const data = await axiosIntercreptor.get<undefined, getAllCartResponse>(
       `${URL_CART}/get_all_cart/?${queryString}`,

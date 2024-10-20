@@ -16,6 +16,8 @@ import SectionComponent from '../../../components/layouts/SectionComponent';
 import ButtonComponent from '../../../components/buttons/ButtonComponent';
 import TextComponent from '../../../components/texts/TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
+import {useAppSelector} from '../../../helper/store/store';
+import { getAllCartQueryKey } from '../../../constants/queryKeys';
 
 const CartScreen = () => {
   const [isVisibleModal, setisVisibleModal] = useState<boolean>(false);
@@ -24,20 +26,16 @@ const CartScreen = () => {
   const [cartChecks, setcartChecks] = useState<string[]>([]);
   const [total_amount, settotal_amount] = useState<number>(0);
   const [checkAll, setcheckAll] = useState<boolean>(false);
+  const user_id = useAppSelector(state => state.auth.user.userId);
   const {data, isLoading, error, refetch} = useQuery({
-    queryKey: ['getAllCart'],
+    queryKey: [getAllCartQueryKey, user_id],
     queryFn: getAllCartAPI,
   });
+  const [cart_id_select_menu, setcart_id_select_menu] = useState<string>('')
 
   useEffect(() => {
     if (data?.metadata) setcarts(data.metadata);
   }, [data?.metadata]);
-
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch]),
-  );
 
   const handleDeleteCart = async () => {
     if (cart_id_delete) {
@@ -56,8 +54,8 @@ const CartScreen = () => {
   };
 
   const handleCheck = (cart_id: string) => {
+    setcart_id_select_menu('')
     const isChecked = conditionChecked(cart_id);
-
     if (isChecked) {
       const newCarts = cartChecks.filter(cart => cart !== cart_id);
       setcartChecks(newCarts);
@@ -77,12 +75,15 @@ const CartScreen = () => {
 
     settotal_amount(total);
 
-    if (cartChecked.length === carts.length) {
-      setcheckAll(true);
-    } else {
+    if (carts.length === 0) {
       setcheckAll(false);
+    } else {
+      if (cartChecked.length === carts.length) {
+        setcheckAll(true);
+      } else {
+        setcheckAll(false);
+      }
     }
-    
   }, [cartChecks, carts]);
 
   const handleCheckAll = () => {
@@ -128,7 +129,7 @@ const CartScreen = () => {
                   <View />
                 )}
               </TouchableOpacity>
-              <SpaceComponent width={5} />
+              <SpaceComponent width={7} />
               <ItemCartComponent
                 color={item.name_color}
                 create_at={item.create_at}
@@ -142,6 +143,10 @@ const CartScreen = () => {
                 fnRefect={refetch}
                 setisVisibleModal={setisVisibleModal}
                 setcart_id_delete={setcart_id_delete}
+                isFavorite={item.isFavorite}
+                cart_id_select_menu={cart_id_select_menu}
+                setcart_id_select_menu={setcart_id_select_menu}
+                product_id={item.product_id}
               />
             </RowComponent>
           );
