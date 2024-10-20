@@ -17,6 +17,7 @@ interface Props {
   translateY: any;
   translateX: any;
   scale: any;
+  isBack?: boolean;
 }
 
 const HeaderScreenAnimation: FC<Props> = ({
@@ -24,19 +25,22 @@ const HeaderScreenAnimation: FC<Props> = ({
   translateY,
   translateX,
   scale,
+  isBack = true,
 }) => {
   const navigation = useNavigation();
   return (
     <View style={[styles.header]}>
       <RowComponent style={[styles.iconHeader, {alignItems: 'flex-start'}]}>
         <SectionComponent>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Ionicons
-              name="chevron-back-outline"
-              size={handleSize(24)}
-              color={colors.Text_Color}
-            />
-          </TouchableOpacity>
+          {isBack && (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons
+                name="chevron-back-outline"
+                size={handleSize(24)}
+                color={colors.Text_Color}
+              />
+            </TouchableOpacity>
+          )}
           <SpaceComponent height={30} />
           <Animated.View
             style={{

@@ -1,23 +1,17 @@
 import React, {FC} from 'react';
-import {Image, StyleSheet, StyleProp, ViewStyle} from 'react-native';
+import {Image, StyleProp, StyleSheet, ViewStyle} from 'react-native';
 import {colors} from '../../../constants/colors';
 import {fontFamilies} from '../../../constants/fontFamilies';
+import NewOrDiscountComponent from '../../texts/NewOrDiscountComponent';
+import SalePriceComponent from '../../texts/SalePriceComponent';
 import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
 import TextComponent from '../../texts/TextComponent';
 import IconBagOrFavoriteComponent from '../IconBagOrFavoriteComponent';
 import IconDeleteItemComponent from '../IconDeleteItemComponent';
-import NewOrDiscountComponent from '../../texts/NewOrDiscountComponent';
 import RowComponent from '../RowComponent';
-import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
-import {colorType} from '../../../helper/types/color.type';
-import {sizeType} from '../../../helper/types/size.type';
-import ColorComponent from '../ColorComponent';
-import SizeComponent from '../SizeComponent';
-import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
-import {setDiaLogLogin} from '../../../helper/store/slices/sort.slice';
 
 interface ItemProps {
   imageUrl: string;
@@ -35,6 +29,8 @@ interface ItemProps {
   size?: string;
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
+  _id: string;
+  onPressBag?: () => void;
 }
 
 const ItemColumnComponent: FC<ItemProps> = ({
@@ -53,18 +49,9 @@ const ItemColumnComponent: FC<ItemProps> = ({
   size,
   style,
   onPress,
+  _id,
+  onPressBag,
 }) => {
-  const userId = useAppSelector(state => state.auth.user.userId);
-  const dispath = useAppDispatch();
-  const handleIconBagOrFavorite = () => {
-    if (!isItemFavorite) {
-      if (!userId) dispath(setDiaLogLogin(true));
-    }
-    console.log(1);
-  };
-
-  console.log(isItemFavorite);
-
   return (
     <SectionComponent
       onPress={onPress}
@@ -76,7 +63,8 @@ const ItemColumnComponent: FC<ItemProps> = ({
           <IconBagOrFavoriteComponent
             isItemFavorite={isItemFavorite}
             isFavorite={isFavorite}
-            onPress={() => handleIconBagOrFavorite()}
+            product_id={_id}
+            onPressBag={onPressBag}
           />
         )}
         {stock === 0 && (
@@ -88,7 +76,7 @@ const ItemColumnComponent: FC<ItemProps> = ({
           </RowComponent>
         )}
         {isItemFavorite && (
-          <IconDeleteItemComponent size={25} top={8} right={8} />
+          <IconDeleteItemComponent size={25} top={5} right={3} product_id={_id}/>
         )}
       </SectionComponent>
       <SpaceComponent height={10} />
@@ -98,7 +86,7 @@ const ItemColumnComponent: FC<ItemProps> = ({
       <SpaceComponent height={5} />
       <TextComponent text={name} font={fontFamilies.semiBold} />
       <SpaceComponent height={4} />
-      {isItemFavorite && (
+      {isItemFavorite && color && size && (
         <TextColorAndSizeComponent color={color ?? ''} size={size ?? ''} />
       )}
       <RowComponent>

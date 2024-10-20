@@ -1,0 +1,6 @@
+export const getAllProductsHomeSreen = 'getAllProducts'
+export const getProductsToCategoryScreen = 'getProductsToCate'
+export const getDetailProductQueryKey = 'getDetailProduct'
+export const getAllFavoritesQueryKey = 'getAllFavorites'
+export const getCategoryIdsToFavoritesQueryKey = 'getCategoryIdsToFavorites'
+export const getAllCartQueryKey = 'getAllCart'
