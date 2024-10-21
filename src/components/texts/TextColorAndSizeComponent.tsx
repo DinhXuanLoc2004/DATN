@@ -4,6 +4,7 @@ import {colors} from '../../constants/colors';
 import {fontFamilies} from '../../constants/fontFamilies';
 import RowComponent from '../layouts/RowComponent';
 import TextComponent from './TextComponent';
+import SpaceComponent from '../layouts/SpaceComponent';
 
 interface Props {
   color: string;
@@ -38,7 +39,6 @@ const TextColorAndSizeComponent: FC<Props> = ({color, size}) => {
         />
         <TextComponent text={size} size={11} font={fontFamilies.regular} />
       </RowComponent>
-      <View style={{flex: 1}} />
     </RowComponent>
   );
 };

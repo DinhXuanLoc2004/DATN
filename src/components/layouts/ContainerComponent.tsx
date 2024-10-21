@@ -16,6 +16,7 @@ import { onLayout } from '../../utils/onLayout';
 import TitleComponent from '../texts/TitleComponent';
 import RowComponent from './RowComponent';
 import SpaceComponent from './SpaceComponent';
+import { useNavigation } from '@react-navigation/native';
 
 interface Props {
   children: ReactNode;
@@ -44,7 +45,7 @@ const ContainerComponent: FC<Props> = ({
   scrollEventThrottle,
   styleHeader,
 }) => {
-  // const navigation: any = useNavigation()
+  const navigation: any = useNavigation()
   const [height_header, setheight_header] = useState<number>(0)
   return (
     <View style={[globalStyles.container, style]}>
@@ -60,7 +61,7 @@ const ContainerComponent: FC<Props> = ({
           ]}
           onLayout={(event) => onLayout(event, setheight_header)}>
           {back ? (
-            <TouchableOpacity onPress={() => {}}>
+            <TouchableOpacity onPress={() => {navigation.goBack()}}>
               <IonIcon
                 name="chevron-back-outline"
                 size={handleSize(24)}
