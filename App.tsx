@@ -4,12 +4,13 @@ import React from 'react';
 import {SafeAreaView} from 'react-native';
 import 'react-native-gesture-handler';
 import {Provider} from 'react-redux';
-import {store} from './src/helper/store/store';
+import {store, useAppSelector} from './src/helper/store/store';
 import {navigationRef, RootNavigation} from './src/navigation/RootNavigation';
 import {PortalProvider} from '@gorhom/portal';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
-
+import DialogIsLoginComponent from './src/components/dialogs/DialogIsLoginComponent';
+import ProductSearchScreen from './src/screens/mains/stacks/ProductSearchScreen';
 const queryClient = new QueryClient();
 function App(): React.JSX.Element {
   return (
@@ -20,7 +21,8 @@ function App(): React.JSX.Element {
             <NavigationContainer ref={navigationRef}>
               <BottomSheetModalProvider>
                 <PortalProvider>
-                  <RootNavigation />
+                  {/* <RootNavigation /> */}
+                  <ProductSearchScreen/>
                 </PortalProvider>
               </BottomSheetModalProvider>
             </NavigationContainer>

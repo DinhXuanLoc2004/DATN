@@ -10,22 +10,28 @@ import SpaceComponent from '../../components/layouts/SpaceComponent';
 import TitleComponent from '../../components/texts/TitleComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import {handleTextInput, Success} from '../../utils/handleTextInput';
+import {signUpAPI} from '../../helper/apis/auth.api';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {RootStackParamList} from '../../navigation/RootNavigation';
+import {useNavigation} from '@react-navigation/native';
+
+type stackParamsList = StackNavigationProp<
+  RootStackParamList,
+  'RegisterScreen'
+>;
 
 const RegisterScreen = () => {
-  const [Name, setName] = useState<string>('');
   const [Email, setEmail] = useState<string>('');
   const [Password, setPassword] = useState<string>('');
   const [ConfirmPassword, setConfirmPassword] = useState<string>('');
 
-  const [ErrorName, setErrorName] = useState<string>('');
   const [ErrorEmail, setErrorEmail] = useState<string>('');
   const [ErrorPassword, setErrorPassword] = useState<string>('');
   const [ErrorConfirmPassword, setErrorConfirmPassword] = useState<string>('');
 
+  const navigation = useNavigation<stackParamsList>();
+
   useEffect(() => {
-    if (Name) {
-      setErrorName(handleTextInput('name', Name));
-    }
     if (Email) {
       setErrorEmail(handleTextInput('email', Email));
     }
@@ -37,15 +43,34 @@ const RegisterScreen = () => {
         handleTextInput('confirmPassword', ConfirmPassword, Password),
       );
     }
-  }, [Name, Email, Password, ConfirmPassword]);
+  }, [Email, Password, ConfirmPassword]);
 
-  const handleLogin = () => {
-    setErrorName(handleTextInput('name', Name));
+  const handleRegister = async () => {
     setErrorEmail(handleTextInput('email', Email));
     setErrorPassword(handleTextInput('password', Password));
     setErrorConfirmPassword(
       handleTextInput('confirmPassword', ConfirmPassword, Password),
     );
+    if (
+      Email &&
+      Password &&
+      ConfirmPassword &&
+      ErrorEmail === Success &&
+      ErrorPassword === Success &&
+      ErrorConfirmPassword === Success
+    ) {
+      try {
+        const data = await signUpAPI({email: Email, password: Password});
+        if (data.status === 201)
+          navigation.navigate('VerifyOTPScreen', {email: Email});
+      } catch (error: any) {
+        console.log(error);
+        if (error.message === 'Email already exists!') 
+          setErrorConfirmPassword(' ');
+          setErrorPassword(' ');
+        setErrorEmail('Email already exists!');
+      }
+    }
   };
 
   return (
@@ -61,14 +86,6 @@ const RegisterScreen = () => {
 
       {/* Section Input */}
       <SectionComponent>
-        <TextInputAnimationComponent
-          value={Name}
-          onChange={val => setName(val)}
-          plahoder="Name"
-          isError={ErrorName !== '' && ErrorName !== Success}
-          errorMessage={ErrorName !== Success ? ErrorName : ''}
-        />
-        <SpaceComponent height={30} />
         <TextInputAnimationComponent
           value={Email}
           onChange={val => setEmail(val)}
@@ -105,13 +122,16 @@ const RegisterScreen = () => {
 
       <SpaceComponent height={16} />
 
-      <ButtonScreenSwitchAuth text="Already have an account?" />
+      <ButtonScreenSwitchAuth
+        text="Already have an account?"
+        onPress={() => navigation.goBack()}
+      />
 
       <SpaceComponent height={28} />
 
       {/* Section Button Sign up */}
       <SectionComponent>
-        <ButtonComponent text="SIGN UP" onPress={() => handleLogin()} />
+        <ButtonComponent text="SIGN UP" onPress={() => handleRegister()} />
       </SectionComponent>
 
       <GGAndFbComponent text="Or sign up with social account" marginTop={54} />

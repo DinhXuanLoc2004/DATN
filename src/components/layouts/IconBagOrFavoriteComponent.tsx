@@ -1,29 +1,174 @@
-import React, {FC} from 'react';
+import React, {FC, useState} from 'react';
 import {StyleSheet, ViewStyle} from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import {colors} from '../../constants/colors';
 import SectionComponent from './SectionComponent';
 import {handleSize} from '../../utils/handleSize';
+import {useAppDispatch, useAppSelector} from '../../helper/store/store';
+import {QueryKey, useMutation, useQueryClient} from '@tanstack/react-query';
+import {addFavoriteResponse} from '../../helper/types/favorite.type';
+import {addFavoriteAPI} from '../../helper/apis/favorite.api';
+import {
+  getAllProductsResponse,
+  getDetailProductResponse,
+} from '../../helper/types/product.type';
+import {setDiaLogLogin} from '../../helper/store/slices/sort.slice';
+import {
+  getAllCartQueryKey,
+  getAllFavoritesQueryKey,
+  getAllProductsHomeSreen,
+  getCategoryIdsToFavoritesQueryKey,
+  getDetailProductQueryKey,
+  getProductsToCategoryScreen,
+} from '../../constants/queryKeys';
 
 interface Props {
   isItemFavorite?: boolean;
   isFavorite?: boolean;
-  onPress?: () => void;
   styleContainer?: ViewStyle;
+  product_id: string;
+  onPressBag?: () => void;
 }
 
 const IconBagOrFavoriteComponent: FC<Props> = ({
   isItemFavorite,
   isFavorite,
-  onPress,
   styleContainer,
+  product_id,
+  onPressBag
 }) => {
+  const userId = useAppSelector(state => state.auth.user.userId);
+  const dispath = useAppDispatch();
+
+  const queryClient = useQueryClient();
+
+  const {mutate: toggleFavorite} = useMutation<
+    addFavoriteResponse | undefined,
+    Error,
+    string,
+    {
+      preProductsHome: [QueryKey, unknown][];
+      preProductsToCate: [QueryKey, unknown][];
+      preProductDetail: [QueryKey, unknown][]
+    }
+  >({
+    mutationFn: (product_id: string) => {
+      return addFavoriteAPI({product_id});
+    },
+    onMutate: async (product_id: string) => {
+      await queryClient.cancelQueries({queryKey: [getAllProductsHomeSreen]});
+      await queryClient.cancelQueries({
+        queryKey: [getProductsToCategoryScreen],
+      });
+      await queryClient.cancelQueries({queryKey: [getDetailProductQueryKey]});
+
+      const preProductsHome = queryClient.getQueriesData({
+        queryKey: [getAllProductsHomeSreen],
+      });
+
+      const preProductsToCate = queryClient.getQueriesData({
+        queryKey: [getProductsToCategoryScreen],
+      });
+
+      const preProductDetail = queryClient.getQueriesData({
+        queryKey: [getDetailProductQueryKey],
+      });
+
+      queryClient.setQueriesData(
+        {queryKey: [getAllProductsHomeSreen]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [getProductsToCategoryScreen]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [getDetailProductQueryKey]},
+        (
+          old_data: getDetailProductResponse | undefined,
+        ): getDetailProductResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              ...old_data.metadata,
+              isFavorite: !old_data.metadata.isFavorite
+            }
+          }
+        },
+      );
+
+      return {preProductsHome, preProductsToCate, preProductDetail};
+    },
+
+    onError(error, variables, context) {
+      queryClient.setQueriesData(
+        {queryKey: [getAllProductsHomeSreen]},
+        context?.preProductsHome,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [getProductsToCategoryScreen]},
+        context?.preProductsToCate,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [getDetailProductQueryKey]},
+        context?.preProductDetail
+      )
+    },
+
+    onSettled(data, error, variables, context) {
+      queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]});
+      queryClient.invalidateQueries({queryKey: [getCategoryIdsToFavoritesQueryKey]});
+      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]})
+    },
+  });
+
+  const handleIconBagOrFavorite = async () => {
+    if (!isItemFavorite) {
+      if (!userId) dispath(setDiaLogLogin(true));
+      else {
+        toggleFavorite(product_id);
+      }
+    }
+    if(isItemFavorite && onPressBag) {
+      onPressBag()
+    }
+  };
+
   return (
     <SectionComponent
-      onPress={() => {
-        onPress;
-      }}
+      onPress={() => handleIconBagOrFavorite()}
       style={[
         styles.containerIconShopping,
         {
@@ -70,6 +215,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4.65,
     // Elevation for Android
-    elevation: 3
+    elevation: 3,
   },
 });

@@ -13,6 +13,10 @@ import {useAppDispatch, useAppSelector} from '../../helper/store/store';
 import {loginThunk} from '../../helper/store/thunk/auth.thunk';
 import {handleTextInput, Success} from '../../utils/handleTextInput';
 import {navigationRef} from '../../navigation/RootNavigation';
+import TextComponent from '../../components/texts/TextComponent';
+import {colors} from '../../constants/colors';
+import RowComponent from '../../components/layouts/RowComponent';
+import {TouchableOpacity} from 'react-native';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState<string>('');
@@ -21,15 +25,15 @@ const LoginScreen = () => {
   const [ErrorPassword, setErrorPassword] = useState<string>('');
 
   useEffect(() => {
-    if (Email) {
+    if (Email && ErrorEmail !== 'Email is incorrect!') {
       setErrorEmail(handleTextInput('email', Email));
     }
-    if (Password) {
+    if (Password && ErrorPassword !== 'Password is not match!') {
       setErrorPassword(handleTextInput('password', Password));
     }
   }, [Email, Password]);
 
-  const {loading} = useAppSelector(state => state.auth.status);
+  const isLoading = useAppSelector(state => state.auth.status.loading);
 
   const dispatch = useAppDispatch();
 
@@ -40,12 +44,23 @@ const LoginScreen = () => {
       dispatch(loginThunk({email: Email, password: Password}))
         .unwrap()
         .then(res => {
-          navigationRef.reset({
-            index: 0,
-            routes: [{name: 'StackMainNavigation'}],
-          });
+          if (res.metadata.user.status === 'inactive') {
+            navigationRef.navigate('VerifyOTPScreen', {email: Email});
+          } else {
+            navigationRef.reset({
+              index: 0,
+              routes: [{name: 'StackMainNavigation'}],
+            });
+          }
         })
         .catch(err => {
+          if (err.message === 'Email is incorrect!') {
+            setErrorEmail('Email is incorrect!');
+            setErrorPassword(' ')
+          }
+          if (err.message === 'Password is not match!') {
+            setErrorPassword('Password is not match!');
+          }
           console.log('err login::', err.message);
         });
     }
@@ -95,8 +110,21 @@ const LoginScreen = () => {
         <ButtonComponent
           text="LOGIN"
           onPress={() => handleLogin()}
-          isLoading={loading}
+          isLoading={isLoading}
         />
+        <SpaceComponent height={20} />
+        <TouchableOpacity onPress={() => navigationRef.navigate('RegisterScreen')}>
+          <RowComponent justify="center">
+            <TextComponent text="You don't have an account?" size={14} />
+            <SpaceComponent width={5} />
+            <TextComponent
+              text="SignUp"
+              size={14}
+              font={fontFamilies.medium}
+              color={colors.Primary_Color}
+            />
+          </RowComponent>
+        </TouchableOpacity>
       </SectionComponent>
 
       <GGAndFbComponent text="Or login with social account" marginTop={194} />

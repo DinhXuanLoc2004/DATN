@@ -12,9 +12,6 @@ import {
 
 const URL_PRODUCT = '/product';
 
-const getStore = store.getState();
-const user_id = getStore.auth.user?.userId ?? '';
-
 const getColorsSizesToProduct = async ({
   queryKey,
 }: {
@@ -47,10 +44,10 @@ const getDataFiler = async () => {
 const getDetailProductAPI = async ({
   queryKey,
 }: {
-  queryKey: [string, string];
+  queryKey: [string, string, string];
 }) => {
-  const [, product_id] = queryKey;
-  const queryString = createQueryString({product_id});
+  const [, user_id ,product_id] = queryKey;
+  const queryString = createQueryString({product_id, user_id});
   try {
     const product = await axiosIntercreptor.get<
       undefined,
@@ -65,9 +62,9 @@ const getDetailProductAPI = async ({
 const getAllProductAPI = async ({
   queryKey,
 }: {
-  queryKey: [string, string?, string?, getAllProductRequet?];
+  queryKey: [string, string?, string?, string?, getAllProductRequet?];
 }) => {
-  const [, category_id, sort, body] = queryKey;
+  const [, user_id, category_id, sort, body] = queryKey;
   const queryString = createQueryString({
     user_id,
     category_id,

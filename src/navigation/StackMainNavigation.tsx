@@ -2,7 +2,6 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {BottomTab} from './BottomTabNavigation';
 import FilterScreen from '../screens/mains/stacks/FilterScreen';
 import DetailProductScreen from '../screens/mains/stacks/DetailProductScreen';
-
 export type stackParamListMain = {
   BottomTab: undefined;
   FilterScreen: undefined;
