@@ -64,7 +64,7 @@ const ProductsComponent: FC<Props> = ({title, place, products, marginTop}) => {
             }}
           />
         )}
-        horizontal
+        horizontal 
         showsHorizontalScrollIndicator={false}
       />
     </SectionComponent>
