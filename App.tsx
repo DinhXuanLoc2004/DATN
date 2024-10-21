@@ -10,7 +10,6 @@ import {PortalProvider} from '@gorhom/portal';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet';
 import DialogIsLoginComponent from './src/components/dialogs/DialogIsLoginComponent';
-import ProductSearchScreen from './src/screens/mains/stacks/ProductSearchScreen';
 const queryClient = new QueryClient();
 function App(): React.JSX.Element {
   return (
@@ -21,8 +20,7 @@ function App(): React.JSX.Element {
             <NavigationContainer ref={navigationRef}>
               <BottomSheetModalProvider>
                 <PortalProvider>
-                  {/* <RootNavigation /> */}
-                  <ProductSearchScreen/>
+                  <RootNavigation />
                 </PortalProvider>
               </BottomSheetModalProvider>
             </NavigationContainer>
