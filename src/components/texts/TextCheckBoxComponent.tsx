@@ -1,17 +1,19 @@
-import React, { memo } from 'react';
-import { StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import React, {memo} from 'react';
+import {Image, StyleSheet, TouchableOpacity, ViewStyle} from 'react-native';
 import Ionicon from 'react-native-vector-icons/Ionicons';
-import { colors } from '../../constants/colors';
-import { fontFamilies } from '../../constants/fontFamilies';
-import { handleSize } from '../../utils/handleSize';
+import {colors} from '../../constants/colors';
+import {fontFamilies} from '../../constants/fontFamilies';
+import {handleSize} from '../../utils/handleSize';
 import RowComponent from '../layouts/RowComponent';
 import SectionComponent from '../layouts/SectionComponent';
 import TextComponent from './TextComponent';
+import SpaceComponent from '../layouts/SpaceComponent';
 interface Props {
   text: string;
   isSelected: boolean;
   onPress: () => void;
   style?: ViewStyle;
+  thumb: string;
 }
 
 const TextCheckBoxComponent: React.FC<Props> = ({
@@ -19,6 +21,7 @@ const TextCheckBoxComponent: React.FC<Props> = ({
   isSelected,
   onPress,
   style,
+  thumb,
 }) => {
   return (
     <TouchableOpacity
@@ -30,11 +33,15 @@ const TextCheckBoxComponent: React.FC<Props> = ({
       ]}
       onPress={onPress}>
       <RowComponent justify="space-between">
-        <TextComponent
-          text={text}
-          font={fontFamilies.medium}
-          color={isSelected ? colors.Primary_Color : colors.Text_Color}
-        />
+        <RowComponent>
+          <Image source={{uri: thumb}} style={styles.thumb} />
+          <SpaceComponent width={20}/>
+          <TextComponent
+            text={text}
+            font={fontFamilies.medium}
+            color={isSelected ? colors.Primary_Color : colors.Text_Color}
+          />
+        </RowComponent>
         <SectionComponent
           flex={0}
           style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
@@ -54,6 +61,11 @@ const TextCheckBoxComponent: React.FC<Props> = ({
 export default memo(TextCheckBoxComponent);
 
 const styles = StyleSheet.create({
+  thumb: {
+    width: handleSize(40),
+    height: handleSize(40),
+    borderRadius: 10,
+  },
   checkbox: {
     width: handleSize(24),
     height: handleSize(24),

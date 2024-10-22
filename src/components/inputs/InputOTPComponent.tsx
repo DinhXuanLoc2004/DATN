@@ -1,40 +1,53 @@
 import React, {forwardRef, useImperativeHandle, useRef, useState} from 'react';
-import {StyleProp, StyleSheet, TextInput, ViewStyle} from 'react-native';
+import {
+  NativeSyntheticEvent,
+  StyleProp,
+  StyleSheet,
+  TextInput,
+  TextInputKeyPressEventData,
+  ViewStyle,
+} from 'react-native';
 import {colors} from '../../constants/colors';
 import {fontFamilies} from '../../constants/fontFamilies';
-import { handleSize } from '../../utils/handleSize';
+import {handleSize} from '../../utils/handleSize';
 
 interface Props {
   onChangeText: (val: string) => void;
   style?: StyleProp<ViewStyle>;
+  onKeyPress?: (
+    event: NativeSyntheticEvent<TextInputKeyPressEventData>,
+  ) => void;
 }
 
-const InputOTPComponent = forwardRef(({onChangeText, style}: Props, ref) => {
-  const inputRef = useRef<TextInput>(null);
-  const [isFocused, setIsFocused] = useState(false);
+const InputOTPComponent = forwardRef(
+  ({onChangeText, style, onKeyPress}: Props, ref) => {
+    const inputRef = useRef<TextInput>(null);
+    const [isFocused, setIsFocused] = useState(false);
 
-  useImperativeHandle(ref, () => ({
-    focus: () => {
-      inputRef.current?.focus();
-    },
-  }));
+    useImperativeHandle(ref, () => ({
+      focus: () => {
+        inputRef.current?.focus();
+      },
+    }));
 
-  return (
-    <TextInput
-      maxLength={1}
-      keyboardType="number-pad"
-      ref={inputRef}
-      onChangeText={onChangeText}
-      style={[
-        styles.input,
-        {borderColor: isFocused ? colors.Primary_Color : colors.Text_Color}, // Change border color based on focus
-        style,
-      ]}
-      onFocus={() => setIsFocused(true)}
-      onBlur={() => setIsFocused(false)}
-    />
-  );
-});
+    return (
+      <TextInput
+        maxLength={1}
+        keyboardType="number-pad"
+        ref={inputRef}
+        onChangeText={onChangeText}
+        style={[
+          styles.input,
+          {borderColor: isFocused ? colors.Primary_Color : colors.Text_Color}, // Change border color based on focus
+          style,
+        ]}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        onKeyPress={onKeyPress}
+      />
+    );
+  },
+);
 
 const styles = StyleSheet.create({
   input: {
@@ -45,7 +58,7 @@ const styles = StyleSheet.create({
     fontSize: handleSize(20),
     fontFamily: fontFamilies.medium,
     textAlign: 'center',
-    aspectRatio: '1.15'
+    aspectRatio: '1.15',
   },
 });
 

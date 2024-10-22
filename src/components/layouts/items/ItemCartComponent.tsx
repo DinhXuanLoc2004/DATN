@@ -12,6 +12,27 @@ import RowComponent from '../RowComponent';
 import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
+import {
+  bodyChangeQuantityCart,
+  changeQuantityCartResponse,
+  getAllCartResponse,
+} from '../../../helper/types/cart.type';
+import {changeQuantityCartAPI} from '../../../helper/apis/cart.api';
+import {
+  QueryKey,
+  QueryObserverResult,
+  RefetchOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {stackParamListMain} from '../../../navigation/StackMainNavigation';
+import {useNavigation} from '@react-navigation/native';
+import {addFavoriteResponse} from '../../../helper/types/favorite.type';
+import {addFavoriteAPI} from '../../../helper/apis/favorite.api';
+import {getAllCartQueryKey, getAllFavoritesQueryKey, getAllProductsHomeSreen, getCategoryIdsToFavoritesQueryKey, getProductsToCategoryScreen} from '../../../constants/queryKeys';
+
+type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
 interface Props {
   name: string;
@@ -21,7 +42,17 @@ interface Props {
   image_url: string;
   quantity: number;
   discount: number;
-  create_at: Date;
+  create_at: string;
+  cart_id: string;
+  fnRefect: (
+    options?: RefetchOptions,
+  ) => Promise<QueryObserverResult<getAllCartResponse | undefined, Error>>;
+  setisVisibleModal: (val: boolean) => void;
+  setcart_id_delete: (val: string) => void;
+  isFavorite: boolean;
+  cart_id_select_menu: string;
+  setcart_id_select_menu: (val: string) => void;
+  product_id: string;
 }
 
 const ItemCartComponent: React.FC<Props> = ({
@@ -33,36 +64,120 @@ const ItemCartComponent: React.FC<Props> = ({
   quantity,
   discount,
   create_at,
+  cart_id,
+  fnRefect,
+  setisVisibleModal,
+  setcart_id_delete,
+  isFavorite,
+  cart_id_select_menu,
+  setcart_id_select_menu,
+  product_id,
 }) => {
-  const [menuVisible, setMenuVisible] = useState<boolean>(false);
-  const [quantityLocal, setquantityLocal] = useState<number>(quantity);
+  const navigation = useNavigation<stackProp>();
+  const updateQuantity = async (value: number) => {
+    const body: bodyChangeQuantityCart = {
+      cart_id,
+      value,
+    };
+    const data = await changeQuantityCartAPI(body);
+    if (data?.metadata) fnRefect();
+  };
 
-  const handleChangeQuantity = (val: number): void => {
-    if (val > 0) {
-      setquantityLocal(quantityLocal + val);
-    } else {
-      if (quantityLocal > 1) {
-        setquantityLocal(quantityLocal + val);
+  const handleChangeQuantity = (value: number) => {
+    setcart_id_select_menu('');
+    if (value < 0) {
+      if (quantity <= 1) {
+        setisVisibleModal(true);
+        setcart_id_delete(cart_id);
+      } else {
+        updateQuantity(value);
       }
+    } else {
+      updateQuantity(value);
     }
   };
 
   const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
+    if (cart_id_select_menu === cart_id) {
+      setcart_id_select_menu('');
+    } else {
+      setcart_id_select_menu(cart_id);
+    }
   };
 
+  const queryClient = useQueryClient();
+
+  const {mutate: toggleFavorite} = useMutation<
+    addFavoriteResponse | undefined,
+    Error,
+    string,
+    {preAllCart: [QueryKey, unknown][]}
+  >({
+    mutationFn: (product_id: string) => {
+      return addFavoriteAPI({product_id});
+    },
+
+    onMutate: async (product_id: string) => {
+      await queryClient.cancelQueries({queryKey: [getAllCartQueryKey]});
+
+      const preAllCart = queryClient.getQueriesData({
+        queryKey: [getAllCartQueryKey],
+      });
+
+      queryClient.setQueriesData(
+        {queryKey: [getAllCartQueryKey]},
+        (
+          old_data: getAllCartResponse | undefined,
+        ): getAllCartResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: old_data.metadata.map(cart =>
+              cart.product_id === product_id
+                ? {...cart, isFavorite: !cart.isFavorite}
+                : cart,
+            ),
+          };
+        },
+      );
+
+      return {preAllCart}
+    },
+
+    onError(error, variables, context) {
+      queryClient.setQueriesData({queryKey: [getAllCartQueryKey]}, context?.preAllCart)
+    },
+
+    onSettled(data, error, variables, context) {
+      queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]})
+      queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]})
+      queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]})
+      queryClient.invalidateQueries({queryKey: [getCategoryIdsToFavoritesQueryKey]})
+    },
+  });
+
   const handleAddToFavorites = () => {
-    console.log('Added to favorites');
-    setMenuVisible(false);
+    setcart_id_select_menu('');
+    toggleFavorite(product_id)
   };
 
   const handleDeleteFromList = () => {
-    console.log('Deleted from the list');
-    setMenuVisible(false);
+    setcart_id_delete(cart_id);
+    setisVisibleModal(true);
+    setcart_id_select_menu('');
   };
 
+  const handleGetProductDetail = () => {
+    setcart_id_select_menu('');
+    navigation.navigate('DetailProductScreen', {product_id: product_id});
+  };
   return (
-    <RowComponent flex={0} style={styles.card}>
+    <RowComponent
+      flex={0}
+      style={styles.card}
+      onPress={() => {
+        handleGetProductDetail();
+      }}>
       <Image source={{uri: image_url}} style={styles.image} />
       <SectionComponent style={styles.containerContent}>
         <RowComponent justify="space-between">
@@ -84,7 +199,7 @@ const ItemCartComponent: React.FC<Props> = ({
             </TouchableOpacity>
             <SpaceComponent width={12} />
             <TextComponent
-              text={`${quantityLocal}`}
+              text={quantity.toString()}
               size={14}
               font={fontFamilies.medium}
             />
@@ -98,17 +213,20 @@ const ItemCartComponent: React.FC<Props> = ({
           <SpaceComponent width={10} />
           <SalePriceComponent
             discount={discount}
-            price={price * quantityLocal}
+            price={price * quantity}
             flex={1}
           />
         </RowComponent>
       </SectionComponent>
-      {menuVisible && (
+      {cart_id_select_menu === cart_id && (
         <SectionComponent style={styles.menu}>
           <TouchableOpacity
             onPress={handleAddToFavorites}
             style={styles.btnMenu}>
-            <TextComponent text="Add to favorite" size={11} />
+            <TextComponent
+              text={isFavorite ? 'Unlike' : 'Add to favorite'}
+              size={11}
+            />
           </TouchableOpacity>
           <SpaceComponent
             height={1}
@@ -140,15 +258,15 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.White_Color,
     borderRadius: handleSize(8),
-    elevation: handleSize(3),
+    elevation: handleSize(5),
     height: handleSize(104),
+    flex: 1,
   },
   image: {
     width: handleSize(120),
     height: '100%',
-    borderBottomStartRadius: handleSize(8),
-    borderTopStartRadius: handleSize(8),
-    borderBottomEndRadius: 20,
+    borderBottomLeftRadius: handleSize(8),
+    borderTopLeftRadius: handleSize(8),
   },
   containerContent: {
     padding: handleSize(11),
