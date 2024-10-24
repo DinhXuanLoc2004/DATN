@@ -21,6 +21,7 @@ import {
   getCategoryIdsToFavoritesQueryKey,
   getDetailProductQueryKey,
   getProductsToCategoryScreen,
+  searchProductsQueryKey,
 } from '../../constants/queryKeys';
 
 interface Props {
@@ -36,7 +37,7 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
   isFavorite,
   styleContainer,
   product_id,
-  onPressBag
+  onPressBag,
 }) => {
   const userId = useAppSelector(state => state.auth.user.userId);
   const dispath = useAppDispatch();
@@ -50,7 +51,8 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
     {
       preProductsHome: [QueryKey, unknown][];
       preProductsToCate: [QueryKey, unknown][];
-      preProductDetail: [QueryKey, unknown][]
+      preProductDetail: [QueryKey, unknown][];
+      perSearchProducts: [QueryKey, unknown][];
     }
   >({
     mutationFn: (product_id: string) => {
@@ -73,6 +75,10 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
 
       const preProductDetail = queryClient.getQueriesData({
         queryKey: [getDetailProductQueryKey],
+      });
+
+      const perSearchProducts = queryClient.getQueriesData({
+        queryKey: [searchProductsQueryKey],
       });
 
       queryClient.setQueriesData(
@@ -123,13 +129,37 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
             ...old_data,
             metadata: {
               ...old_data.metadata,
-              isFavorite: !old_data.metadata.isFavorite
-            }
-          }
+              isFavorite: !old_data.metadata.isFavorite,
+            },
+          };
         },
       );
 
-      return {preProductsHome, preProductsToCate, preProductDetail};
+      queryClient.setQueriesData(
+        {queryKey: [searchProductsQueryKey]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      return {
+        preProductsHome,
+        preProductsToCate,
+        preProductDetail,
+        perSearchProducts,
+      };
     },
 
     onError(error, variables, context) {
@@ -143,14 +173,20 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
       );
       queryClient.setQueriesData(
         {queryKey: [getDetailProductQueryKey]},
-        context?.preProductDetail
-      )
+        context?.preProductDetail,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [searchProductsQueryKey]},
+        context?.perSearchProducts,
+      );
     },
 
     onSettled(data, error, variables, context) {
       queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]});
-      queryClient.invalidateQueries({queryKey: [getCategoryIdsToFavoritesQueryKey]});
-      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]})
+      queryClient.invalidateQueries({
+        queryKey: [getCategoryIdsToFavoritesQueryKey],
+      });
+      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
     },
   });
 
@@ -161,8 +197,8 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
         toggleFavorite(product_id);
       }
     }
-    if(isItemFavorite && onPressBag) {
-      onPressBag()
+    if (isItemFavorite && onPressBag) {
+      onPressBag();
     }
   };
 

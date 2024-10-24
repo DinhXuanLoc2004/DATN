@@ -42,7 +42,7 @@ const ProductsComponent: FC<Props> = ({title, place, products, marginTop}) => {
       <FlatList
         style={styles.list}
         data={products}
-        keyExtractor={(_, index) => index.toString()}
+        keyExtractor={(item, index) => item._id}
         renderItem={({item}) => (
           <ItemColumnComponent
             _id={item._id}

@@ -19,10 +19,15 @@ import RowComponent from '../RowComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {stackParamListMain} from '../../../navigation/StackMainNavigation';
+import {useNavigation} from '@react-navigation/native';
 
 interface Props {
   animationValue: Animated.Value;
 }
+
+type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
 const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
   const ref = useRef<PagerView>(null);
@@ -37,6 +42,9 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  const navigation = useNavigation<stackProp>();
+
   return (
     <View style={[styles.container]}>
       <Animated.View
@@ -143,71 +151,73 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
           Shop
         </Animated.Text>
         <SpaceComponent height={10} />
-        <Animated.View
-          style={[
-            styles.containerBtnSrearch,
-            {
-              transform: [
-                {
-                  scaleX: animationHeaderHome(animationValue, [1, 2]),
-                },
-                {
-                  translateX: animationHeaderHome(animationValue, [0, 55]),
-                },
-              ],
-              backgroundColor: animationInterpolate(
-                animationValue,
-                [0, handleSize(475)],
-                [colors.Primary_Color, colors.White_Color],
-              ),
-              borderRadius: animationHeaderHome(animationValue, [25, 0]),
-              opacity: animationHeaderHome(animationValue, [1, 0]),
-            },
-          ]}>
-          <TouchableOpacity
-            style={styles.btnSearach}
-            onPress={() => console.log(1)}></TouchableOpacity>
-        </Animated.View>
-        <Animated.Text
-          style={[
-            styles.txtSearch,
-            {
-              color: animationInterpolate(
-                animationValue,
-                [0, 200],
-                [colors.White_Color, colors.Text_Color],
-              ),
-              transform: [
-                {
-                  translateX: animationInterpolate(
-                    animationValue,
-                    [0, 100],
-                    [0, handleSize(-30)],
-                  ),
-                },
-              ],
-            },
-          ]}>
-          Search
-        </Animated.Text>
-        <Animated.View
-          style={[
-            styles.iconSearch,
-            {
-              opacity: animationInterpolate(animationValue, [0, 200], [0, 1]),
-              transform: [
-                {
-                  translateX: animationInterpolate(
-                    animationValue,
-                    [0, handleSize(556)],
-                    [0, 200],
-                  ),
-                },
-              ],
-            },
-          ]}>
-          <FontAwesome5 name="search" size={handleSize(24)} />
-        </Animated.View>
+        <TouchableOpacity
+          style={styles.btnSearach}
+          onPress={() => {
+            navigation.navigate('SearchScreen');
+          }}>
+          <Animated.View
+            style={[
+              styles.containerBtnSrearch,
+              {
+                transform: [
+                  {
+                    scaleX: animationHeaderHome(animationValue, [1, 2]),
+                  },
+                  {
+                    translateX: animationHeaderHome(animationValue, [0, 55]),
+                  },
+                ],
+                backgroundColor: animationInterpolate(
+                  animationValue,
+                  [0, handleSize(475)],
+                  [colors.Primary_Color, colors.White_Color],
+                ),
+                borderRadius: animationHeaderHome(animationValue, [25, 0]),
+                opacity: animationHeaderHome(animationValue, [1, 0]),
+              },
+            ]}></Animated.View>
+          <Animated.Text
+            style={[
+              styles.txtSearch,
+              {
+                color: animationInterpolate(
+                  animationValue,
+                  [0, 200],
+                  [colors.White_Color, colors.Text_Color],
+                ),
+                transform: [
+                  {
+                    translateX: animationInterpolate(
+                      animationValue,
+                      [0, 100],
+                      [0, handleSize(-30)],
+                    ),
+                  },
+                ],
+              },
+            ]}>
+            Search
+          </Animated.Text>
+          <Animated.View
+            style={[
+              styles.iconSearch,
+              {
+                opacity: animationInterpolate(animationValue, [0, 200], [0, 1]),
+                transform: [
+                  {
+                    translateX: animationInterpolate(
+                      animationValue,
+                      [0, handleSize(556)],
+                      [0, 200],
+                    ),
+                  },
+                ],
+              },
+            ]}>
+            <FontAwesome5 name="search" size={handleSize(24)} />
+          </Animated.View>
+        </TouchableOpacity>
         <SpaceComponent height={10} />
       </SectionComponent>
     </View>
@@ -219,8 +229,8 @@ export default PagerViewHeaderHome;
 const styles = StyleSheet.create({
   iconSearch: {
     position: 'absolute',
-    bottom: handleSize(17),
-    left: handleSize(130),
+    top: handleSize(7),
+    left: handleSize(120),
   },
   containerContentBtn: {
     flexDirection: 'row',
@@ -235,8 +245,8 @@ const styles = StyleSheet.create({
     fontSize: handleSize(14),
     fontFamily: fontFamilies.medium,
     position: 'absolute',
-    left: handleSize(75),
-    bottom: handleSize(20),
+    left: handleSize(60),
+    top: handleSize(7),
   },
   btnSearach: {flex: 1, justifyContent: 'center'},
   containerBtnSrearch: {

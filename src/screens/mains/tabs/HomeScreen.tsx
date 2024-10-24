@@ -33,6 +33,7 @@ const HomeScreen = () => {
     queryFn: getAllProductAPI,
   });
 
+
   interface typeProducts {
     products: {
       productsSale: Array<productResponse>;
@@ -71,8 +72,6 @@ const HomeScreen = () => {
   }, [data?.metadata.products]);
 
   if (isLoading) return <ActivityIndicator color={colors.Primary_Color} />;
-
-  console.log('Data:: ',dataVN.filter(item => item.FullName === 'Tỉnh Bình Định'));
 
   return (
     <ContainerComponent style={styles.containerHeader}>
