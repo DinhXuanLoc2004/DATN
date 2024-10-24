@@ -28,7 +28,7 @@ const SearchComponent: FC<Props> = ({
 }) => {
   return (
     <RowComponent style={[styles.containerSearch, style]}>
-      <IonIcon name="search" size={handleSize(20)} color={colors.Gray_Color} />
+      <IonIcon name="search" size={handleSize(20)} color={colors.Primary_Color} />
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -53,15 +53,17 @@ export default SearchComponent;
 const styles = StyleSheet.create({
   containerSearch: {
     backgroundColor: colors.White_Color,
-    borderRadius: handleSize(23),
+    borderRadius: handleSize(18),
     paddingHorizontal: handleSize(15),
-    height: handleSize(40),
-    elevation: handleSize(1)
+    elevation: handleSize(3),
+    flex: 1,
+    borderColor: colors.Primary_Color,
+    borderWidth: 1
   },
   textInput: {
     flex: 1,
-    marginLeft: handleSize(12),
     fontSize: handleSize(16),
     color: colors.Text_Color,
+    paddingLeft: handleSize(6)
   },
 });
