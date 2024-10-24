@@ -4,6 +4,7 @@ import ForgotPasswordScreen from '../screens/auths/ForgotPasswordScreen';
 import LoginScreen from '../screens/auths/LoginScreen';
 import RegisterScreen from '../screens/auths/RegisterScreen';
 import VerifyOTPScreen from '../screens/auths/VerifyOTPScreen';
+import NewPasswordScreen from '../screens/auths/NewPasswordScreen';
 import {StackMainNavigation} from './StackMainNavigation';
 import {Modal, StyleSheet} from 'react-native';
 import {Portal} from '@gorhom/portal';
@@ -14,7 +15,8 @@ import DialogIsLoginComponent from '../components/dialogs/DialogIsLoginComponent
 export type RootStackParamList = {
   LoginScreen: undefined;
   RegisterScreen: undefined;
-  VerifyOTPScreen: {email: string};
+  VerifyOTPScreen: {email: string, fromForgotPassword?: boolean};
+  NewPasswordScreen: {email: string};
   ForgotPasswordScreen: undefined;
   StackMainNavigation: undefined;
 };
@@ -33,6 +35,10 @@ export const RootNavigation = () => {
         <RootStack.Screen
           name="ForgotPasswordScreen"
           component={ForgotPasswordScreen}
+        />
+        <RootStack.Screen
+          name="NewPasswordScreen"
+          component={NewPasswordScreen}
         />
         <RootStack.Screen
           name="StackMainNavigation"
