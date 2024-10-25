@@ -31,6 +31,7 @@ import {stackParamListMain} from '../../../navigation/StackMainNavigation';
 import {handleSize} from '../../../utils/handleSize';
 import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
 import {setDiaLogLogin} from '../../../helper/store/slices/sort.slice';
+import IconBagOrFavoriteComponent from '../../../components/layouts/IconBagOrFavoriteComponent';
 
 type stackProp = NativeStackNavigationProp<
   stackParamListMain,
@@ -47,8 +48,12 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
   const [product, setproduct] = useState<productDetailResponse>();
   const [Products, setProducts] = useState<Array<productResponse>>([]);
 
+  const dispatch = useAppDispatch();
+
+  const userId = useAppSelector(state => state.auth.user.userId);
+
   const {data, isLoading, error} = useQuery({
-    queryKey: ['getDetailProduct', product_id],
+    queryKey: ['getDetailProduct', userId, product_id],
     queryFn: getDetailProductAPI,
   });
 
@@ -76,10 +81,6 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
   }, [products?.metadata.products]);
 
   const bottomSheet = useRef<BottomSheetModal>(null);
-
-  const dispatch = useAppDispatch();
-
-  const userId = useAppSelector(state => state.auth.user.userId);
 
   const handleIsLogged = () => {
     if (!userId) dispatch(setDiaLogLogin(true));
@@ -112,15 +113,11 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               size={24}
               font={fontFamilies.semiBold}
             />
-            <TouchableOpacity style={styles.btnIcon}>
-              <Ionicons
-                name={product?.isFavorite ? 'heart' : 'heart-outline'}
-                color={
-                  product?.isFavorite ? colors.Primary_Color : colors.Gray_Color
-                }
-                size={handleSize(18)}
-              />
-            </TouchableOpacity>
+            <IconBagOrFavoriteComponent
+              isFavorite={product?.isFavorite}
+              product_id={product?._id ?? ''}
+              styleContainer={styles.iconFavorite}
+            />
           </RowComponent>
           <SpaceComponent height={22} />
           <RowComponent>
@@ -212,6 +209,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
             keyExtractor={(_, index) => index.toString()}
             renderItem={({item}) => (
               <ItemColumnComponent
+                _id={item._id}
                 onPress={() =>
                   navigation.push('DetailProductScreen', {
                     product_id: item._id,
@@ -240,7 +238,9 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
         <RowComponent justify="flex-start">
           <ButtonComponent
             text="BUY NOW"
-            onPress={() => {}}
+            onPress={() => {
+              handleIsLogged();
+            }}
             style={{height: handleSize(48), width: '85%'}}
           />
           <SpaceComponent width={5} />
@@ -268,6 +268,15 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
 export default DetailProductScreen;
 
 const styles = StyleSheet.create({
+  iconFavorite: {
+    position: 'relative',
+    end: 0,
+    bottom: 0,
+    width: handleSize(36),
+    height: handleSize(36),
+    borderRadius: 100,
+    flex: 0,
+  },
   itemColor: {
     width: handleSize(18),
     height: handleSize(18),

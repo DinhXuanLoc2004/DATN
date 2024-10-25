@@ -45,6 +45,7 @@ const ProductsComponent: FC<Props> = ({title, place, products, marginTop}) => {
         keyExtractor={(_, index) => index.toString()}
         renderItem={({item}) => (
           <ItemColumnComponent
+            _id={item._id}
             name={item.name_product}
             trademark={item.name_brand}
             price={item.price_min}
@@ -63,7 +64,7 @@ const ProductsComponent: FC<Props> = ({title, place, products, marginTop}) => {
             }}
           />
         )}
-        horizontal
+        horizontal 
         showsHorizontalScrollIndicator={false}
       />
     </SectionComponent>

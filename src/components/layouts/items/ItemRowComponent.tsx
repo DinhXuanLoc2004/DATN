@@ -12,10 +12,10 @@ import SalePriceComponent from '../../texts/SalePriceComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
-import { handleSize } from '../../../utils/handleSize';
+import {handleSize} from '../../../utils/handleSize';
 
 interface Props {
-  id?: string;
+  _id: string;
   trademark: string;
   name: string;
   price: number;
@@ -27,14 +27,15 @@ interface Props {
   discount: number;
   createAt: string;
   img: string;
-  isFavorite: boolean;
+  isFavorite?: boolean;
   onFavoriteToggle?: () => void;
   isItemFavorite?: boolean;
-  onPress?: () => void
+  onPress?: () => void;
+  onPressBag?: () => void
 }
 
 const ItemRowComponent: FC<Props> = ({
-  id,
+  _id,
   trademark,
   name,
   price,
@@ -49,10 +50,13 @@ const ItemRowComponent: FC<Props> = ({
   onFavoriteToggle,
   isFavorite,
   isItemFavorite,
-  onPress
+  onPress,
+  onPressBag
 }) => {
   return (
-    <SectionComponent style={{opacity: stock === 0 ? 0.5 : 1}} onPress={onPress}>
+    <SectionComponent
+      style={{opacity: stock === 0 ? 0.5 : 1}}
+      onPress={onPress}>
       <SectionComponent style={styles.container}>
         <RowComponent justify="space-between" style={styles.containerItem}>
           <View style={styles.imageContainer}>
@@ -65,7 +69,7 @@ const ItemRowComponent: FC<Props> = ({
             />
           </View>
           <SectionComponent style={styles.detailsContainer}>
-            {isItemFavorite && <IconDeleteItemComponent />}
+            {isItemFavorite && <IconDeleteItemComponent right={5} product_id={_id}/>}
             <TextComponent
               text={trademark}
               font={fontFamilies.regular}
@@ -87,13 +91,13 @@ const ItemRowComponent: FC<Props> = ({
             <SpaceComponent height={12} />
             <RowComponent justify="space-between">
               <SalePriceComponent discount={discount} price={price} flex={0} />
-              {isItemFavorite && (
+              {/* {isItemFavorite && (
                 <StarComponent
                   star={star}
                   numberReviews={numberReviews}
                   flex={1}
                 />
-              )}
+              )} */}
               <View style={{flex: 1}} />
             </RowComponent>
           </SectionComponent>
@@ -102,6 +106,8 @@ const ItemRowComponent: FC<Props> = ({
           <IconBagOrFavoriteComponent
             isFavorite={isFavorite}
             isItemFavorite={isItemFavorite}
+            product_id={_id}
+            onPressBag={onPressBag}
           />
         )}
       </SectionComponent>

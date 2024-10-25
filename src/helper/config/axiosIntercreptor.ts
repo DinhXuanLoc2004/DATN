@@ -1,7 +1,8 @@
-import axios from 'axios';
+import axios, {AxiosInstance} from 'axios';
 import {store} from '../store/store';
 import {ref_accessTokenAPI} from '../apis/auth.api';
 import {ref_accessToken} from '../store/slices/auth.slice';
+import {NetworkInfo} from 'react-native-network-info';
 
 const baseURL = 'http://192.168.1.11:5000/v1/api/';
 
@@ -41,7 +42,10 @@ axiosIntercreptor.interceptors.response.use(
       store.dispatch(ref_accessToken(response));
       original.headers.authorization = `Bearer ${response.metadata.accessToken}`;
       return await axiosIntercreptor(original);
-    } else if (err.response.message === 'RefreshToken Expired!' && err.response.status === 403) {
+    } else if (
+      err.response.message === 'RefreshToken Expired!' &&
+      err.response.status === 403
+    ) {
       ///
     }
     return Promise.reject(err.response.data);
