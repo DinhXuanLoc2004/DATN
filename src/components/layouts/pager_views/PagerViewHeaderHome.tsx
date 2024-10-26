@@ -22,6 +22,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {stackParamListMain} from '../../../navigation/StackMainNavigation';
 import {useNavigation} from '@react-navigation/native';
+import TextComponent from '../../texts/TextComponent';
 
 interface Props {
   animationValue: Animated.Value;
@@ -219,6 +220,32 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
           </Animated.View>
         </TouchableOpacity>
         <SpaceComponent height={10} />
+        <RowComponent>
+          <TouchableOpacity onPress={() => navigation.navigate('SalesScreen')}>
+            <Animated.View
+              style={{
+                opacity: animationHeaderHome(animationValue, [1, 0]),
+                transform: [
+                  {scale: animationHeaderHome(animationValue, [1, 0])},
+                ],
+              }}>
+              <Image
+                source={{
+                  uri: 'https://icon-library.com/images/icon-sale/icon-sale-5.jpg',
+                }}
+                style={styles.icon}
+              />
+              <SpaceComponent height={5} />
+              <TextComponent
+                text="Sale"
+                color={colors.White_Color}
+                font={fontFamilies.medium}
+                size={14}
+              />
+            </Animated.View>
+          </TouchableOpacity>
+        </RowComponent>
+        <SpaceComponent height={10} />
       </SectionComponent>
     </View>
   );
@@ -227,6 +254,10 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
 export default PagerViewHeaderHome;
 
 const styles = StyleSheet.create({
+  icon: {
+    height: handleSize(30),
+    width: handleSize(30),
+  },
   iconSearch: {
     position: 'absolute',
     top: handleSize(7),
