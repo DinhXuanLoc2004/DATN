@@ -13,9 +13,16 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useAppDispatch} from '../../../helper/store/store';
 import {useNavigation} from '@react-navigation/native';
 import {log_out} from '../../../helper/store/slices/auth.slice';
-import { navigationRef } from '../../../navigation/RootNavigation';
+import {navigationRef} from '../../../navigation/RootNavigation';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {stackParamListMain} from '../../../navigation/StackMainNavigation';
+
+type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
 const ProfileScreen = () => {
+
+  const navigation = useNavigation<stackProp>();
+
   const handlePress = (screen: string) => {};
 
   const dispath = useAppDispatch();
@@ -24,8 +31,8 @@ const ProfileScreen = () => {
     dispath(log_out());
     navigationRef.reset({
       index: 0,
-      routes: [{name: 'LoginScreen'}]
-    })
+      routes: [{name: 'LoginScreen'}],
+    });
   };
 
   return (
@@ -90,7 +97,7 @@ const ProfileScreen = () => {
       <ButtonProfileComponent
         title="Shipping addresses"
         description="3 ddresses"
-        onPress={() => handlePress('Addresses')}
+        onPress={() => navigation.navigate('SelectShippingAddressScreen')}
       />
       <ButtonProfileComponent
         title="Payment methods"

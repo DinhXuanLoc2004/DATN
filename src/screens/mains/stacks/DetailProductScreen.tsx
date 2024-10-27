@@ -238,7 +238,9 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
         <RowComponent justify="flex-start">
           <ButtonComponent
             text="BUY NOW"
-            onPress={() => {}}
+            onPress={() => {
+              handleIsLogged();
+            }}
             style={{height: handleSize(48), width: '85%'}}
           />
           <SpaceComponent width={5} />
@@ -266,14 +268,14 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
 export default DetailProductScreen;
 
 const styles = StyleSheet.create({
-  iconFavorite:{
+  iconFavorite: {
     position: 'relative',
     end: 0,
     bottom: 0,
     width: handleSize(36),
     height: handleSize(36),
     borderRadius: 100,
-    flex: 0
+    flex: 0,
   },
   itemColor: {
     width: handleSize(18),

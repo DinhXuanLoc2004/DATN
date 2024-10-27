@@ -1,14 +1,20 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import {BottomTab} from './BottomTabNavigation';
 import FilterScreen from '../screens/mains/stacks/FilterScreen';
+import AddNewAddress from '../screens/mains/stacks/AddNewAddress';
 import DetailProductScreen from '../screens/mains/stacks/DetailProductScreen';
 import ProductSearchScreen from '../screens/mains/stacks/ProductSearchScreen';
 import SalesScreen from '../screens/mains/stacks/sales/SalesScreen';
 
+import PreviousScreen from '../screens/mains/stacks/PreviousScreen';
+import SelectShippingAddressScreen from '../screens/mains/stacks/SelectShippingAddressScreen';
 export type stackParamListMain = {
   BottomTab: undefined;
   FilterScreen: undefined;
-  DetailProductScreen: {product_id: string};
+  AddNewAddress: undefined;
+  PreviousScreen: undefined;
+  SelectShippingAddressScreen:undefined
+  DetailProductScreen: {product_id: string}
   SearchScreen: undefined;
   SalesScreen: undefined;
 };
@@ -28,6 +34,9 @@ export const StackMainNavigation = () => {
       />
       <Stack.Screen name="SearchScreen" component={ProductSearchScreen} />
       <Stack.Screen name="SalesScreen" component={SalesScreen} />
+      <Stack.Screen name="SelectShippingAddressScreen" component={SelectShippingAddressScreen} />
+      <Stack.Screen name="AddNewAddress" component={AddNewAddress} />
+      <Stack.Screen name="PreviousScreen" component={PreviousScreen} />
     </Stack.Navigator>
   );
 };
