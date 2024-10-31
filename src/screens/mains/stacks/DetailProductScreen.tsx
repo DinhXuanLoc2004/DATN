@@ -5,7 +5,6 @@ import React, {useEffect, useRef, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {default as Ionicons} from 'react-native-vector-icons/Ionicons';
 import ButtonComponent from '../../../components/buttons/ButtonComponent';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
 import RowComponent from '../../../components/layouts/RowComponent';

@@ -10,7 +10,6 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import {colors} from '../../constants/colors';
 import {handleSize} from '../../utils/handleSize';
 import RowComponent from './RowComponent';
-import SectionComponent from './SectionComponent';
 interface Props {
   value: string;
   onChange: (val: string) => void;
@@ -28,7 +27,11 @@ const SearchComponent: FC<Props> = ({
 }) => {
   return (
     <RowComponent style={[styles.containerSearch, style]}>
-      <IonIcon name="search" size={handleSize(20)} color={colors.Primary_Color} />
+      <IonIcon
+        name="search"
+        size={handleSize(20)}
+        color={colors.Primary_Color}
+      />
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -58,12 +61,12 @@ const styles = StyleSheet.create({
     elevation: handleSize(3),
     flex: 1,
     borderColor: colors.Primary_Color,
-    borderWidth: 1
+    borderWidth: 1,
   },
   textInput: {
     flex: 1,
     fontSize: handleSize(16),
     color: colors.Text_Color,
-    paddingLeft: handleSize(6)
+    paddingLeft: handleSize(6),
   },
 });
