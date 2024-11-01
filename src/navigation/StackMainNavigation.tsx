@@ -1,13 +1,13 @@
 import {createStackNavigator} from '@react-navigation/stack';
 import {BottomTab, RootBottomTabParamList} from './BottomTabNavigation';
 import FilterScreen from '../screens/mains/stacks/FilterScreen';
-import AddNewAddress from '../screens/mains/stacks/AddNewAddress';
+import AddNewAddress from '../screens/mains/stacks/addresses/AddNewAddress';
 import DetailProductScreen from '../screens/mains/stacks/DetailProductScreen';
 import ProductSearchScreen from '../screens/mains/stacks/ProductSearchScreen';
 import SalesScreen from '../screens/mains/stacks/sales/SalesScreen';
-
-import PreviousScreen from '../screens/mains/stacks/PreviousScreen';
-import SelectShippingAddressScreen from '../screens/mains/stacks/SelectShippingAddressScreen';
+import UpdateNewAddress from '../screens/mains/stacks/addresses/UpdateNewAddress';
+import PreviousScreenAdd from '../screens/mains/stacks/addresses/PreviousScreenAdd';
+import SelectShippingAddressScreen from '../screens/mains/stacks/addresses/SelectShippingAddressScreen';
 import CartScreen from '../screens/mains/tabs/CartScreen';
 import ProductsSaleScreen from '../screens/mains/stacks/sales/ProductsSaleScreen';
 import VouchersScreen from '../screens/mains/stacks/vouchers/VouchersScreen';
@@ -15,15 +15,31 @@ import VoucherDetailScreen from '../screens/mains/stacks/vouchers/VoucherDetailS
 import VouchersUserScreen from '../screens/mains/stacks/voucher_user/VouchersUserScreen';
 import CheckoutScreen from '../screens/mains/stacks/orders/CheckoutScreen';
 import DeliveryMethodScreen from '../screens/mains/stacks/DeliveryMethodScreen';
+import PreviousScreenUpdate from '../screens/mains/stacks/addresses/PreviosScreenUpdate';
 export type stackParamListMain = {
   BottomTab: undefined;
   FilterScreen: undefined;
-  AddNewAddress: undefined;
-  PreviousScreen: undefined;
+  AddNewAddress: {
+    province?: string; 
+    district?: string;
+    ward?: string; 
+  };
+  UpdateNewAddress: { addressId: string };
+  PreviousScreenAdd: {
+    selectionType: 'province' | 'district' | 'ward'; 
+    selectedProvince?: string; 
+    selectedDistrict?: string; 
+  };
   SelectShippingAddressScreen: undefined;
   DetailProductScreen: {product_id: string};
   SearchScreen: undefined;
   SalesScreen: undefined;
+  PreviousScreenUpdate: {
+    selectionType: 'province' | 'district' | 'ward';
+    selectedProvince?: string;
+    selectedDistrict?: string;
+    addressId: string;
+  };
   CartScreen: {cart_id?: string};
   ProductsSaleScreen: {sale_id: string; name_sale: string};
   VouchersScreen: undefined;
@@ -52,8 +68,12 @@ export const StackMainNavigation = () => {
         name="SelectShippingAddressScreen"
         component={SelectShippingAddressScreen}
       />
+      <Stack.Screen name="UpdateNewAddress" component={UpdateNewAddress} />
       <Stack.Screen name="AddNewAddress" component={AddNewAddress} />
-      <Stack.Screen name="PreviousScreen" component={PreviousScreen} />
+      <Stack.Screen name="PreviousScreenUpdate" component={PreviousScreenUpdate} />
+
+      
+      <Stack.Screen name="PreviousScreenAdd" component={PreviousScreenAdd} />
       <Stack.Screen name="CartScreen" component={CartScreen} />
       <Stack.Screen name="ProductsSaleScreen" component={ProductsSaleScreen} />
       <Stack.Screen name="VouchersScreen" component={VouchersScreen} />

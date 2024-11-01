@@ -1,3 +1,5 @@
+import { Response } from "./response.type";
+
 export interface voucher_user {
   _id: string;
   is_used: boolean;
