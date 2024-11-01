@@ -9,7 +9,7 @@ import {
   getAllFavoritesResponse,
 } from '../../helper/types/favorite.type';
 import {addFavoriteAPI} from '../../helper/apis/favorite.api';
-import {getAllCartQueryKey, getAllFavoritesQueryKey, getAllProductsHomeSreen, getCategoryIdsToFavoritesQueryKey, getProductsToCategoryScreen} from '../../constants/queryKeys';
+import {getAllCartQueryKey, getAllFavoritesQueryKey, getAllProductsHomeSreen, getCategoryIdsToFavoritesQueryKey, getLengthCartQuerykey, getProductsSaleQuerykey, getProductsToCategoryScreen} from '../../constants/queryKeys';
 
 interface Props {
   onPress?: () => {};
@@ -73,7 +73,8 @@ const IconDeleteItemComponent: FC<Props> = ({
       queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]});
       queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]});
       queryClient.invalidateQueries({queryKey: [getCategoryIdsToFavoritesQueryKey]});
-      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]})
+      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
+      queryClient.invalidateQueries({queryKey: [getProductsSaleQuerykey]})
     },
   });
 

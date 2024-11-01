@@ -5,6 +5,7 @@ import TextComponent from './TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import SpaceComponent from '../layouts/SpaceComponent';
 import {colors} from '../../constants/colors';
+import { fotmatedAmount } from '../../utils/fotmats';
 
 interface Props {
   price: number;
@@ -15,7 +16,7 @@ interface Props {
 }
 
 const SalePriceComponent: FC<Props> = ({price, discount, size, flex, font}) => {
-  const newPrice = discount > 0 ? price - ((price * discount)/100) : price;
+  const newPrice = discount > 0 ? fotmatedAmount((price - ((price * discount)/100)) * 1000) : fotmatedAmount(price * 1000);
   return (
     <RowComponent justify="flex-end" flex={flex}>
       {discount > 0 && (
@@ -24,7 +25,7 @@ const SalePriceComponent: FC<Props> = ({price, discount, size, flex, font}) => {
             color={colors.Gray_Color}
             size={size ?? 14}
             font={font ?? fontFamilies.medium}
-            text={`${price}$`}
+            text={`${fotmatedAmount(price * 1000)}`}
             style={{textDecorationLine: 'line-through'}}
             numberOfLines={1}
             ellipsizeMode="tail"
@@ -36,7 +37,7 @@ const SalePriceComponent: FC<Props> = ({price, discount, size, flex, font}) => {
         color={discount > 0 ? colors.Primary_Color : colors.Text_Color}
         size={size ?? 14}
         font={font ?? fontFamilies.medium}
-        text={`${discount > 0 ? newPrice : price}$`}
+        text={`${discount > 0 ? newPrice : fotmatedAmount(price * 1000)}`}
       />
     </RowComponent>
   );

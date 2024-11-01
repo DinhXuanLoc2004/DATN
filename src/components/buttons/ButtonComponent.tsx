@@ -43,7 +43,7 @@ const ButtonComponent: FC<Props> = ({
         <TextComponent
           text={text}
           size={14}
-          font={fontFamilies.medium}
+          font={fontFamilies.semiBold}
           color={colorText ?? colors.White_Color}
         />
       )}

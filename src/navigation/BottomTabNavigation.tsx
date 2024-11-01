@@ -11,10 +11,10 @@ import {handleSize} from '../utils/handleSize';
 import RequiredLoginScreen from '../screens/mains/tabs/RequiredLoginScreen';
 import {useAppSelector} from '../helper/store/store';
 
-type RootBottomTabParamList = {
+export type RootBottomTabParamList = {
   HomeScreen: undefined;
   CategoriesStacks: undefined;
-  CartScreen: undefined;
+  CartScreen: {cart_id?: string};
   FavoriteScreen: undefined;
   ProfileScreen: undefined;
 };

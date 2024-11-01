@@ -15,9 +15,9 @@ export interface colors_size_toProduct extends Response {
         _id: string;
         url: string;
         name_color: string;
-        hex_color: string
+        hex_color: string;
       }>;
-      price_max: number
+      price_max: number;
     };
   };
 }
@@ -37,6 +37,14 @@ export interface productResponse {
   isFavorite: boolean;
 }
 
+export interface saleProductDetail {
+  discount: number;
+  time_end: string;
+  name_sale: string;
+  image_sale: string;
+  _id: string
+}
+
 export interface productDetailResponse {
   _id: string;
   name_product: string;
@@ -53,8 +61,8 @@ export interface productDetailResponse {
   name_category: string;
   averageRating: number;
   countReview: number;
-  discount: number;
-  endTimeSale: string;
+  sales_active: saleProductDetail[];
+  discount: number
 }
 
 export interface getDetailProductResponse extends Response {

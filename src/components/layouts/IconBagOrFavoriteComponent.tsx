@@ -20,9 +20,11 @@ import {
   getAllProductsHomeSreen,
   getCategoryIdsToFavoritesQueryKey,
   getDetailProductQueryKey,
+  getProductsSaleQuerykey,
   getProductsToCategoryScreen,
   searchProductsQueryKey,
 } from '../../constants/queryKeys';
+import {getProductsSaleResponse} from '../../helper/types/sale.type';
 
 interface Props {
   isItemFavorite?: boolean;
@@ -53,6 +55,7 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
       preProductsToCate: [QueryKey, unknown][];
       preProductDetail: [QueryKey, unknown][];
       perSearchProducts: [QueryKey, unknown][];
+      preProductsSale: [QueryKey, unknown][];
     }
   >({
     mutationFn: (product_id: string) => {
@@ -79,6 +82,10 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
 
       const perSearchProducts = queryClient.getQueriesData({
         queryKey: [searchProductsQueryKey],
+      });
+
+      const preProductsSale = queryClient.getQueriesData({
+        queryKey: [getProductsSaleQuerykey],
       });
 
       queryClient.setQueriesData(
@@ -154,11 +161,29 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
         },
       );
 
+      queryClient.setQueriesData(
+        {queryKey: [getProductsSaleQuerykey]},
+        (
+          old_data: getProductsSaleResponse | undefined,
+        ): getProductsSaleResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: old_data.metadata.map(product =>
+              product._id === product_id
+                ? {...product, isFavorite: !product.isFavorite}
+                : product,
+            ),
+          };
+        },
+      );
+
       return {
         preProductsHome,
         preProductsToCate,
         preProductDetail,
         perSearchProducts,
+        preProductsSale
       };
     },
 
@@ -179,6 +204,10 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
         {queryKey: [searchProductsQueryKey]},
         context?.perSearchProducts,
       );
+      queryClient.setQueriesData(
+        {queryKey: [getProductsSaleQuerykey]},
+        context?.preProductsSale
+      )
     },
 
     onSettled(data, error, variables, context) {

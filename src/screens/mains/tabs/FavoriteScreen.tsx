@@ -63,13 +63,13 @@ const FavoriteScreen = () => {
 
   const translateY = animatedValue.interpolate({
     inputRange: [0, 100],
-    outputRange: [0, -65],
+    outputRange: [0, -40],
     extrapolate: 'clamp',
   });
 
   const translateX = animatedValue.interpolate({
     inputRange: [0, 100],
-    outputRange: [0, 30],
+    outputRange: [0, 60],
     extrapolate: 'clamp',
   });
 
@@ -89,7 +89,7 @@ const FavoriteScreen = () => {
   useEffect(() => {
     if (dataCategoryIds?.metadata && dataCategoryIds.metadata.length > 0) {
       setcategoryIds([
-        {category_id: '', name_category: 'All'},
+        {_id: '', name_category: 'All'},
         ...dataCategoryIds.metadata,
       ]);
     } else {
@@ -155,12 +155,12 @@ const FavoriteScreen = () => {
                       styles.itemCategory,
                       {
                         backgroundColor:
-                          item.category_id === category_id_choose
+                          item._id === category_id_choose
                             ? colors.Primary_Color
                             : colors.Text_Color,
                       },
                     ]}
-                    onPress={() => setcategory_id_choose(item.category_id)}>
+                    onPress={() => setcategory_id_choose(item._id)}>
                     <TextComponent
                       text={item.name_category}
                       size={14}

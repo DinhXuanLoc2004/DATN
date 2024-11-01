@@ -11,6 +11,9 @@ import SpaceComponent from './SpaceComponent';
 import TextComponent from '../texts/TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { stackParamListMain } from '../../navigation/StackMainNavigation';
+import IconSearch from './icons/IconSearch';
 
 interface Props {
   title: string;
@@ -20,6 +23,8 @@ interface Props {
   isBack?: boolean;
 }
 
+type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>
+
 const HeaderScreenAnimation: FC<Props> = ({
   title,
   translateY,
@@ -27,7 +32,7 @@ const HeaderScreenAnimation: FC<Props> = ({
   scale,
   isBack = true,
 }) => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<stackProp>();
   return (
     <View style={[styles.header]}>
       <RowComponent style={[styles.iconHeader, {alignItems: 'flex-start'}]}>
@@ -49,11 +54,7 @@ const HeaderScreenAnimation: FC<Props> = ({
             <TextComponent text={title} size={34} font={fontFamilies.bold} />
           </Animated.View>
         </SectionComponent>
-        <FontAwesome5
-          name="search"
-          size={handleSize(22)}
-          color={colors.Text_Color}
-        />
+        <IconSearch onPress={() => navigation.navigate('SearchScreen')}/>
       </RowComponent>
     </View>
   );

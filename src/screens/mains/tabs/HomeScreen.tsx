@@ -28,11 +28,10 @@ const HomeScreen = () => {
 
   const user_id = useAppSelector(state => state.auth.user.userId);
 
-  const {data, isLoading, error, refetch} = useQuery({
+  const {data, isLoading, error, refetch, isRefetching} = useQuery({
     queryKey: [getAllProductsHomeSreen, user_id],
     queryFn: getAllProductAPI,
   });
-
 
   interface typeProducts {
     products: {
@@ -79,7 +78,10 @@ const HomeScreen = () => {
       <ContainerComponent
         isScroll
         onSroll={e => animatedValue.setValue(e.nativeEvent.contentOffset.y)}
-        style={styles.containerHeader}>
+        style={styles.containerHeader}
+        refreshing={isRefetching}
+        onRefresh={refetch}
+        >
         <PagerViewHeaderHome animationValue={animatedValue} />
         {products?.productsSale && products?.productsSale?.length > 0 && (
           <ProductsComponent
