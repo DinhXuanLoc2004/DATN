@@ -220,7 +220,7 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
           </Animated.View>
         </TouchableOpacity>
         <SpaceComponent height={10} />
-        <RowComponent>
+        <RowComponent justify='flex-start'>
           <TouchableOpacity onPress={() => navigation.navigate('SalesScreen')}>
             <Animated.View
               style={{
@@ -228,6 +228,7 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
                 transform: [
                   {scale: animationHeaderHome(animationValue, [1, 0])},
                 ],
+                alignItems: 'center'
               }}>
               <Image
                 source={{
@@ -237,7 +238,32 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
               />
               <SpaceComponent height={5} />
               <TextComponent
-                text="Sale"
+                text="Sales"
+                color={colors.White_Color}
+                font={fontFamilies.medium}
+                size={14}
+              />
+            </Animated.View>
+          </TouchableOpacity>
+          <SpaceComponent width={20}/>
+          <TouchableOpacity onPress={() => navigation.navigate('VouchersScreen')}>
+            <Animated.View
+              style={{
+                opacity: animationHeaderHome(animationValue, [1, 0]),
+                transform: [
+                  {scale: animationHeaderHome(animationValue, [1, 0])},
+                ],
+                alignItems: 'center'
+              }}>
+              <Image
+                source={{
+                  uri: 'https://cdn-icons-png.flaticon.com/512/2689/2689901.png',
+                }}
+                style={styles.icon}
+              />
+              <SpaceComponent height={5} />
+              <TextComponent
+                text="Vouchers"
                 color={colors.White_Color}
                 font={fontFamilies.medium}
                 size={14}

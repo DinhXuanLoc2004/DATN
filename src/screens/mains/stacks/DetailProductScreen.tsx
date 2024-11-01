@@ -32,6 +32,8 @@ import {handleSize} from '../../../utils/handleSize';
 import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
 import {setDiaLogLogin} from '../../../helper/store/slices/sort.slice';
 import IconBagOrFavoriteComponent from '../../../components/layouts/IconBagOrFavoriteComponent';
+import IconCart from '../../../components/layouts/icons/IconCart';
+import ListSaleProductDetail from '../../../components/layouts/lists/ListSaleProductDetail';
 
 type stackProp = NativeStackNavigationProp<
   stackParamListMain,
@@ -47,6 +49,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
     useState<number>(4);
   const [product, setproduct] = useState<productDetailResponse>();
   const [Products, setProducts] = useState<Array<productResponse>>([]);
+  const [isBuyNow, setisBuyNow] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
 
@@ -84,6 +87,10 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
 
   const handleIsLogged = () => {
     if (!userId) dispatch(setDiaLogLogin(true));
+    else {
+      setisBuyNow(true);
+      bottomSheet.current?.present();
+    }
   };
 
   const handleBottomSheet = () => {
@@ -101,9 +108,13 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
         title={product?.name_product}
         styleHeader={{
           backgroundColor: colors.White_Color,
-          elevation: handleSize(1),
-        }}>
+          elevation: handleSize(3),
+          paddingVertical: handleSize(14),
+        }}
+        rightIcon={<IconCart />}>
         <SliderImageComponent images={product?.images_product ?? []} />
+        <SpaceComponent height={10} />
+        <ListSaleProductDetail sales={product?.sales_active ?? []} />
         <ContainerComponent>
           <SpaceComponent height={12} />
           <RowComponent>
@@ -250,7 +261,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               handleBottomSheet();
             }}>
             <FontAwesome5
-              name="shopping-cart"
+              name="cart-plus"
               size={handleSize(20)}
               color={colors.Primary_Color}
             />
@@ -260,6 +271,8 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
       <BottomSheetAddToCart
         product_id={product?._id ?? ''}
         bottomSheet={bottomSheet}
+        isBuyNow={isBuyNow}
+        setisBuyNow={setisBuyNow}
       />
     </ContainerComponent>
   );

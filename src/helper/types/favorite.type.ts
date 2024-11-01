@@ -16,7 +16,7 @@ export interface getAllFavoritesResponse extends Response {
 }
 
 export interface categoryIdsResponse {
-  category_id: string;
+  _id: string;
   name_category: string;
 }
 

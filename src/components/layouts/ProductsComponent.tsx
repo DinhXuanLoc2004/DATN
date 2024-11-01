@@ -47,7 +47,7 @@ const ProductsComponent: FC<Props> = ({title, place, products, marginTop}) => {
           <ItemColumnComponent
             _id={item._id}
             name={item.name_product}
-            trademark={item.name_brand}
+            trademark={`${item.name_brand} - ${item.name_category}`}
             price={item.price_min}
             discount={item.discount}
             imageUrl={item.thumb}

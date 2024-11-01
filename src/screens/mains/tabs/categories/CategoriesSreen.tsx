@@ -112,7 +112,7 @@ const CategoriesSreen = () => {
             onPress={() => {
               navigation.navigate('ProductsToCategoryScreen', {
                 parent_id: item._id,
-                name_category_parent: `${nameCateParentChoose}'s ${item.name_category}`,
+                name_category_parent: `${item.name_category}`,
               });
             }}>
             <RowComponent flex={0} style={styles.itemCategoryChildrent}>

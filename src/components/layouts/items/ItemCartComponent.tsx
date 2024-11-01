@@ -171,6 +171,7 @@ const ItemCartComponent: React.FC<Props> = ({
     setcart_id_select_menu('');
     navigation.navigate('DetailProductScreen', {product_id: product_id});
   };
+  
   return (
     <RowComponent
       flex={0}
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.White_Color,
     borderRadius: handleSize(8),
-    elevation: handleSize(5),
+    elevation: handleSize(3),
     height: handleSize(104),
     flex: 1,
   },

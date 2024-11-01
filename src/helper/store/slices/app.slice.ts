@@ -4,7 +4,7 @@ const initialState = {
   layoutItem: {
     columnProductsCategory: false,
     columnProductsFavorite: false,
-  },
+  }
 };
 
 const settingAppSlice = createSlice({

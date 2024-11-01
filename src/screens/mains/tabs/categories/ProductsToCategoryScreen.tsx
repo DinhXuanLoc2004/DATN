@@ -142,7 +142,7 @@ const ProductsToCategoryScreen = ({
 
   const translateX = animatedValue.interpolate({
     inputRange: [0, 100],
-    outputRange: [0, 30],
+    outputRange: [0, 60],
     extrapolate: 'clamp',
   });
 
@@ -297,7 +297,7 @@ const ProductsToCategoryScreen = ({
                       product_id: item._id,
                     })
                   }
-                  trademark={item.name_category}
+                  trademark={`${item.name_brand} - ${item.name_category}`}
                   name={item.name_product}
                   imageUrl={item.thumb}
                   createAt={item.createdAt}
@@ -316,7 +316,7 @@ const ProductsToCategoryScreen = ({
                       product_id: item._id,
                     })
                   }
-                  trademark={item.name_category}
+                  trademark={`${item.name_brand} - ${item.name_category}`}
                   name={item.name_product}
                   img={item.thumb}
                   createAt={item.createdAt}

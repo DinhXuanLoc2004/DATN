@@ -4,7 +4,7 @@ import {ref_accessTokenAPI} from '../apis/auth.api';
 import {ref_accessToken} from '../store/slices/auth.slice';
 import {NetworkInfo} from 'react-native-network-info';
 
-const baseURL = 'http://192.168.1.6:5000/v1/api/';
+const baseURL = 'http://172.20.10.7:5000/v1/api/';
 
 const axiosIntercreptor = axios.create({
   baseURL: baseURL,

@@ -4,6 +4,10 @@ import {fontFamilies} from '../constants/fontFamilies';
 import {handleSize} from '../utils/handleSize';
 
 export const globalStyles = StyleSheet.create({
+  headerElevation:{
+    backgroundColor: colors.White_Color,
+    elevation: handleSize(4.5)
+  },
   headerInContainer: {
     paddingVertical: handleSize(11),
     paddingHorizontal: handleSize(16),

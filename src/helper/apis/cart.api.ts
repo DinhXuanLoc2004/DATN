@@ -8,6 +8,8 @@ import {
   cartDeleteResponse,
   changeQuantityCartResponse,
   getAllCartResponse,
+  getCartChecksResponse,
+  getLengthCartResponse,
 } from '../types/cart.type';
 
 const URL_CART = '/cart';
@@ -15,13 +17,36 @@ const URL_CART = '/cart';
 const getStore = store.getState();
 const user_id = getStore.auth.user.userId;
 
+const getCartChecksAPI = async ({cart_ids}: {cart_ids: string}) => {
+  try {
+    const queryString = createQueryString({cart_ids});
+    return axiosIntercreptor.get<undefined, getCartChecksResponse>(
+      `${URL_CART}/get_cart_checks/?${queryString}`,
+    );
+  } catch (error) {
+    console.log('Error get cart checks!');
+  }
+};
+
+const getLengthCartAPI = async ({queryKey}: {queryKey: [string, string]}) => {
+  const [, user_id] = queryKey;
+  const queryString = createQueryString({user_id});
+  try {
+    return axiosIntercreptor<undefined, getLengthCartResponse>(
+      `${URL_CART}/get_length_cart/?${queryString}`,
+    );
+  } catch (error) {
+    console.log('Get lenght cart error:: ', error);
+  }
+};
+
 const deleteCartAPI = async (cart_id: string) => {
   try {
     const queryString = createQueryString({cart_id});
     const data = await axiosIntercreptor.delete<undefined, cartDeleteResponse>(
       `${URL_CART}/delete_cart/?${queryString}`,
     );
-    return data
+    return data;
   } catch (error) {
     console.log('Error delete cart', error);
   }
@@ -40,7 +65,7 @@ const changeQuantityCartAPI = async (body: bodyChangeQuantityCart) => {
 };
 
 const getAllCartAPI = async ({queryKey}: {queryKey: [string, string]}) => {
-  const [, userId] = queryKey
+  const [, userId] = queryKey;
   const queryString = createQueryString({user_id: userId});
   try {
     const data = await axiosIntercreptor.get<undefined, getAllCartResponse>(
@@ -75,4 +100,11 @@ const addToCartAPI = async ({
   }
 };
 
-export {addToCartAPI, getAllCartAPI, changeQuantityCartAPI, deleteCartAPI};
+export {
+  addToCartAPI,
+  getAllCartAPI,
+  changeQuantityCartAPI,
+  deleteCartAPI,
+  getLengthCartAPI,
+  getCartChecksAPI
+};

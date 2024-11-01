@@ -17,6 +17,10 @@ export interface actionSetFilter {
   brands: Array<string>;
 }
 
+export interface actionSetDeliveryMethodDefault {
+  delivery_id: string;
+}
+
 const initSort = {
   title: listSort[1].title,
   value: listSort[1].value,
@@ -35,6 +39,9 @@ const initialState = {
     brands: [''],
   },
   isDiaLogLogin: false,
+  delivery_method_default: {
+    dilivery_id: '',
+  },
 };
 
 const sortSlice = createSlice({
@@ -64,9 +71,20 @@ const sortSlice = createSlice({
     setDiaLogLogin: (state, action) => {
       state.isDiaLogLogin = action.payload;
     },
+    setDeliveryMethod: (
+      state,
+      action: PayloadAction<actionSetDeliveryMethodDefault>,
+    ) => {
+      state.delivery_method_default.dilivery_id = action.payload.delivery_id;
+    },
   },
 });
 
 export const sortReducer = sortSlice.reducer;
-export const {setSort, setFilter, removeFilter, setDiaLogLogin} =
-  sortSlice.actions;
+export const {
+  setSort,
+  setFilter,
+  removeFilter,
+  setDiaLogLogin,
+  setDeliveryMethod,
+} = sortSlice.actions;

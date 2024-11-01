@@ -17,6 +17,7 @@ interface Props {
   placeholder?: string;
   style?: StyleProp<ViewStyle>;
   onClear?: boolean;
+  colorIconSearch?: string
 }
 
 const SearchComponent: FC<Props> = ({
@@ -25,10 +26,11 @@ const SearchComponent: FC<Props> = ({
   placeholder,
   style,
   onClear,
+  colorIconSearch
 }) => {
   return (
     <RowComponent style={[styles.containerSearch, style]}>
-      <IonIcon name="search" size={handleSize(20)} color={colors.Primary_Color} />
+      <IonIcon name="search" size={handleSize(20)} color={colorIconSearch ?? colors.Primary_Color} />
       <TextInput
         value={value}
         onChangeText={onChange}
@@ -55,7 +57,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.White_Color,
     borderRadius: handleSize(18),
     paddingHorizontal: handleSize(15),
-    elevation: handleSize(3),
+    elevation: handleSize(5),
     flex: 1,
     borderColor: colors.Primary_Color,
     borderWidth: 1

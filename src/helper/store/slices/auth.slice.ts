@@ -6,6 +6,7 @@ const initialState = {
     userId: '',
     email: '',
     status: '',
+    lengthCart: 0,
   },
   tokens: {
     accessToken: '',
@@ -30,6 +31,9 @@ const authSlice = createSlice({
       state.user.email = '';
       state.user.userId = '';
       state.user.status = '';
+    },
+    set_length_cart: (state, action: PayloadAction<number>) => {
+      state.user.lengthCart = action.payload;
     },
   },
   extraReducers: buider => {
@@ -71,4 +75,4 @@ const authSlice = createSlice({
 });
 
 export const authReducer = authSlice.reducer;
-export const {ref_accessToken, log_out} = authSlice.actions;
+export const {ref_accessToken, log_out, set_length_cart} = authSlice.actions;

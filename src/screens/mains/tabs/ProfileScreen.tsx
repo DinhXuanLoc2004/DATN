@@ -89,7 +89,7 @@ const ProfileScreen = () => {
         </RowComponent>
       </RowComponent>
       <SpaceComponent height={28} />
-      <ButtonProfileComponent
+      <ButtonProfileComponent 
         title="My orders"
         description="Already have 12 orders"
         onPress={() => handlePress('Orders')}
@@ -105,9 +105,9 @@ const ProfileScreen = () => {
         onPress={() => handlePress('Payment')}
       />
       <ButtonProfileComponent
-        title="Promocodes"
+        title="My vouchers"
         description="You have special promocodes"
-        onPress={() => handlePress('Promocodes')}
+        onPress={() => navigation.navigate('VouchersUserScreen')}
       />
       <ButtonProfileComponent
         title="My reviews"
