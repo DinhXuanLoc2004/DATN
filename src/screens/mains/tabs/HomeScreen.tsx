@@ -7,13 +7,10 @@ import PagerViewHeaderHome from '../../../components/layouts/pager_views/PagerVi
 import ProductsComponent from '../../../components/layouts/ProductsComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';
 import { colors } from '../../../constants/colors';
-import dataVN from '../../../constants/local_datas/json/VN_geographic_data.json';
 import { getAllProductsHomeSreen } from '../../../constants/queryKeys';
 import { getAllProductAPI } from '../../../helper/apis/product.api';
 import { useAppSelector } from '../../../helper/store/store';
-import {
-  productResponse
-} from '../../../helper/types/product.type';
+import {productResponse} from '../../../helper/types/product.type';
 import { handleDate } from '../../../utils/handleDate';
 
 const HomeScreen = () => {

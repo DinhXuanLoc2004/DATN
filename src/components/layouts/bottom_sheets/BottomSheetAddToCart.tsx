@@ -175,7 +175,7 @@ const BottomSheetAddToCart: FC<Props> = ({
     opacity: opacityIconCart.value,
   }));
 
-  const DURATION_ANIMATION: number = 2000;
+  const DURATION_ANIMATION: number = 1500;
 
   const queryClient = useQueryClient();
 

@@ -1,4 +1,5 @@
 import {imageType} from './image.type';
+import { Response } from './response.type';
 
 export interface voucherDetail {
   _id: string;

@@ -19,7 +19,8 @@ export interface cartCheck {
   name_category: string;
   name_brand: string;
   product_sales: product_order_sale[];
-  total_discount: number
+  total_discount: number,
+  product_id: string
 }
 
 export interface getCartChecksResponse extends Response {

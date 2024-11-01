@@ -10,7 +10,6 @@ import IonIcon from 'react-native-vector-icons/Ionicons';
 import {colors} from '../../constants/colors';
 import {handleSize} from '../../utils/handleSize';
 import RowComponent from './RowComponent';
-import SectionComponent from './SectionComponent';
 interface Props {
   value: string;
   onChange: (val: string) => void;
@@ -60,12 +59,12 @@ const styles = StyleSheet.create({
     elevation: handleSize(5),
     flex: 1,
     borderColor: colors.Primary_Color,
-    borderWidth: 1
+    borderWidth: 1,
   },
   textInput: {
     flex: 1,
     fontSize: handleSize(16),
     color: colors.Text_Color,
-    paddingLeft: handleSize(6)
+    paddingLeft: handleSize(6),
   },
 });

@@ -38,6 +38,9 @@ import {getAllVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
 import CountDownTime from '../../../../components/layouts/times/CountDownTime';
 import {fotmatedAmount} from '../../../../utils/fotmats';
 import ButtonComponent from '../../../../components/buttons/ButtonComponent';
+import {getShippingAddressDefaultAPI} from '../../../../helper/apis/shippingaddress.api';
+import {useQuery} from '@tanstack/react-query';
+import {getShippingAddressDefaultQuerykey} from '../../../../constants/queryKeys';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'CheckoutScreen'>;
 type routeProp = RouteProp<stackParamListMain, 'CheckoutScreen'>;
@@ -46,13 +49,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const {cart_ids} = route.params;
   const [product_variant_carts, setproduct_variant_carts] =
     useState<cartCheck[]>();
-  const [fullname, setfullname] = useState<string>('Đinh Xuân Lộc');
-  const [phone, setphone] = useState<string>('0332419363');
-  const [province_city, setprovince_city] = useState<string>('Tp Hồ Chí Minh');
-  const [district, setdistrict] = useState<string>('Quận 12');
-  const [ward_commune, setward_commune] = useState<string>('Phường Hiệp Thành');
-  const [specific_address, setspecific_address] =
-    useState<string>('74m/1, đường HT 44');
+  const [fullname, setfullname] = useState<string>('');
+  const [phone, setphone] = useState<string>('');
+  const [province_city, setprovince_city] = useState<string>('');
+  const [district, setdistrict] = useState<string>('');
+  const [ward_commune, setward_commune] = useState<string>('');
+  const [specific_address, setspecific_address] = useState<string>('');
   const [total_quantity, settotal_quantity] = useState<number>(0);
   const [total_amount, settotal_amount] = useState<number>(0);
   const dispatch = useAppDispatch();
@@ -102,6 +104,11 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
 
   const user_id = useAppSelector(state => state.auth.user.userId);
 
+  const {data: shipping_address_default} = useQuery({
+    queryKey: [getShippingAddressDefaultQuerykey, user_id],
+    queryFn: getShippingAddressDefaultAPI,
+  });
+
   const getVouchersUserNotUsed = async () => {
     const data = await getAllVoucherUserAPI({
       user_id,
@@ -117,6 +124,18 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     getCartChecks();
     getAllDeliveryMethod();
   }, []);
+
+  useEffect(() => {
+    if (shipping_address_default?.metadata) {
+      setfullname(shipping_address_default.metadata.full_name);
+      setphone(shipping_address_default.metadata.phone);
+      setprovince_city(shipping_address_default.metadata.province_city);
+      setdistrict(shipping_address_default.metadata.district);
+      setward_commune(shipping_address_default.metadata.ward_commune);
+      setward_commune(shipping_address_default.metadata.ward_commune);
+      setspecific_address(shipping_address_default.metadata.specific_address);
+    }
+  }, [shipping_address_default]);
 
   useEffect(() => {
     if (total_amount > 0) {
@@ -182,9 +201,11 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       style={styles.container}>
       <SpaceComponent height={5} />
 
-      <SectionComponent style={styles.section}>
+      <SectionComponent
+        style={styles.section}
+        onPress={() => navigaiton.navigate('SelectShippingAddressScreen')}>
         <RowComponent>
-          <RowComponent style={styles.rowAddress}>
+          <RowComponent style={styles.rowAddress} flex={0.8}>
             <FontAwesome5
               name="map-marker-alt"
               size={handleSize(15)}
@@ -237,7 +258,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                   font={fontFamilies.semiBold}
                 />
                 <SpaceComponent height={5} />
-                <RowComponent>
+                <RowComponent
+                  onPress={() =>
+                    navigaiton.navigate('DetailProductScreen', {
+                      product_id: item.product_id,
+                    })
+                  }>
                   <Image source={{uri: item.thumb}} style={styles.imgProduct} />
                   <SpaceComponent width={5} />
                   <SectionComponent style={styles.containerContentProduct}>
@@ -497,7 +523,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       </SectionComponent>
 
       <SpaceComponent height={10} />
-      <ButtonComponent text='Order' onPress={() => {}}/>
+      <ButtonComponent text="Order" onPress={() => {}} />
       <SpaceComponent height={20} />
 
       <CustomBottomSheet
