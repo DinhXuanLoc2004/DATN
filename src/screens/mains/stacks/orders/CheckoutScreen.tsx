@@ -5,6 +5,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  NativeModules,
+  NativeEventEmitter,
+  Alert,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import {RouteProp, useNavigation} from '@react-navigation/native';
@@ -39,11 +44,42 @@ import CountDownTime from '../../../../components/layouts/times/CountDownTime';
 import {fotmatedAmount} from '../../../../utils/fotmats';
 import ButtonComponent from '../../../../components/buttons/ButtonComponent';
 import {getShippingAddressDefaultAPI} from '../../../../helper/apis/shippingaddress.api';
-import {useQuery} from '@tanstack/react-query';
-import {getShippingAddressDefaultQuerykey} from '../../../../constants/queryKeys';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import {
+  getAllCartQueryKey,
+  getAllPaymentMethodQuerykey,
+  getShippingAddressDefaultQuerykey,
+} from '../../../../constants/queryKeys';
+import CryptoJS from 'crypto-js';
+import {
+  getAllPaymentMethodResponse,
+  payment_method,
+} from '../../../../helper/types/payment_method.type';
+import {getAllPaymentMethodAPI} from '../../../../helper/apis/payment_method.api';
+import {
+  createOrderRequet,
+  products_orderResquet,
+} from '../../../../helper/types/order.type';
+import {orderAPI} from '../../../../helper/apis/order.api';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'CheckoutScreen'>;
 type routeProp = RouteProp<stackParamListMain, 'CheckoutScreen'>;
+
+const payZaloBridgeEmitter = new NativeEventEmitter(
+  NativeModules.PayZaloBridge,
+);
+const subscription = payZaloBridgeEmitter.addListener('EventPayZalo', data => {
+  console.log('data event zalo pay:: ', data);
+  // navigaiton.navigate('OrderSuccessScreen', {
+  //   payment_type: 'Zalo Pay',
+  //   app_trans_id: data.appTransID,
+  // });
+  if (data.returnCode == 1) {
+    Alert.alert('Giao dịch thành công!');
+  } else {
+    Alert.alert('Giao dịch thất bại!');
+  }
+});
 
 const CheckoutScreen = ({route}: {route: routeProp}) => {
   const {cart_ids} = route.params;
@@ -71,6 +107,11 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const [voucher_thumb, setvoucher_thumb] = useState<string>('');
   const [voucher_time_end, setvoucher_time_end] = useState<string>('');
   const [voucher_code, setvoucher_code] = useState<string>('');
+  const [voucher_user_id, setvoucher_user_id] = useState<string>('');
+  const [payment_methods, setpayment_methods] = useState<payment_method[]>([]);
+  const [payment_id_choose, setpayment_id_choose] = useState<string>('');
+  const [total_amount_final, settotal_amount_final] = useState<number>(0);
+  const [isLoadingOrder, setisLoadingOrder] = useState<boolean>(false);
 
   const navigaiton = useNavigation<stackProp>();
 
@@ -101,6 +142,11 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       dispatch(setDeliveryMethod({delivery_id: data.metadata[0]._id}));
     }
   };
+
+  const {data: data_payment_methods} = useQuery({
+    queryKey: [getAllPaymentMethodQuerykey],
+    queryFn: getAllPaymentMethodAPI,
+  });
 
   const user_id = useAppSelector(state => state.auth.user.userId);
 
@@ -143,6 +189,16 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     }
   }, [total_amount]);
 
+  useEffect(() => {
+    if (data_payment_methods?.metadata) {
+      setpayment_methods(data_payment_methods.metadata);
+      const COD = data_payment_methods.metadata.filter(
+        payment => payment.name_payment === 'COD',
+      )[0]._id;
+      setpayment_id_choose(COD);
+    }
+  }, [data_payment_methods?.metadata]);
+
   const getDetailDeliveryMethod = async (delivery_id: string) => {
     const data = await getDetailDeliveryMethodAPI({_id: delivery_id});
     if (data?.metadata) {
@@ -170,6 +226,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     voucher_value_choose: number,
     voucher_thumb_choose: string,
     voucher_time_end_choose: string,
+    voucher_user_id_choose: string,
   ) => {
     if (voucher_id === voucher_id_choose) {
       setvoucher_id('');
@@ -179,6 +236,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       setvoucher_value(0);
       setvoucher_thumb('');
       setvoucher_time_end('');
+      setvoucher_user_id('');
     } else {
       setvoucher_id(voucher_id_choose);
       setvoucher_code(voucher_code_choose);
@@ -187,9 +245,85 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       setvoucher_value(voucher_value_choose);
       setvoucher_thumb(voucher_thumb_choose);
       setvoucher_time_end(voucher_time_end_choose);
+      setvoucher_user_id(voucher_user_id_choose);
     }
     bottomsheet.current?.close();
   };
+
+  useEffect(() => {
+    if (total_amount) {
+      const deliveryFee = delivery_method?.delivery_fee ?? 0;
+      const total =
+        voucher_type === 'deduct_money'
+          ? total_amount + deliveryFee - voucher_value
+          : voucher_type === 'percent'
+          ? total_amount - (total_amount * voucher_value) / 100 + deliveryFee
+          : total_amount + deliveryFee;
+      console.log(total);
+      settotal_amount_final(total);
+    }
+  }, [
+    total_amount,
+    delivery_method?.delivery_fee,
+    voucher_value,
+    voucher_type,
+  ]);
+
+  const queryClient = useQueryClient();
+
+  const handleCheckout = async () => {
+    if (product_variant_carts) {
+      const products_order: products_orderResquet[] = product_variant_carts.map(
+        product_variant => {
+          const product_order: products_orderResquet = {
+            product_variant_id: product_variant.product_variant_id,
+            quantity: product_variant.quantity,
+            price: product_variant.price,
+            discount: product_variant.total_discount,
+            name_product: product_variant.name_product,
+          };
+          return product_order;
+        },
+      );
+      const body: createOrderRequet = {
+        user_id,
+        full_name: fullname,
+        phone: phone.toString(),
+        province_city,
+        district,
+        ward_commune,
+        specific_address,
+        voucher_user_id: voucher_user_id,
+        type_voucher: voucher_type,
+        value_voucher: voucher_value,
+        delivery_method_id: delivery_id_defau,
+        delivery_fee: delivery_method?.delivery_fee ?? 0,
+        payment_method_id: payment_id_choose,
+        total_amount: total_amount_final,
+        products_order,
+        cart_ids,
+      };
+      setisLoadingOrder(true);
+      const data = await orderAPI(body);
+      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
+      if (
+        data &&
+        data.status === 201 &&
+        data.metadata.payment_type === 'Zalo Pay' &&
+        data.metadata.zp_trans_token
+      ) {
+        const payZP = NativeModules.PayZaloBridge;
+        payZP.payOrder(data.metadata.zp_trans_token);
+        setisLoadingOrder(false);
+      }
+    }
+  };
+
+  // useEffect(() => {
+
+  //   return () => {
+  //   };
+  // }, []);
 
   return (
     <ContainerComponent
@@ -450,14 +584,39 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
             size={15}
             font={fontFamilies.medium}
           />
-          <RowComponent style={styles.txtAddress}>
-            <TextComponent text="See all" size={12} />
-            <SpaceComponent width={5} />
-            <FontAwesome5 name="chevron-right" />
-          </RowComponent>
         </RowComponent>
         <SpaceComponent height={10} />
-        <ButtonComponent colorButton="#d82d8b" text="momo" onPress={() => {}} />
+        {payment_methods &&
+          payment_methods.map(item => (
+            <SectionComponent
+              key={item._id}
+              onPress={() => setpayment_id_choose(item._id)}
+              style={styles.containerPayment}>
+              <RowComponent>
+                <RowComponent>
+                  <Image
+                    source={{uri: item.image_payment.url}}
+                    style={styles.imgPayment}
+                  />
+                  <SpaceComponent width={10} />
+                  <TextComponent
+                    text={item.name_payment}
+                    size={14}
+                    font={fontFamilies.semiBold}
+                    color={item.background_color}
+                  />
+                </RowComponent>
+                {item._id === payment_id_choose && (
+                  <FontAwesome5
+                    name="check-circle"
+                    color={colors.Primary_Color}
+                    size={handleSize(16)}
+                  />
+                )}
+              </RowComponent>
+              <SpaceComponent style={styles.line} />
+            </SectionComponent>
+          ))}
       </SectionComponent>
 
       <SectionComponent style={styles.section}>
@@ -523,7 +682,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       </SectionComponent>
 
       <SpaceComponent height={10} />
-      <ButtonComponent text="Order" onPress={() => {}} />
+      <ButtonComponent
+        text="Order"
+        onPress={() => {
+          handleCheckout();
+        }}
+      />
       <SpaceComponent height={20} />
 
       <CustomBottomSheet
@@ -610,6 +774,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                           item.voucher_value,
                           item.thumb,
                           item.time_end,
+                          item._id,
                         );
                       }}>
                       <TextComponent
@@ -628,10 +793,24 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                   </SectionComponent>
                 </RowComponent>
               )}
+              ItemSeparatorComponent={() => <SpaceComponent height={10} />}
             />
           </SectionComponent>
         }
       />
+
+      <Modal animationType="slide" transparent visible={isLoadingOrder}>
+        <SectionComponent style={styles.modal}>
+          <ActivityIndicator color={colors.Primary_Color} />
+          <SpaceComponent height={10} />
+          <TextComponent
+            text="Ordering..."
+            size={20}
+            font={fontFamilies.semiBold}
+            color={colors.White_Color}
+          />
+        </SectionComponent>
+      </Modal>
     </ContainerComponent>
   );
 };
@@ -639,6 +818,20 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
 export default CheckoutScreen;
 
 const styles = StyleSheet.create({
+  modal: {
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  containerPayment: {
+    backgroundColor: colors.White_Color,
+    paddingHorizontal: handleSize(5),
+  },
+  imgPayment: {
+    width: handleSize(30),
+    height: handleSize(30),
+    borderRadius: 4,
+  },
   imgVoucherChoose: {
     width: handleSize(50),
     height: handleSize(50),

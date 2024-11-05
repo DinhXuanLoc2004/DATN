@@ -9,6 +9,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Provider } from 'react-redux';
 import { store } from './src/helper/store/store';
 import { navigationRef, RootNavigation } from './src/navigation/RootNavigation';
+import OrderSuccessScreen from './src/screens/mains/stacks/orders/result_order/OrderSuccessScreen';
 const queryClient = new QueryClient();
 function App(): React.JSX.Element {
   return (
@@ -20,6 +21,7 @@ function App(): React.JSX.Element {
               <BottomSheetModalProvider>
                 <PortalProvider>
                   <RootNavigation />
+                  {/* <OrderSuccessScreen route={{params: {payment_type: '', app_trans_id: ''}}}/> */}
                 </PortalProvider>
               </BottomSheetModalProvider>
             </NavigationContainer>

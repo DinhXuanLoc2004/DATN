@@ -16,19 +16,21 @@ import VouchersUserScreen from '../screens/mains/stacks/voucher_user/VouchersUse
 import CheckoutScreen from '../screens/mains/stacks/orders/CheckoutScreen';
 import DeliveryMethodScreen from '../screens/mains/stacks/DeliveryMethodScreen';
 import PreviousScreenUpdate from '../screens/mains/stacks/addresses/PreviosScreenUpdate';
+import OrderSuccessScreen from '../screens/mains/stacks/orders/result_order/OrderSuccessScreen';
+import OrderDetailScreen from '../screens/mains/stacks/orders/OrderDetailScreen';
 export type stackParamListMain = {
   BottomTab: undefined;
   FilterScreen: undefined;
   AddNewAddress: {
-    province?: string; 
+    province?: string;
     district?: string;
-    ward?: string; 
+    ward?: string;
   };
-  UpdateNewAddress: { addressId: string };
+  UpdateNewAddress: {addressId: string};
   PreviousScreenAdd: {
-    selectionType: 'province' | 'district' | 'ward'; 
-    selectedProvince?: string; 
-    selectedDistrict?: string; 
+    selectionType: 'province' | 'district' | 'ward';
+    selectedProvince?: string;
+    selectedDistrict?: string;
   };
   SelectShippingAddressScreen: undefined;
   DetailProductScreen: {product_id: string};
@@ -46,7 +48,9 @@ export type stackParamListMain = {
   VoucherDetailScreen: {voucher_id: string};
   VouchersUserScreen: undefined;
   CheckoutScreen: {cart_ids: string[]};
-  DeliveryMethodScreen: {delivery_id: string}
+  DeliveryMethodScreen: {delivery_id: string};
+  OrderSuccessScreen: {app_trans_id: string; payment_type: string};
+  OrderDetailScreen: {order_id: string};
 };
 
 const Stack = createStackNavigator<stackParamListMain>();
@@ -70,9 +74,11 @@ export const StackMainNavigation = () => {
       />
       <Stack.Screen name="UpdateNewAddress" component={UpdateNewAddress} />
       <Stack.Screen name="AddNewAddress" component={AddNewAddress} />
-      <Stack.Screen name="PreviousScreenUpdate" component={PreviousScreenUpdate} />
+      <Stack.Screen
+        name="PreviousScreenUpdate"
+        component={PreviousScreenUpdate}
+      />
 
-      
       <Stack.Screen name="PreviousScreenAdd" component={PreviousScreenAdd} />
       <Stack.Screen name="CartScreen" component={CartScreen} />
       <Stack.Screen name="ProductsSaleScreen" component={ProductsSaleScreen} />
@@ -82,8 +88,13 @@ export const StackMainNavigation = () => {
         component={VoucherDetailScreen}
       />
       <Stack.Screen name="VouchersUserScreen" component={VouchersUserScreen} />
-      <Stack.Screen name='CheckoutScreen' component={CheckoutScreen}/>
-      <Stack.Screen name='DeliveryMethodScreen' component={DeliveryMethodScreen}/>
+      <Stack.Screen name="CheckoutScreen" component={CheckoutScreen} />
+      <Stack.Screen
+        name="DeliveryMethodScreen"
+        component={DeliveryMethodScreen}
+      />
+      <Stack.Screen name="OrderSuccessScreen" component={OrderSuccessScreen} />
+      <Stack.Screen name="OrderDetailScreen" component={OrderDetailScreen} />
     </Stack.Navigator>
   );
 };

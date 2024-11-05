@@ -1,20 +1,26 @@
 import React, {useState} from 'react';
 import {StyleSheet} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import DoubleButtonComponent from '../../../components/buttons/DoubleButtonComponent';
-import ContainerComponent from '../../../components/layouts/ContainerComponent';
-import ItemProductOrderComponent from '../../../components/layouts/items/ItemProductOrderComponent';
-import RowComponent from '../../../components/layouts/RowComponent';
-import SpaceComponent from '../../../components/layouts/SpaceComponent';
-import TextComponent from '../../../components/texts/TextComponent';
-import TextOrderInformation from '../../../components/texts/TextOrderInformation';
-import {colors} from '../../../constants/colors';
-import {fontFamilies} from '../../../constants/fontFamilies';
-import {handleDate} from '../../../utils/handleDate';
-import {handleSize} from '../../../utils/handleSize';
-import {onLayout} from '../../../utils/onLayout';
+import DoubleButtonComponent from '../../../../components/buttons/DoubleButtonComponent';
+import ContainerComponent from '../../../../components/layouts/ContainerComponent';
+import ItemProductOrderComponent from '../../../../components/layouts/items/ItemProductOrderComponent';
+import RowComponent from '../../../../components/layouts/RowComponent';
+import SpaceComponent from '../../../../components/layouts/SpaceComponent';
+import TextComponent from '../../../../components/texts/TextComponent';
+import TextOrderInformation from '../../../../components/texts/TextOrderInformation';
+import {colors} from '../../../../constants/colors';
+import {fontFamilies} from '../../../../constants/fontFamilies';
+import {handleDate} from '../../../../utils/handleDate';
+import {handleSize} from '../../../../utils/handleSize';
+import {onLayout} from '../../../../utils/onLayout';
+import { RouteProp } from '@react-navigation/native';
+import { stackParamListMain } from '../../../../navigation/StackMainNavigation';
 
-const OrderDetailScreen = () => {
+type routeProp = RouteProp<stackParamListMain, 'OrderDetailScreen'>
+
+const OrderDetailScreen = ({route}: {route: routeProp}) => {
+  const {order_id} = route.params
+  console.log(order_id);
   const [status, setstatus] = useState('Delivered');
   const productsOrderExample = [
     {
