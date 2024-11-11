@@ -17,9 +17,6 @@ type routeProp = RouteProp<stackParamListMain, 'OrderSuccessScreen'>;
 type stackProp = StackNavigationProp<stackParamListMain, 'OrderSuccessScreen'>;
 
 const OrderSuccessScreen = ({route}: {route: routeProp}) => {
-  const {app_trans_id, payment_type} = route.params;
-  const order_id = payment_type === 'Zalo Pay' ? app_trans_id.split('_')[1] : '';
-
   const navigation = useNavigation<stackProp>();
 
   return (
@@ -29,20 +26,18 @@ const OrderSuccessScreen = ({route}: {route: routeProp}) => {
         <Image
           source={require('../../../../../assets/images/img_order_success.png')}
         />
-        <SpaceComponent height={15} />
+        <SpaceComponent height={49} />
         <TextComponent
           text="Order Success!"
           size={25}
           font={fontFamilies.bold}
         />
-        <SpaceComponent height={10} />
-        <TouchableOpacity style={styles.btnOrderDetail} onPress={() => navigation.navigate('OrderDetailScreen', {order_id})}>
-          <TextComponent
-            text="Order detail"
-            font={fontFamilies.medium}
-            color={colors.Success_Color}
-          />
-        </TouchableOpacity>
+        <SpaceComponent height={12} />
+        <TextComponent
+          text="Your order will be delivered soon. Thank you for choosing our app!"
+          size={14}
+          style={{textAlign: 'center'}}
+        />
       </SectionComponent>
       <ButtonComponent
         text="CONTINUE SHOPPING"
@@ -69,5 +64,6 @@ const styles = StyleSheet.create({
   },
   containerContent: {
     alignItems: 'center',
+    justifyContent: 'center',
   },
 });

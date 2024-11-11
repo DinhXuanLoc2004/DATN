@@ -92,7 +92,7 @@ const ProfileScreen = () => {
       <ButtonProfileComponent 
         title="My orders"
         description="Already have 12 orders"
-        onPress={() => handlePress('Orders')}
+        onPress={() => navigation.navigate('OrdersScreen')}
       />
       <ButtonProfileComponent
         title="Shipping addresses"

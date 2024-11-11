@@ -8,7 +8,7 @@ interface Props {
   images: Array<imageType>;
 }
 
-const width_image = WIDTH_SCREEN * 0.72;
+const width_image = WIDTH_SCREEN * 1;
 const spacer_item_size = (WIDTH_SCREEN - width_image) / 2;
 const SliderImageComponent: React.FC<Props> = ({images}) => {
   const initData: imageType = {
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   container: {
     width: '100%',
-    height: handleSize(413),
+    height: handleSize(450),
     backgroundColor: colors.White_Color,
     borderBottomWidth: 1,
     borderBottomColor: colors.Gray_Color

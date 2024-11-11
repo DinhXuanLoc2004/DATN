@@ -18,6 +18,9 @@ import DeliveryMethodScreen from '../screens/mains/stacks/DeliveryMethodScreen';
 import PreviousScreenUpdate from '../screens/mains/stacks/addresses/PreviosScreenUpdate';
 import OrderSuccessScreen from '../screens/mains/stacks/orders/result_order/OrderSuccessScreen';
 import OrderDetailScreen from '../screens/mains/stacks/orders/OrderDetailScreen';
+import PaypalWebview from '../screens/mains/stacks/orders/PaypalWebview';
+import OrdersScreen from '../screens/mains/stacks/orders/OrdersScreen';
+
 export type stackParamListMain = {
   BottomTab: undefined;
   FilterScreen: undefined;
@@ -49,8 +52,10 @@ export type stackParamListMain = {
   VouchersUserScreen: undefined;
   CheckoutScreen: {cart_ids: string[]};
   DeliveryMethodScreen: {delivery_id: string};
-  OrderSuccessScreen: {app_trans_id: string; payment_type: string};
+  OrderSuccessScreen: undefined;
   OrderDetailScreen: {order_id: string};
+  PaypalWebview: {approve: string},
+  OrdersScreen: undefined
 };
 
 const Stack = createStackNavigator<stackParamListMain>();
@@ -95,6 +100,8 @@ export const StackMainNavigation = () => {
       />
       <Stack.Screen name="OrderSuccessScreen" component={OrderSuccessScreen} />
       <Stack.Screen name="OrderDetailScreen" component={OrderDetailScreen} />
+      <Stack.Screen name='PaypalWebview' component={PaypalWebview}/>
+      <Stack.Screen name='OrdersScreen' component={OrdersScreen}/>
     </Stack.Navigator>
   );
 };
