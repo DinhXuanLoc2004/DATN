@@ -1,66 +1,69 @@
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import {RouteProp, useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import React, {useEffect, useRef, useState} from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
   Image,
+  Modal,
+  NativeEventEmitter,
+  NativeModules,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
-  NativeModules,
-  NativeEventEmitter,
-  Alert,
-  Modal,
-  ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
-import {RouteProp, useNavigation} from '@react-navigation/native';
-import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import ButtonComponent from '../../../../components/buttons/ButtonComponent';
+import CustomBottomSheet from '../../../../components/layouts/bottom_sheets/CustomBottomSheet';
 import ContainerComponent from '../../../../components/layouts/ContainerComponent';
-import {globalStyles} from '../../../../styles/globalStyle';
-import {handleSize} from '../../../../utils/handleSize';
-import {colors} from '../../../../constants/colors';
+import RowComponent from '../../../../components/layouts/RowComponent';
+import SearchComponent from '../../../../components/layouts/SearchComponent';
 import SectionComponent from '../../../../components/layouts/SectionComponent';
 import SpaceComponent from '../../../../components/layouts/SpaceComponent';
-import RowComponent from '../../../../components/layouts/RowComponent';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import TextComponent from '../../../../components/texts/TextComponent';
-import {fontFamilies} from '../../../../constants/fontFamilies';
-import {cartCheck} from '../../../../helper/types/cart.type';
-import {getCartChecksAPI} from '../../../../helper/apis/cart.api';
-import SalePriceComponent from '../../../../components/texts/SalePriceComponent';
-import {useAppDispatch, useAppSelector} from '../../../../helper/store/store';
-import {
-  getAllDeliveryMethodAPI,
-  getDetailDeliveryMethodAPI,
-} from '../../../../helper/apis/delivery_method.api';
-import {setDeliveryMethod} from '../../../../helper/store/slices/sort.slice';
-import {delivery_method} from '../../../../helper/types/delivery_method.type';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import CustomBottomSheet from '../../../../components/layouts/bottom_sheets/CustomBottomSheet';
-import SearchComponent from '../../../../components/layouts/SearchComponent';
-import {voucher_user} from '../../../../helper/types/voucher_user.type';
-import {getAllVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
 import CountDownTime from '../../../../components/layouts/times/CountDownTime';
-import {fotmatedAmount} from '../../../../utils/fotmats';
-import ButtonComponent from '../../../../components/buttons/ButtonComponent';
-import {getShippingAddressDefaultAPI} from '../../../../helper/apis/shippingaddress.api';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
+import SalePriceComponent from '../../../../components/texts/SalePriceComponent';
+import TextComponent from '../../../../components/texts/TextComponent';
+import {colors} from '../../../../constants/colors';
+import {fontFamilies} from '../../../../constants/fontFamilies';
 import {
   getAllCartQueryKey,
   getAllPaymentMethodQuerykey,
   getShippingAddressDefaultQuerykey,
 } from '../../../../constants/queryKeys';
-import CryptoJS from 'crypto-js';
+import {getCartChecksAPI} from '../../../../helper/apis/cart.api';
 import {
-  getAllPaymentMethodResponse,
-  payment_method,
-} from '../../../../helper/types/payment_method.type';
-import {getAllPaymentMethodAPI} from '../../../../helper/apis/payment_method.api';
+  getAllDeliveryMethodAPI,
+  getDetailDeliveryMethodAPI,
+} from '../../../../helper/apis/delivery_method.api';
+import {orderAPI} from '../../../../helper/apis/order.api';
+import {getShippingAddressDefaultAPI} from '../../../../helper/apis/shippingaddress.api';
+import {getAllVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
+import {setDeliveryMethod} from '../../../../helper/store/slices/sort.slice';
+import {useAppDispatch, useAppSelector} from '../../../../helper/store/store';
+import {cartCheck} from '../../../../helper/types/cart.type';
+import {delivery_method} from '../../../../helper/types/delivery_method.type';
 import {
   createOrderRequet,
   products_orderResquet,
 } from '../../../../helper/types/order.type';
-import {orderAPI} from '../../../../helper/apis/order.api';
+import {voucher_user} from '../../../../helper/types/voucher_user.type';
+import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
+import {globalStyles} from '../../../../styles/globalStyle';
+import {fotmatedAmount} from '../../../../utils/fotmats';
+import {handleSize} from '../../../../utils/handleSize';
+import {
+  payment_methods,
+  payment_name,
+} from '../../../../constants/payment_methods';
+import WebView, {
+  WebViewMessageEvent,
+  WebViewNavigation,
+} from 'react-native-webview';
+import Feather from 'react-native-vector-icons/Feather';
+import LinearGradientComponet from '../../../../components/layouts/LinearGradientComponet';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'CheckoutScreen'>;
 type routeProp = RouteProp<stackParamListMain, 'CheckoutScreen'>;
@@ -68,18 +71,6 @@ type routeProp = RouteProp<stackParamListMain, 'CheckoutScreen'>;
 const payZaloBridgeEmitter = new NativeEventEmitter(
   NativeModules.PayZaloBridge,
 );
-const subscription = payZaloBridgeEmitter.addListener('EventPayZalo', data => {
-  console.log('data event zalo pay:: ', data);
-  // navigaiton.navigate('OrderSuccessScreen', {
-  //   payment_type: 'Zalo Pay',
-  //   app_trans_id: data.appTransID,
-  // });
-  if (data.returnCode == 1) {
-    Alert.alert('Giao dịch thành công!');
-  } else {
-    Alert.alert('Giao dịch thất bại!');
-  }
-});
 
 const CheckoutScreen = ({route}: {route: routeProp}) => {
   const {cart_ids} = route.params;
@@ -108,11 +99,10 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const [voucher_time_end, setvoucher_time_end] = useState<string>('');
   const [voucher_code, setvoucher_code] = useState<string>('');
   const [voucher_user_id, setvoucher_user_id] = useState<string>('');
-  const [payment_methods, setpayment_methods] = useState<payment_method[]>([]);
-  const [payment_id_choose, setpayment_id_choose] = useState<string>('');
+  const [payment_name_choose, setpayment_name_choose] =
+    useState<payment_name>('COD');
   const [total_amount_final, settotal_amount_final] = useState<number>(0);
   const [isLoadingOrder, setisLoadingOrder] = useState<boolean>(false);
-
   const navigaiton = useNavigation<stackProp>();
 
   const getCartChecks = async () => {
@@ -142,11 +132,6 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       dispatch(setDeliveryMethod({delivery_id: data.metadata[0]._id}));
     }
   };
-
-  const {data: data_payment_methods} = useQuery({
-    queryKey: [getAllPaymentMethodQuerykey],
-    queryFn: getAllPaymentMethodAPI,
-  });
 
   const user_id = useAppSelector(state => state.auth.user.userId);
 
@@ -188,16 +173,6 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       getVouchersUserNotUsed();
     }
   }, [total_amount]);
-
-  useEffect(() => {
-    if (data_payment_methods?.metadata) {
-      setpayment_methods(data_payment_methods.metadata);
-      const COD = data_payment_methods.metadata.filter(
-        payment => payment.name_payment === 'COD',
-      )[0]._id;
-      setpayment_id_choose(COD);
-    }
-  }, [data_payment_methods?.metadata]);
 
   const getDetailDeliveryMethod = async (delivery_id: string) => {
     const data = await getDetailDeliveryMethodAPI({_id: delivery_id});
@@ -271,6 +246,24 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
 
   const queryClient = useQueryClient();
 
+  useEffect(() => {
+    const subscription = payZaloBridgeEmitter.addListener(
+      'EventPayZalo',
+      data => {
+        console.log('data event zalo pay:: ', data);
+        if (data.returnCode == 1) {
+          navigaiton.navigate('OrderSuccessScreen')
+        } else {
+          Alert.alert('Giao dịch thất bại!');
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
   const handleCheckout = async () => {
     if (product_variant_carts) {
       const products_order: products_orderResquet[] = product_variant_carts.map(
@@ -298,32 +291,40 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         value_voucher: voucher_value,
         delivery_method_id: delivery_id_defau,
         delivery_fee: delivery_method?.delivery_fee ?? 0,
-        payment_method_id: payment_id_choose,
+        payment_method: payment_name_choose,
         total_amount: total_amount_final,
         products_order,
         cart_ids,
       };
       setisLoadingOrder(true);
       const data = await orderAPI(body);
+      console.log(data);
       queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
       if (
         data &&
         data.status === 201 &&
-        data.metadata.payment_type === 'Zalo Pay' &&
+        data.metadata.payment_method === 'Zalo Pay' &&
         data.metadata.zp_trans_token
       ) {
         const payZP = NativeModules.PayZaloBridge;
         payZP.payOrder(data.metadata.zp_trans_token);
         setisLoadingOrder(false);
-      }
+      } else if (
+        data &&
+        data.status === 201 &&
+        data.metadata.payment_method === 'PayPal' &&
+        data.metadata.approve
+      ) {
+        setisLoadingOrder(false);
+        navigaiton.navigate('PaypalWebview', {approve: data.metadata.approve});
+      } else if(data &&
+        data.status === 201 &&
+        data.metadata.payment_method === 'COD') {
+          setisLoadingOrder(false)
+          navigaiton.navigate('OrderSuccessScreen')
+        }
     }
   };
-
-  // useEffect(() => {
-
-  //   return () => {
-  //   };
-  // }, []);
 
   return (
     <ContainerComponent
@@ -331,364 +332,393 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       back
       title="Checkout"
       styleHeader={globalStyles.headerElevation}
-      isScroll
-      style={styles.container}>
-      <SpaceComponent height={5} />
+      style={{paddingHorizontal: 0}}>
+      <ContainerComponent isScroll style={styles.container}>
+        <SpaceComponent height={5} />
 
-      <SectionComponent
-        style={styles.section}
-        onPress={() => navigaiton.navigate('SelectShippingAddressScreen')}>
-        <RowComponent>
-          <RowComponent style={styles.rowAddress} flex={0.8}>
-            <FontAwesome5
-              name="map-marker-alt"
-              size={handleSize(15)}
-              color={colors.Primary_Color}
-            />
-            <SpaceComponent width={7} />
-            <SectionComponent flex={0}>
-              <RowComponent justify="flex-start">
-                <TextComponent
-                  text={fullname}
-                  size={14}
-                  font={fontFamilies.semiBold}
-                />
-                <SpaceComponent width={5} />
-                <TextComponent
-                  text={phone}
-                  size={12}
-                  font={fontFamilies.medium}
-                  color={colors.Gray_Color}
-                />
-              </RowComponent>
-              <SpaceComponent height={7} />
-              <TextComponent
-                text={specific_address}
-                size={12}
-                style={styles.txtAddress}
-                font={fontFamilies.medium}
+        <SectionComponent
+          style={styles.section}
+          onPress={() => navigaiton.navigate('SelectShippingAddressScreen')}>
+          <RowComponent>
+            <RowComponent style={styles.rowAddress} flex={0.8}>
+              <FontAwesome5
+                name="map-marker-alt"
+                size={handleSize(15)}
+                color={colors.Primary_Color}
               />
-              <SpaceComponent height={5} />
-              <TextComponent
-                text={`${ward_commune}, ${district}, ${province_city}`}
-                size={12}
-                style={styles.txtAddress}
-                font={fontFamilies.medium}
-              />
-            </SectionComponent>
-          </RowComponent>
-          <FontAwesome5 name="chevron-right" />
-        </RowComponent>
-      </SectionComponent>
-
-      <SectionComponent style={styles.section}>
-        <SectionComponent>
-          {product_variant_carts &&
-            product_variant_carts.map((item, index) => (
-              <SectionComponent key={item.cart_id} style={styles.itemProduct}>
-                <TextComponent
-                  text={item.name_product}
-                  size={14}
-                  font={fontFamilies.semiBold}
-                />
-                <SpaceComponent height={5} />
-                <RowComponent
-                  onPress={() =>
-                    navigaiton.navigate('DetailProductScreen', {
-                      product_id: item.product_id,
-                    })
-                  }>
-                  <Image source={{uri: item.thumb}} style={styles.imgProduct} />
+              <SpaceComponent width={7} />
+              <SectionComponent flex={0}>
+                <RowComponent justify="flex-start">
+                  <TextComponent
+                    text={fullname}
+                    size={14}
+                    font={fontFamilies.semiBold}
+                  />
                   <SpaceComponent width={5} />
-                  <SectionComponent style={styles.containerContentProduct}>
-                    <SectionComponent>
-                      <TextComponent
-                        text={`${item.name_brand} - ${item.name_category}`}
-                        size={14}
-                        font={fontFamilies.medium}
-                      />
-                      <SpaceComponent height={5} />
-                      <RowComponent justify="flex-start">
-                        <RowComponent
-                          justify="flex-start"
-                          style={{opacity: 0.75}}>
-                          <TextComponent
-                            text={`size: ${item.size} - color: ${item.name_color} `}
-                            size={13}
-                            font={fontFamilies.medium}
-                          />
-                          <View
-                            style={[
-                              styles.viewColor,
-                              {backgroundColor: item.hex_color},
-                            ]}
-                          />
-                        </RowComponent>
-                      </RowComponent>
-                    </SectionComponent>
-                    <RowComponent>
-                      <SalePriceComponent
-                        price={item.price}
-                        discount={item.total_discount}
-                      />
-                      <TextComponent
-                        text={`x${item.quantity}`}
-                        size={12}
-                        font={fontFamilies.semiBold}
-                        color={colors.Gray_Color}
-                      />
-                    </RowComponent>
-                  </SectionComponent>
-                </RowComponent>
-                <SpaceComponent height={7} />
-                <RowComponent>
-                  <TextComponent text="Total amount of item: " size={13} />
-                  <SalePriceComponent
-                    price={item.quantity * item.price}
-                    discount={item.total_discount}
+                  <TextComponent
+                    text={phone}
+                    size={12}
+                    font={fontFamilies.medium}
+                    color={colors.Gray_Color}
                   />
                 </RowComponent>
-                <View style={styles.line} />
+                <SpaceComponent height={7} />
+                <TextComponent
+                  text={specific_address}
+                  size={12}
+                  style={styles.txtAddress}
+                  font={fontFamilies.medium}
+                />
+                <SpaceComponent height={5} />
+                <TextComponent
+                  text={`${ward_commune}, ${district}, ${province_city}`}
+                  size={12}
+                  style={styles.txtAddress}
+                  font={fontFamilies.medium}
+                />
               </SectionComponent>
-            ))}
+            </RowComponent>
+            <FontAwesome5 name="chevron-right" />
+          </RowComponent>
         </SectionComponent>
-        <SpaceComponent height={10} />
-        <RowComponent>
-          <TextComponent
-            text={`Total amount (${total_quantity} products)`}
-            size={15}
-            font={fontFamilies.medium}
-          />
-          <SalePriceComponent price={total_amount} discount={0} />
-        </RowComponent>
-      </SectionComponent>
 
-      <SectionComponent
-        style={styles.section}
-        onPress={() => handleBottomSheet()}>
-        <RowComponent>
-          <RowComponent justify="flex-start">
-            <Image
-              source={{
-                uri: 'https://redymr.com/imgs/icon/promo-code.png',
-              }}
-              style={styles.iconVoucher}
-            />
-            <SpaceComponent width={5} />
+        <SectionComponent style={styles.section}>
+          <SectionComponent>
+            {product_variant_carts &&
+              product_variant_carts.map((item, index) => (
+                <SectionComponent key={item.cart_id} style={styles.itemProduct}>
+                  <TextComponent
+                    text={item.name_product}
+                    size={14}
+                    font={fontFamilies.semiBold}
+                  />
+                  <SpaceComponent height={5} />
+                  <RowComponent
+                    onPress={() =>
+                      navigaiton.navigate('DetailProductScreen', {
+                        product_id: item.product_id,
+                      })
+                    }>
+                    <Image
+                      source={{uri: item.thumb}}
+                      style={styles.imgProduct}
+                    />
+                    <SpaceComponent width={5} />
+                    <SectionComponent style={styles.containerContentProduct}>
+                      <SectionComponent>
+                        <TextComponent
+                          text={`${item.name_brand} - ${item.name_category}`}
+                          size={14}
+                          font={fontFamilies.medium}
+                        />
+                        <SpaceComponent height={5} />
+                        <RowComponent justify="flex-start">
+                          <RowComponent
+                            justify="flex-start"
+                            style={{opacity: 0.75}}>
+                            <TextComponent
+                              text={`size: ${item.size} - color: ${item.name_color} `}
+                              size={13}
+                              font={fontFamilies.medium}
+                            />
+                            <View
+                              style={[
+                                styles.viewColor,
+                                {backgroundColor: item.hex_color},
+                              ]}
+                            />
+                          </RowComponent>
+                        </RowComponent>
+                      </SectionComponent>
+                      <RowComponent>
+                        <SalePriceComponent
+                          price={item.price}
+                          discount={item.total_discount}
+                        />
+                        <TextComponent
+                          text={`x${item.quantity}`}
+                          size={12}
+                          font={fontFamilies.semiBold}
+                          color={colors.Gray_Color}
+                        />
+                      </RowComponent>
+                    </SectionComponent>
+                  </RowComponent>
+                  <SpaceComponent height={7} />
+                  <RowComponent>
+                    <TextComponent text="Total amount of item: " size={13} />
+                    <SalePriceComponent
+                      price={item.quantity * item.price}
+                      discount={item.total_discount}
+                    />
+                  </RowComponent>
+                  <View style={styles.line} />
+                </SectionComponent>
+              ))}
+          </SectionComponent>
+          <SpaceComponent height={10} />
+          <RowComponent>
             <TextComponent
-              text="Voucher"
-              size={14}
+              text={`Total amount (${total_quantity} products)`}
+              size={15}
               font={fontFamilies.medium}
             />
+            <SalePriceComponent price={total_amount} discount={0} />
           </RowComponent>
-          <RowComponent justify="flex-end">
-            <View
-              style={[
-                styles.containerNameVoucher,
-                {
-                  borderColor: voucher_code
-                    ? colors.Primary_Color
-                    : colors.Gray_Color,
-                  backgroundColor: voucher_code
-                    ? 'rgba(219, 48, 34, 0.13)'
-                    : 'rgba(128, 128, 128, 0.13)',
-                },
-              ]}>
-              <TextComponent
-                text={voucher_code ? voucher_code : 'Not voucher'}
-                color={voucher_code ? colors.Primary_Color : colors.Gray_Color}
-                size={12}
-                font={fontFamilies.medium}
-              />
-            </View>
-            <SpaceComponent width={7} />
-            <FontAwesome5 name="chevron-right" />
-          </RowComponent>
-        </RowComponent>
-        <RowComponent>
-          {voucher_thumb && (
-            <Image
-              source={{uri: voucher_thumb}}
-              style={styles.imgVoucherChoose}
-            />
-          )}
-          <SpaceComponent width={10} />
-          <SectionComponent>
-            {name_voucher && (
-              <TextComponent
-                text={name_voucher}
-                size={13}
-                font={fontFamilies.medium}
-              />
-            )}
-            {voucher_type && voucher_value && (
-              <TextComponent
-                text={`Order is ${
-                  voucher_type === 'deduct_money' ? 'reduced by ' : ''
-                }${
-                  voucher_type === 'deduct_money'
-                    ? `${fotmatedAmount(voucher_value * 1000)} `
-                    : '%'
-                }`}
-                size={11}
-                numberOfLines={3}
-                lineHeight={15}
-              />
-            )}
-          </SectionComponent>
-        </RowComponent>
-      </SectionComponent>
+        </SectionComponent>
 
-      <SectionComponent
-        style={styles.section}
-        onPress={() => {
-          navigaiton.navigate('DeliveryMethodScreen', {
-            delivery_id: delivery_id_defau,
-          });
-        }}>
-        <RowComponent>
-          <TextComponent
-            text="Delivery methods"
-            size={15}
-            font={fontFamilies.medium}
-          />
-          <RowComponent style={styles.txtAddress}>
-            <TextComponent text="See all" size={12} />
-            <SpaceComponent width={5} />
-            <FontAwesome5 name="chevron-right" />
-          </RowComponent>
-        </RowComponent>
-        <SpaceComponent height={10} />
-        {delivery_method && (
-          <SectionComponent style={styles.contentDelivery}>
-            <RowComponent>
-              <TextComponent
-                text={delivery_method.name_delivery}
-                size={13}
-                font={fontFamilies.medium}
+        <SectionComponent
+          style={styles.section}
+          onPress={() => handleBottomSheet()}>
+          <RowComponent>
+            <RowComponent justify="flex-start">
+              <Image
+                source={{
+                  uri: 'https://redymr.com/imgs/icon/promo-code.png',
+                }}
+                style={styles.iconVoucher}
               />
+              <SpaceComponent width={5} />
               <TextComponent
-                text={fotmatedAmount(delivery_method.delivery_fee ?? 0)}
-                size={12}
+                text="Voucher"
+                size={14}
                 font={fontFamilies.medium}
               />
             </RowComponent>
-          </SectionComponent>
-        )}
-      </SectionComponent>
-
-      <SectionComponent style={styles.section}>
-        <RowComponent>
-          <TextComponent
-            text="Payment methods"
-            size={15}
-            font={fontFamilies.medium}
-          />
-        </RowComponent>
-        <SpaceComponent height={10} />
-        {payment_methods &&
-          payment_methods.map(item => (
-            <SectionComponent
-              key={item._id}
-              onPress={() => setpayment_id_choose(item._id)}
-              style={styles.containerPayment}>
-              <RowComponent>
-                <RowComponent>
-                  <Image
-                    source={{uri: item.image_payment.url}}
-                    style={styles.imgPayment}
-                  />
-                  <SpaceComponent width={10} />
-                  <TextComponent
-                    text={item.name_payment}
-                    size={14}
-                    font={fontFamilies.semiBold}
-                    color={item.background_color}
-                  />
-                </RowComponent>
-                {item._id === payment_id_choose && (
-                  <FontAwesome5
-                    name="check-circle"
-                    color={colors.Primary_Color}
-                    size={handleSize(16)}
-                  />
-                )}
-              </RowComponent>
-              <SpaceComponent style={styles.line} />
-            </SectionComponent>
-          ))}
-      </SectionComponent>
-
-      <SectionComponent style={styles.section}>
-        <TextComponent
-          text="Payment details"
-          size={14}
-          font={fontFamilies.medium}
-        />
-        <SpaceComponent height={15} />
-        <RowComponent>
-          <TextComponent text="Total cost of goods" size={12} />
-          <TextComponent
-            text={fotmatedAmount(total_amount * 1000)}
-            size={12}
-            font={fontFamilies.medium}
-          />
-        </RowComponent>
-        <SpaceComponent height={10} />
-        <RowComponent>
-          <TextComponent text="Total shipping cost" size={12} />
-          <TextComponent
-            text={fotmatedAmount(delivery_method?.delivery_fee ?? 0)}
-            size={12}
-            font={fontFamilies.medium}
-          />
-        </RowComponent>
-        <SpaceComponent height={10} />
-        <RowComponent>
-          <TextComponent text="Total voucher amount reduced" size={12} />
-          <TextComponent
-            text={`-${fotmatedAmount(
-              voucher_type === 'deduct_money'
-                ? voucher_value * 1000
-                : total_amount * 1000 * (voucher_value / 100),
-            )}`}
-            size={12}
-            font={fontFamilies.medium}
-            color={colors.Primary_Color}
-          />
-        </RowComponent>
-        <SpaceComponent height={15} />
-        <RowComponent>
-          <TextComponent
-            text="Total amount"
-            size={12}
-            font={fontFamilies.semiBold}
-          />
-          <TextComponent
-            text={fotmatedAmount(
-              delivery_method?.delivery_fee
-                ? total_amount * 1000 +
-                    delivery_method.delivery_fee -
-                    (voucher_type === 'deduct_money'
-                      ? voucher_value * 1000
-                      : total_amount * 1000 * (voucher_value / 100))
-                : 0,
+            <RowComponent justify="flex-end">
+              <View
+                style={[
+                  styles.containerNameVoucher,
+                  {
+                    borderColor: voucher_code
+                      ? colors.Primary_Color
+                      : colors.Gray_Color,
+                    backgroundColor: voucher_code
+                      ? 'rgba(219, 48, 34, 0.13)'
+                      : 'rgba(128, 128, 128, 0.13)',
+                  },
+                ]}>
+                <TextComponent
+                  text={voucher_code ? voucher_code : 'Not voucher'}
+                  color={
+                    voucher_code ? colors.Primary_Color : colors.Gray_Color
+                  }
+                  size={12}
+                  font={fontFamilies.medium}
+                />
+              </View>
+              <SpaceComponent width={7} />
+              <FontAwesome5 name="chevron-right" />
+            </RowComponent>
+          </RowComponent>
+          <RowComponent>
+            {voucher_thumb && (
+              <Image
+                source={{uri: voucher_thumb}}
+                style={styles.imgVoucherChoose}
+              />
             )}
-            size={12}
+            <SpaceComponent width={10} />
+            <SectionComponent>
+              {name_voucher && (
+                <TextComponent
+                  text={name_voucher}
+                  size={13}
+                  font={fontFamilies.medium}
+                />
+              )}
+              {voucher_type && voucher_value && (
+                <TextComponent
+                  text={`Order is ${
+                    voucher_type === 'deduct_money' ? 'reduced by ' : ''
+                  }${
+                    voucher_type === 'deduct_money'
+                      ? `${fotmatedAmount(voucher_value * 1000)} `
+                      : '%'
+                  }`}
+                  size={11}
+                  numberOfLines={3}
+                  lineHeight={15}
+                />
+              )}
+            </SectionComponent>
+          </RowComponent>
+        </SectionComponent>
+
+        <SectionComponent
+          style={styles.section}
+          onPress={() => {
+            navigaiton.navigate('DeliveryMethodScreen', {
+              delivery_id: delivery_id_defau,
+            });
+          }}>
+          <RowComponent>
+            <TextComponent
+              text="Delivery methods"
+              size={15}
+              font={fontFamilies.medium}
+            />
+            <RowComponent style={styles.txtAddress}>
+              <TextComponent text="See all" size={12} />
+              <SpaceComponent width={5} />
+              <FontAwesome5 name="chevron-right" />
+            </RowComponent>
+          </RowComponent>
+          <SpaceComponent height={10} />
+          {delivery_method && (
+            <SectionComponent style={styles.contentDelivery}>
+              <RowComponent>
+                <TextComponent
+                  text={delivery_method.name_delivery}
+                  size={13}
+                  font={fontFamilies.medium}
+                />
+                <TextComponent
+                  text={fotmatedAmount(delivery_method.delivery_fee ?? 0)}
+                  size={12}
+                  font={fontFamilies.medium}
+                />
+              </RowComponent>
+            </SectionComponent>
+          )}
+        </SectionComponent>
+
+        <SectionComponent style={styles.section}>
+          <RowComponent>
+            <TextComponent
+              text="Payment methods"
+              size={15}
+              font={fontFamilies.medium}
+            />
+          </RowComponent>
+          <SpaceComponent height={10} />
+          {payment_methods &&
+            payment_methods.map(item => (
+              <SectionComponent
+                key={item.payment_name}
+                onPress={() => setpayment_name_choose(item.payment_name)}
+                style={styles.containerPayment}>
+                <RowComponent>
+                  <RowComponent>
+                    <Image
+                      source={{uri: item.thum_payment}}
+                      style={styles.imgPayment}
+                    />
+                    <SpaceComponent width={10} />
+                    <TextComponent
+                      text={item.payment_name}
+                      size={14}
+                      font={fontFamilies.semiBold}
+                      color={item.color_payment}
+                    />
+                  </RowComponent>
+                  {item.payment_name === payment_name_choose && (
+                    <FontAwesome5
+                      name="check-circle"
+                      color={colors.Primary_Color}
+                      size={handleSize(16)}
+                    />
+                  )}
+                </RowComponent>
+                <SpaceComponent style={styles.line} />
+              </SectionComponent>
+            ))}
+        </SectionComponent>
+
+        <SectionComponent style={styles.section}>
+          <TextComponent
+            text="Payment details"
+            size={14}
             font={fontFamilies.medium}
           />
-        </RowComponent>
-        <SpaceComponent style={styles.line} />
-      </SectionComponent>
+          <SpaceComponent height={15} />
+          <RowComponent>
+            <TextComponent text="Total cost of goods" size={12} />
+            <TextComponent
+              text={fotmatedAmount(total_amount * 1000)}
+              size={12}
+              font={fontFamilies.medium}
+            />
+          </RowComponent>
+          <SpaceComponent height={10} />
+          <RowComponent>
+            <TextComponent text="Total shipping cost" size={12} />
+            <TextComponent
+              text={fotmatedAmount(delivery_method?.delivery_fee ?? 0)}
+              size={12}
+              font={fontFamilies.medium}
+            />
+          </RowComponent>
+          <SpaceComponent height={10} />
+          <RowComponent>
+            <TextComponent text="Total voucher amount reduced" size={12} />
+            <TextComponent
+              text={`-${fotmatedAmount(
+                voucher_type === 'deduct_money'
+                  ? voucher_value * 1000
+                  : total_amount * 1000 * (voucher_value / 100),
+              )}`}
+              size={12}
+              font={fontFamilies.medium}
+              color={colors.Primary_Color}
+            />
+          </RowComponent>
+          <SpaceComponent height={15} />
+          <RowComponent>
+            <TextComponent
+              text="Total amount"
+              size={12}
+              font={fontFamilies.semiBold}
+            />
+            <TextComponent
+              text={fotmatedAmount(
+                delivery_method?.delivery_fee
+                  ? total_amount * 1000 +
+                      delivery_method.delivery_fee -
+                      (voucher_type === 'deduct_money'
+                        ? voucher_value * 1000
+                        : total_amount * 1000 * (voucher_value / 100))
+                  : 0,
+              )}
+              size={12}
+              font={fontFamilies.medium}
+            />
+          </RowComponent>
+          <SpaceComponent style={styles.line} />
+        </SectionComponent>
+      </ContainerComponent>
 
-      <SpaceComponent height={10} />
-      <ButtonComponent
-        text="Order"
-        onPress={() => {
-          handleCheckout();
-        }}
-      />
-      <SpaceComponent height={20} />
+      <SectionComponent flex={0}>
+        <LinearGradientComponet
+          ArrColor={[colors.Transperen_Color, colors.Black_Color_RGBA]}
+          style={{width: '100%', height: 9, opacity: 0.3}}
+        />
+        <SpaceComponent height={10} />
+        <SectionComponent flex={0} style={styles.containerBtnOder}>
+          <RowComponent>
+            <RowComponent>
+              <TextComponent
+                text="Total amout: "
+                size={14}
+                font={fontFamilies.semiBold}
+              />
+              <TextComponent
+                text={fotmatedAmount(total_amount_final)}
+                size={14}
+                font={fontFamilies.medium}
+              />
+            </RowComponent>
+            <ButtonComponent
+              text="Order"
+              onPress={() => {
+                handleCheckout();
+              }}
+              style={{width: '50%'}}
+            />
+          </RowComponent>
+        </SectionComponent>
+        <SpaceComponent height={10} />
+      </SectionComponent>
 
       <CustomBottomSheet
         style={{backgroundColor: colors.Backgournd_Color}}
@@ -799,6 +829,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         }
       />
 
+      {/* Modal loading */}
       <Modal animationType="slide" transparent visible={isLoadingOrder}>
         <SectionComponent style={styles.modal}>
           <ActivityIndicator color={colors.Primary_Color} />
@@ -818,6 +849,14 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
 export default CheckoutScreen;
 
 const styles = StyleSheet.create({
+  containerBtnOder: {
+    paddingHorizontal: handleSize(16),
+  },
+  btnCancelModalPaypal: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
   modal: {
     backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "139108154186",
+    "project_id": "back-end-t-shop",
+    "storage_bucket": "back-end-t-shop.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:139108154186:android:44e3c73875671b51721fb3",
+        "android_client_info": {
+          "package_name": "com.t_shop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxbQG-jJxMW5INUo7Y4vM5jOl3_YL5hYQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

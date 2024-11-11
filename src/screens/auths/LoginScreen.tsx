@@ -67,7 +67,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <ContainerComponent isHeader back isScroll>
+    <ContainerComponent isHeader isScroll>
       <SpaceComponent height={30} />
 
       {/* Section Tille */}

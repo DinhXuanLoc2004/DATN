@@ -1,5 +1,13 @@
 import {Response} from './response.type';
 
+export interface setFcmTokenRequest {
+  fcm_token: string
+}
+
+export interface setFcmTokenResponse extends Response {
+  metadata: string;
+}
+
 export interface signUpRequest {
   email: string;
   password: string;
