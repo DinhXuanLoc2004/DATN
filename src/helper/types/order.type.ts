@@ -1,5 +1,6 @@
 import { payment_name } from '../../constants/payment_methods';
 import {Response} from './response.type';
+import { shipping_address_chooose } from './shippingaddress.type';
 
 export interface order {
   _id: string;
@@ -30,19 +31,14 @@ export interface products_orderResquet {
   name_product: string;
 }
 
-export interface createOrderRequet {
-  user_id: string;
-  full_name: string;
+export interface createOrderRequet extends Omit<shipping_address_chooose, 'phone'> {
   phone: string;
-  province_city: string;
-  district: string;
-  ward_commune: string;
-  specific_address: string;
+  user_id: string;
   voucher_user_id: string;
   type_voucher: string;
   value_voucher: number;
-  delivery_method_id: string;
   delivery_fee: number;
+  leadtime: string;
   payment_method: payment_name;
   total_amount: number;
   products_order: products_orderResquet[];

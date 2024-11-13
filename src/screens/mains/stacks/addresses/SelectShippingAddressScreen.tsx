@@ -1,14 +1,10 @@
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {RouteProp, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import React, {useCallback, useState} from 'react';
-import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  TouchableOpacity,
-} from 'react-native';
+import {useQuery} from '@tanstack/react-query';
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Switch, TouchableOpacity} from 'react-native';
 import ButtonComponent from '../../../../components/buttons/ButtonComponent';
+import DialogErrorIOS from '../../../../components/dialogs/DialogErrorIOS';
 import DialogIOSComponent from '../../../../components/dialogs/DialogIOSComponent';
 import ContainerComponent from '../../../../components/layouts/ContainerComponent';
 import RowComponent from '../../../../components/layouts/RowComponent';
@@ -17,116 +13,94 @@ import SpaceComponent from '../../../../components/layouts/SpaceComponent';
 import TextComponent from '../../../../components/texts/TextComponent';
 import {colors} from '../../../../constants/colors';
 import {fontFamilies} from '../../../../constants/fontFamilies';
-import {useAppSelector} from '../../../../helper/store/store';
-import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
-import {handleSize} from '../../../../utils/handleSize';
+import {getAllShippingAddressQueryKey} from '../../../../constants/queryKeys';
 import {
+  deleteShippingAddressAPI,
   fetchShippingAddresses,
   updateDefaultShippingAddress,
-  deleteShippingAddress,
 } from '../../../../helper/apis/shippingaddress.api';
-import {ShippingAddress} from '../../../../helper/types/shippingaddress.type';
+import {useAppDispatch, useAppSelector} from '../../../../helper/store/store';
+import {shipping_address} from '../../../../helper/types/shippingaddress.type';
+import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
 import {globalStyles} from '../../../../styles/globalStyle';
-import {useQueryClient} from '@tanstack/react-query';
-import {getShippingAddressDefaultQuerykey} from '../../../../constants/queryKeys';
+import {handleSize} from '../../../../utils/handleSize';
+import {set_address_choose} from '../../../../helper/store/slices/sort.slice';
 
 type NavigationProps = StackNavigationProp<
   stackParamListMain,
   'SelectShippingAddressScreen'
 >;
+type routeProp = RouteProp<stackParamListMain, 'SelectShippingAddressScreen'>;
 
-const SelectShippingAddressScreen = () => {
+const SelectShippingAddressScreen = ({route}: {route: routeProp}) => {
+  const {is_select} = route.params;
   const navigation = useNavigation<NavigationProps>();
-  const [shippingAddresses, setShippingAddresses] = useState<ShippingAddress[]>(
-    [],
-  );
+  const [shippingAddresses, setShippingAddresses] = useState<
+    shipping_address[]
+  >([]);
   const [isDialogVisible, setDialogVisible] = useState(false);
   const [isErrorDialogVisible, setErrorDialogVisible] = useState(false);
-  const [addressToDelete, setAddressToDelete] =
-    useState<ShippingAddress | null>(null);
   const user_id = useAppSelector(state => state.auth.user.userId);
+  const [id_delete, setid_delete] = useState<string>('');
 
-  const loadShippingAddresses = async () => {
-    try {
-      const addresses = await fetchShippingAddresses(user_id);
-      if (addresses) {
-        setShippingAddresses(addresses);
-      }
-    } catch (error) {
-      console.error('Error fetching shipping addresses:', error);
+  const {data, isLoading, refetch} = useQuery({
+    queryKey: [getAllShippingAddressQueryKey, user_id],
+    queryFn: fetchShippingAddresses,
+  });
+
+  useEffect(() => {
+    if (data?.metadata) {
+      setShippingAddresses(data.metadata);
+    }
+  }, [data?.metadata]);
+
+  const handleToggleStatus = async (_id: string) => {
+    const response = await updateDefaultShippingAddress(_id);
+    if (response?.status === 200) {
+      refetch();
     }
   };
 
-  useFocusEffect(
-    useCallback(() => {
-      loadShippingAddresses();
-    }, [user_id]),
-  );
-
-  const handleConfirmPress = () => {
-    navigation.navigate('AddNewAddress', {
-      province: '',
-      district: '',
-      ward: '',
-    });
-  };
-
-  const handleEditPress = (address: ShippingAddress) => {
-    navigation.navigate('UpdateNewAddress', {
-      addressId: address._id,
-    });
-  };
-
-  const queryClient = useQueryClient();
-
-  const handleToggleSwitch = async (address: ShippingAddress) => {
-    const data = await updateDefaultShippingAddress(address);
-    if (
-      data &&
-      data.metadata === 'The shipping address is in default status!'
-    ) {
-      Alert.alert('Error', 'The shipping address is in default status!');
-    } else {
-      setShippingAddresses(prevAddresses =>
-        prevAddresses.map(addr =>
-          addr._id === address._id
-            ? {...addr, is_default: !addr.is_default}
-            : {...addr, is_default: false},
-        ),
-      );
-      queryClient.invalidateQueries({
-        queryKey: [getShippingAddressDefaultQuerykey],
-      });
-    }
-  };
-
-  const handleDeletePress = (address: ShippingAddress) => {
-    if (address.is_default) {
+  const handleDelete = (_id: string, is_default: boolean) => {
+    if (is_default) {
       setErrorDialogVisible(true);
     } else {
-      setAddressToDelete(address);
+      setid_delete(_id);
       setDialogVisible(true);
     }
   };
 
-  const confirmDelete = async () => {
-    if (addressToDelete) {
-      try {
-        await deleteShippingAddress(addressToDelete._id);
-        setShippingAddresses(prevAddresses =>
-          prevAddresses.filter(addr => addr._id !== addressToDelete._id),
-        );
-      } catch (error) {
-        console.error('Error deleting shipping address:', error);
-      } finally {
-        setDialogVisible(false);
-        setAddressToDelete(null);
-      }
+  const deleteAddress = async () => {
+    const response = await deleteShippingAddressAPI(id_delete);
+    if (response?.status === 200) {
+      refetch();
     }
+    setid_delete('');
+    setDialogVisible(false);
   };
 
-  const handleErrorDialogClose = () => {
-    setErrorDialogVisible(false);
+  const handleCancel = () => {
+    setDialogVisible(false);
+    setid_delete('');
+  };
+
+  const dispatch = useAppDispatch();
+
+  const setAddressChoose = (item: shipping_address) => {
+    dispatch(
+      set_address_choose({
+        full_name: item.full_name,
+        phone: item.phone,
+        province_id: item.province_id,
+        province_name: item.province_name,
+        district_id: item.district_id,
+        district_name: item.district_name,
+        ward_code: item.ward_code,
+        ward_name: item.ward_name,
+        specific_address: item.specific_address,
+      }),
+    );
+    navigation.goBack()
   };
 
   return (
@@ -139,7 +113,13 @@ const SelectShippingAddressScreen = () => {
       <ContainerComponent isScroll>
         <SpaceComponent height={handleSize(15)} />
         {shippingAddresses.map(address => (
-          <SectionComponent key={address._id} style={styles.infoSection}>
+          <SectionComponent
+            disabled={!is_select}
+            key={address._id}
+            style={styles.infoSection}
+            onPress={() => {
+              setAddressChoose(address);
+            }}>
             <SpaceComponent height={handleSize(5)} />
             <RowComponent>
               <TextComponent
@@ -149,7 +129,12 @@ const SelectShippingAddressScreen = () => {
                 font={fontFamilies.bold}
               />
               <RowComponent>
-                <TouchableOpacity onPress={() => handleEditPress(address)}>
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('UpdateAddressScreen', {
+                      address_id: address._id,
+                    });
+                  }}>
                   <TextComponent
                     text="Edit"
                     size={handleSize(14)}
@@ -158,7 +143,10 @@ const SelectShippingAddressScreen = () => {
                   />
                 </TouchableOpacity>
                 <SpaceComponent width={5} />
-                <TouchableOpacity onPress={() => handleDeletePress(address)}>
+                <TouchableOpacity
+                  onPress={() => {
+                    handleDelete(address._id, address.is_default);
+                  }}>
                   <TextComponent
                     text="Delete"
                     size={handleSize(14)}
@@ -178,7 +166,7 @@ const SelectShippingAddressScreen = () => {
             <SpaceComponent height={handleSize(10)} />
             <RowComponent>
               <TextComponent
-                text={`${address.province_city}, ${address.district}, ${address.ward_commune}`}
+                text={`${address.province_name}, ${address.district_name}, ${address.ward_name}`}
                 size={handleSize(14)}
                 color={colors.Text_Color}
                 numberOfLines={1}
@@ -198,30 +186,39 @@ const SelectShippingAddressScreen = () => {
               />
               <Switch
                 value={address.is_default}
-                onValueChange={() => handleToggleSwitch(address)}
+                onValueChange={() => {
+                  handleToggleStatus(address._id);
+                }}
               />
             </RowComponent>
           </SectionComponent>
         ))}
       </ContainerComponent>
       <SectionComponent style={styles.button}>
-        <ButtonComponent text="Add new address" onPress={handleConfirmPress} />
+        <ButtonComponent
+          text="Add new address"
+          onPress={() => {
+            navigation.navigate('AddNewAddress');
+          }}
+        />
       </SectionComponent>
       <DialogIOSComponent
         title="Confirm delete"
-        content={`Are you sure you want to delete the address for ${addressToDelete?.full_name}?`}
+        content={`Are you sure you want to delete the address?`}
         isVisible={isDialogVisible}
         setIsVisible={setDialogVisible}
         txtBtnRight="Delete"
-        fnRight={confirmDelete}
+        fnRight={() => {
+          deleteAddress();
+        }}
+        fnLeft={() => {
+          handleCancel();
+        }}
       />
-      <DialogIOSComponent
-        title="Error"
-        content="Cannot delete the default address."
+      <DialogErrorIOS
+        content="Default shipping address cannot be deleted!"
         isVisible={isErrorDialogVisible}
-        setIsVisible={setErrorDialogVisible}
-        txtBtnRight="OK"
-        fnRight={handleErrorDialogClose}
+        setIsvisble={setErrorDialogVisible}
       />
     </ContainerComponent>
   );

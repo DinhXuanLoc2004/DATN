@@ -4,8 +4,8 @@ import {ref_accessTokenAPI} from '../apis/auth.api';
 import {ref_accessToken} from '../store/slices/auth.slice';
 import {NetworkInfo} from 'react-native-network-info';
 
-const baseURL = 'https://backenddatn-production.up.railway.app/v1/api/';
-// const baseURL = 'http://192.168.1.36:5000/v1/api/';
+// const baseURL = 'https://backenddatn-production.up.railway.app/v1/api/';
+const baseURL = 'http://192.168.1.36:5000/v1/api/';
 
 const axiosIntercreptor = axios.create({
   baseURL: baseURL,

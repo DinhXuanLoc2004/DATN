@@ -1,8 +1,8 @@
-import {useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {useQueryClient} from '@tanstack/react-query';
-import React, {useState} from 'react';
-import {StyleSheet, Switch, TouchableOpacity} from 'react-native';
+import { RouteProp, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Switch, TouchableOpacity } from 'react-native';
 import ButtonComponent from '../../../../components/buttons/ButtonComponent';
 import DialogErrorIOS from '../../../../components/dialogs/DialogErrorIOS';
 import TextInputAnimationComponent from '../../../../components/inputs/TextInputAnimationComponent';
@@ -11,52 +11,83 @@ import RowComponent from '../../../../components/layouts/RowComponent';
 import SectionComponent from '../../../../components/layouts/SectionComponent';
 import SpaceComponent from '../../../../components/layouts/SpaceComponent';
 import TextComponent from '../../../../components/texts/TextComponent';
-import {colors} from '../../../../constants/colors';
-import {fontFamilies} from '../../../../constants/fontFamilies';
-import {getAllShippingAddressQueryKey} from '../../../../constants/queryKeys';
-import {addShippingAddressAPI} from '../../../../helper/apis/shippingaddress.api';
-import {remove_select_address} from '../../../../helper/store/slices/sort.slice';
-import {useAppDispatch, useAppSelector} from '../../../../helper/store/store';
-import {addShippingAddressBody} from '../../../../helper/types/shippingaddress.type';
-import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
-import {globalStyles} from '../../../../styles/globalStyle';
-import {handleSize} from '../../../../utils/handleSize';
+import { colors } from '../../../../constants/colors';
+import { fontFamilies } from '../../../../constants/fontFamilies';
+import { getAllShippingAddressQueryKey } from '../../../../constants/queryKeys';
+import { getShippingAddressDetailAPI, updateShippingAddressAPI } from '../../../../helper/apis/shippingaddress.api';
+import {
+  remove_select_address,
+  set_district,
+  set_province,
+  set_ward,
+} from '../../../../helper/store/slices/sort.slice';
+import { useAppDispatch, useAppSelector } from '../../../../helper/store/store';
+import {
+  updateShippingAddressBody
+} from '../../../../helper/types/shippingaddress.type';
+import { stackParamListMain } from '../../../../navigation/StackMainNavigation';
+import { handleSize } from '../../../../utils/handleSize';
 
-type NavigationProps = StackNavigationProp<stackParamListMain, 'AddNewAddress'>;
+type stackProp = StackNavigationProp<stackParamListMain, 'UpdateAddressScreen'>;
+type routeProp = RouteProp<stackParamListMain, 'UpdateAddressScreen'>;
 
-const AddNewAddress = () => {
-  const navigation = useNavigation<NavigationProps>();
+const UpdateAddressScreen = ({route}: {route: routeProp}) => {
+  const navigaiton = useNavigation<stackProp>();
+  const {address_id} = route.params;
 
   const [fullname, setFullname] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [detailedAddress, setDetailedAddress] = useState('');
   const [isDefault, setIsDefault] = useState(true);
-  const [isVisibleError, setisVisibleError] = useState(false);
-  const user_id = useAppSelector(state => state.auth.user.userId);
-
-  const handleProvincePress = () => {
-    navigation.navigate('ProvinceScreen');
-  };
+  const [is_loading, setis_loading] = useState<boolean>(false);
+  const [error, seterror] = useState<string>('');
+  const [isVisible, setisVisible] = useState<boolean>(false);
+  const [is_default_const, setis_default_const] = useState<boolean>(false);
 
   const province = useAppSelector(state => state.sort.province);
-
   const district = useAppSelector(state => state.sort.district);
-
   const ward = useAppSelector(state => state.sort.ward);
-
-  const handleDistrictPress = () => {
-    navigation.navigate('DistrictScreen');
-  };
-
-  const handleWardPress = () => {
-    navigation.navigate('WardScreen');
-  };
 
   const queryClient = useQueryClient();
 
   const dispatch = useAppDispatch();
 
-  const handleCompletePress = async () => {
+  const getShippingAddressDetail = async () => {
+    setis_loading(true);
+    const response = await getShippingAddressDetailAPI(address_id);
+    if (response?.metadata) {
+      setFullname(response.metadata.full_name);
+      setPhoneNumber(response.metadata.phone.toString());
+      dispatch(
+        set_province({
+          ProvinceID: response.metadata.province_id,
+          ProvinceName: response.metadata.province_name,
+        }),
+      );
+      dispatch(
+        set_district({
+          DistrictID: response.metadata.district_id,
+          DistrictName: response.metadata.district_name,
+        }),
+      );
+      dispatch(
+        set_ward({
+          WardCode: response.metadata.ward_code,
+          WardName: response.metadata.ward_name,
+        }),
+      );
+      setDetailedAddress(response.metadata.specific_address);
+      setIsDefault(response.metadata.is_default);
+      setis_default_const(response.metadata.is_default);
+    }
+    setis_loading(false);
+  };
+
+  useEffect(() => {
+    getShippingAddressDetail();
+  }, []);
+
+  const handleUpdate = async () => {
     if (
       !fullname ||
       !phoneNumber ||
@@ -68,28 +99,30 @@ const AddNewAddress = () => {
       !ward.ward_name ||
       !detailedAddress
     ) {
-      setisVisibleError(true);
-    } else {
-      const shipping_address: addShippingAddressBody = {
+      seterror('Please fill in all content!');
+      setisVisible(true)
+    }else if (is_default_const && !isDefault) {
+      seterror('Default shipping address cannot be changed');
+      setisVisible(true);
+    }else{
+      const body: updateShippingAddressBody = {
         full_name: fullname,
         phone: Number(phoneNumber),
-        province_name: province.province_name,
         province_id: province.province_id,
+        province_name: province.province_name,
         district_id: district.district_id,
         district_name: district.district_name,
         ward_code: ward.ward_code,
         ward_name: ward.ward_name,
         is_default: isDefault,
-        specific_address: detailedAddress,
-        user_id,
-      };
-      const response = await addShippingAddressAPI(shipping_address);
-      if (response?.status === 201) {
-        navigation.goBack();
-        dispatch(remove_select_address());
-        queryClient.invalidateQueries({
-          queryKey: [getAllShippingAddressQueryKey],
-        });
+        specific_address: detailedAddress
+      }
+
+      const response = await updateShippingAddressAPI(address_id, body)
+      if(response?.status === 200){
+        queryClient.invalidateQueries({queryKey: [getAllShippingAddressQueryKey]})
+        navigaiton.goBack()
+        dispatch(remove_select_address())
       }
     }
   };
@@ -100,11 +133,10 @@ const AddNewAddress = () => {
       isScroll
       isHeader
       back
-      title="New Address"
-      styleHeader={globalStyles.headerElevation}
+      title="Edit Address"
       backOnPress={() => {
+        navigaiton.goBack();
         dispatch(remove_select_address());
-        navigation.goBack();
       }}>
       <TextComponent
         text="Contact"
@@ -137,40 +169,43 @@ const AddNewAddress = () => {
         />
 
         <TouchableOpacity
-          style={styles.text}
-          onPress={handleProvincePress}
-          accessibilityLabel="Select province">
+          onPress={() => {
+            navigaiton.navigate('ProvinceScreen');
+          }}
+          style={styles.text}>
           <TextComponent
             color={
               province.province_name ? colors.Text_Color : colors.Gray_Color
             }
-            size={handleSize(13)}
+            size={handleSize(14)}
             font={fontFamilies.medium}
             text={province.province_name || 'Province/City'}
           />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.text}
-          onPress={handleDistrictPress}
-          accessibilityLabel="Select district">
+          onPress={() => {
+            navigaiton.navigate('DistrictScreen');
+          }}
+          style={styles.text}>
           <TextComponent
             color={
               district.district_name ? colors.Text_Color : colors.Gray_Color
             }
-            size={handleSize(13)}
+            size={handleSize(14)}
             font={fontFamilies.medium}
             text={district.district_name || 'District'}
           />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.text}
-          onPress={handleWardPress}
-          accessibilityLabel="Select ward">
+          onPress={() => {
+            navigaiton.navigate('WardScreen');
+          }}
+          style={styles.text}>
           <TextComponent
             color={ward.ward_name ? colors.Text_Color : colors.Gray_Color}
-            size={handleSize(13)}
+            size={handleSize(14)}
             font={fontFamilies.medium}
             text={ward.ward_name || 'Ward/Commune'}
           />
@@ -195,8 +230,8 @@ const AddNewAddress = () => {
       <RowComponent style={styles.text1}>
         <TextComponent
           text="Set as default address"
-          size={handleSize(15)}
-          color={colors.Gray_Color}
+          size={handleSize(14)}
+          color={colors.Text_Color}
         />
         <SectionComponent style={styles.switch}>
           <Switch value={isDefault} onValueChange={setIsDefault} />
@@ -205,22 +240,28 @@ const AddNewAddress = () => {
       <SpaceComponent height={handleSize(30)} />
       <SectionComponent style={styles.paddingHorizontal}>
         <ButtonComponent
-          text="COMPLETE"
+          text="Complete"
           onPress={() => {
-            handleCompletePress();
+            handleUpdate();
           }}
         />
       </SectionComponent>
       <DialogErrorIOS
-        content="Please fill in all content!"
-        isVisible={isVisibleError}
-        setIsvisble={setisVisibleError}
+        content={error}
+        isVisible={isVisible}
+        setIsvisble={setisVisible}
+        onPress={() => {
+          setisVisible(false);
+          if (is_default_const && !isDefault) {
+            setIsDefault(true);
+          }
+        }}
       />
     </ContainerComponent>
   );
 };
 
-export default AddNewAddress;
+export default UpdateAddressScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -240,15 +281,15 @@ const styles = StyleSheet.create({
     height: handleSize(70),
     borderRadius: handleSize(0),
     paddingHorizontal: handleSize(10),
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: colors.White_Color,
-    borderBottomWidth: 3,
-    borderBottomColor: colors.Gray_Light_Color,
   },
   padding: {
     padding: handleSize(15),
   },
   paddingHorizontal: {
-    paddingHorizontal: handleSize(20),
+    paddingHorizontal: handleSize(10),
   },
   switch: {
     backgroundColor: colors.White_Color,

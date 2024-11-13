@@ -16,7 +16,7 @@ interface Props {
 }
 
 const SalePriceComponent: FC<Props> = ({price, discount, size, flex, font}) => {
-  const newPrice = discount > 0 ? fotmatedAmount((price - ((price * discount)/100)) * 1000) : fotmatedAmount(price * 1000);
+  const newPrice = discount > 0 ? fotmatedAmount((price - ((price * discount)/100)) ) : fotmatedAmount(price );
   return (
     <RowComponent justify="flex-end" flex={flex}>
       {discount > 0 && (
@@ -25,7 +25,7 @@ const SalePriceComponent: FC<Props> = ({price, discount, size, flex, font}) => {
             color={colors.Gray_Color}
             size={size ?? 14}
             font={font ?? fontFamilies.medium}
-            text={`${fotmatedAmount(price * 1000)}`}
+            text={`${fotmatedAmount(price )}`}
             style={{textDecorationLine: 'line-through'}}
             numberOfLines={1}
             ellipsizeMode="tail"
@@ -37,7 +37,7 @@ const SalePriceComponent: FC<Props> = ({price, discount, size, flex, font}) => {
         color={discount > 0 ? colors.Primary_Color : colors.Text_Color}
         size={size ?? 14}
         font={font ?? fontFamilies.medium}
-        text={`${discount > 0 ? newPrice : fotmatedAmount(price * 1000)}`}
+        text={`${discount > 0 ? newPrice : fotmatedAmount(price )}`}
       />
     </RowComponent>
   );

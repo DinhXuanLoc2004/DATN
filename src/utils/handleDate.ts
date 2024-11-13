@@ -1,4 +1,9 @@
 export class handleDate {
+  static convertTimestampToDate = (time: number) => {
+    const date = new Date(time * 1000)
+    return date
+  }
+
   static handleIsNewProduct = (createAt: string) => {
     const today = new Date();
     const stringCreateAt = createAt.split('T')[0];
@@ -20,7 +25,7 @@ export class handleDate {
     const utc7Date = new Date(date.getTime() + 7 * 60 * 60 * 1000);
 
     const day = String(utc7Date.getUTCDate()).padStart(2, '0');
-    const month = String(utc7Date.getUTCMonth() + 1).padStart(2, '0'); 
+    const month = String(utc7Date.getUTCMonth() + 1).padStart(2, '0');
     const year = utc7Date.getUTCFullYear();
 
     return `${day}-${month}-${year}`;
