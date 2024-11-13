@@ -1,8 +1,8 @@
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {RouteProp, useNavigation} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {useQuery, useQueryClient} from '@tanstack/react-query';
-import React, {useEffect, useRef, useState} from 'react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { RouteProp, useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -19,6 +19,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import ButtonComponent from '../../../../components/buttons/ButtonComponent';
 import CustomBottomSheet from '../../../../components/layouts/bottom_sheets/CustomBottomSheet';
 import ContainerComponent from '../../../../components/layouts/ContainerComponent';
+import LinearGradientComponet from '../../../../components/layouts/LinearGradientComponet';
 import RowComponent from '../../../../components/layouts/RowComponent';
 import SearchComponent from '../../../../components/layouts/SearchComponent';
 import SectionComponent from '../../../../components/layouts/SectionComponent';
@@ -26,44 +27,35 @@ import SpaceComponent from '../../../../components/layouts/SpaceComponent';
 import CountDownTime from '../../../../components/layouts/times/CountDownTime';
 import SalePriceComponent from '../../../../components/texts/SalePriceComponent';
 import TextComponent from '../../../../components/texts/TextComponent';
-import {colors} from '../../../../constants/colors';
-import {fontFamilies} from '../../../../constants/fontFamilies';
-import {
-  getAllCartQueryKey,
-  getAllPaymentMethodQuerykey,
-  getShippingAddressDefaultQuerykey,
-} from '../../../../constants/queryKeys';
-import {getCartChecksAPI} from '../../../../helper/apis/cart.api';
-import {
-  getAllDeliveryMethodAPI,
-  getDetailDeliveryMethodAPI,
-} from '../../../../helper/apis/delivery_method.api';
-import {orderAPI} from '../../../../helper/apis/order.api';
-import {getShippingAddressDefaultAPI} from '../../../../helper/apis/shippingaddress.api';
-import {getAllVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
-import {setDeliveryMethod} from '../../../../helper/store/slices/sort.slice';
-import {useAppDispatch, useAppSelector} from '../../../../helper/store/store';
-import {cartCheck} from '../../../../helper/types/cart.type';
-import {delivery_method} from '../../../../helper/types/delivery_method.type';
-import {
-  createOrderRequet,
-  products_orderResquet,
-} from '../../../../helper/types/order.type';
-import {voucher_user} from '../../../../helper/types/voucher_user.type';
-import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
-import {globalStyles} from '../../../../styles/globalStyle';
-import {fotmatedAmount} from '../../../../utils/fotmats';
-import {handleSize} from '../../../../utils/handleSize';
+import { colors } from '../../../../constants/colors';
+import { fontFamilies } from '../../../../constants/fontFamilies';
 import {
   payment_methods,
   payment_name,
 } from '../../../../constants/payment_methods';
-import WebView, {
-  WebViewMessageEvent,
-  WebViewNavigation,
-} from 'react-native-webview';
-import Feather from 'react-native-vector-icons/Feather';
-import LinearGradientComponet from '../../../../components/layouts/LinearGradientComponet';
+import { getAllCartQueryKey } from '../../../../constants/queryKeys';
+import { getCartChecksAPI } from '../../../../helper/apis/cart.api';
+import { orderAPI } from '../../../../helper/apis/order.api';
+import {
+  getDeliveryFeeAPI,
+  getShippingAddressDefaultAPI,
+} from '../../../../helper/apis/shippingaddress.api';
+import { getAllVoucherUserAPI } from '../../../../helper/apis/voucher_user.api';
+import {
+  set_address_choose,
+} from '../../../../helper/store/slices/sort.slice';
+import { useAppDispatch, useAppSelector } from '../../../../helper/store/store';
+import { cartCheck } from '../../../../helper/types/cart.type';
+import {
+  createOrderRequet,
+  products_orderResquet,
+} from '../../../../helper/types/order.type';
+import { voucher_user } from '../../../../helper/types/voucher_user.type';
+import { stackParamListMain } from '../../../../navigation/StackMainNavigation';
+import { globalStyles } from '../../../../styles/globalStyle';
+import { fotmatedAmount } from '../../../../utils/fotmats';
+import { handleDate } from '../../../../utils/handleDate';
+import { handleSize } from '../../../../utils/handleSize';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'CheckoutScreen'>;
 type routeProp = RouteProp<stackParamListMain, 'CheckoutScreen'>;
@@ -76,19 +68,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const {cart_ids} = route.params;
   const [product_variant_carts, setproduct_variant_carts] =
     useState<cartCheck[]>();
-  const [fullname, setfullname] = useState<string>('');
-  const [phone, setphone] = useState<string>('');
-  const [province_city, setprovince_city] = useState<string>('');
-  const [district, setdistrict] = useState<string>('');
-  const [ward_commune, setward_commune] = useState<string>('');
-  const [specific_address, setspecific_address] = useState<string>('');
   const [total_quantity, settotal_quantity] = useState<number>(0);
   const [total_amount, settotal_amount] = useState<number>(0);
   const dispatch = useAppDispatch();
-  const delivery_id_defau = useAppSelector(
-    state => state.sort.delivery_method_default.dilivery_id,
-  );
-  const [delivery_method, setdelivery_method] = useState<delivery_method>();
   const [search_voucher_code, setsearch_voucher_code] = useState<string>('');
   const [your_vouchers, setyour_vouchers] = useState<voucher_user[]>([]);
   const [name_voucher, setname_voucher] = useState<string>('');
@@ -104,6 +86,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const [total_amount_final, settotal_amount_final] = useState<number>(0);
   const [isLoadingOrder, setisLoadingOrder] = useState<boolean>(false);
   const navigaiton = useNavigation<stackProp>();
+  const address_choose = useAppSelector(state => state.sort.address_choose);
+  const [delivery_fee, setdelivery_fee] = useState<number>(0);
+  const [leadtime, setleadtime] = useState<number>(0);
 
   const getCartChecks = async () => {
     const str_cart_ids = JSON.stringify(cart_ids);
@@ -126,19 +111,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     }
   };
 
-  const getAllDeliveryMethod = async () => {
-    const data = await getAllDeliveryMethodAPI();
-    if (data?.metadata) {
-      dispatch(setDeliveryMethod({delivery_id: data.metadata[0]._id}));
-    }
-  };
+  
 
   const user_id = useAppSelector(state => state.auth.user.userId);
-
-  const {data: shipping_address_default} = useQuery({
-    queryKey: [getShippingAddressDefaultQuerykey, user_id],
-    queryFn: getShippingAddressDefaultAPI,
-  });
 
   const getVouchersUserNotUsed = async () => {
     const data = await getAllVoucherUserAPI({
@@ -151,41 +126,35 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     }
   };
 
-  useEffect(() => {
-    getCartChecks();
-    getAllDeliveryMethod();
-  }, []);
+  const getAddressChoose = async () => {
+    const data = await getShippingAddressDefaultAPI(user_id);
+    if (data?.metadata) {
+      dispatch(
+        set_address_choose({
+          full_name: data.metadata.full_name,
+          phone: data.metadata.phone,
+          province_id: data.metadata.province_id,
+          province_name: data.metadata.province_name,
+          district_id: data.metadata.district_id,
+          district_name: data.metadata.district_name,
+          ward_code: data.metadata.ward_code,
+          ward_name: data.metadata.ward_name,
+          specific_address: data.metadata.specific_address,
+        }),
+      );
+    }
+  };
 
   useEffect(() => {
-    if (shipping_address_default?.metadata) {
-      setfullname(shipping_address_default.metadata.full_name);
-      setphone(shipping_address_default.metadata.phone);
-      setprovince_city(shipping_address_default.metadata.province_city);
-      setdistrict(shipping_address_default.metadata.district);
-      setward_commune(shipping_address_default.metadata.ward_commune);
-      setward_commune(shipping_address_default.metadata.ward_commune);
-      setspecific_address(shipping_address_default.metadata.specific_address);
-    }
-  }, [shipping_address_default]);
+    getCartChecks();
+    getAddressChoose();
+  }, []);
 
   useEffect(() => {
     if (total_amount > 0) {
       getVouchersUserNotUsed();
     }
   }, [total_amount]);
-
-  const getDetailDeliveryMethod = async (delivery_id: string) => {
-    const data = await getDetailDeliveryMethodAPI({_id: delivery_id});
-    if (data?.metadata) {
-      setdelivery_method(data.metadata);
-    }
-  };
-
-  useEffect(() => {
-    if (delivery_id_defau) {
-      getDetailDeliveryMethod(delivery_id_defau);
-    }
-  }, [delivery_id_defau]);
 
   const bottomsheet = useRef<BottomSheetModal>(null);
 
@@ -227,19 +196,18 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
 
   useEffect(() => {
     if (total_amount) {
-      const deliveryFee = delivery_method?.delivery_fee ?? 0;
+      const deliveryFee = delivery_fee;
       const total =
         voucher_type === 'deduct_money'
           ? total_amount + deliveryFee - voucher_value
           : voucher_type === 'percent'
           ? total_amount - (total_amount * voucher_value) / 100 + deliveryFee
           : total_amount + deliveryFee;
-      console.log(total);
       settotal_amount_final(total);
     }
   }, [
     total_amount,
-    delivery_method?.delivery_fee,
+    delivery_fee,
     voucher_value,
     voucher_type,
   ]);
@@ -252,7 +220,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       data => {
         console.log('data event zalo pay:: ', data);
         if (data.returnCode == 1) {
-          navigaiton.navigate('OrderSuccessScreen')
+          navigaiton.navigate('OrderSuccessScreen');
         } else {
           Alert.alert('Giao dịch thất bại!');
         }
@@ -280,17 +248,20 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       );
       const body: createOrderRequet = {
         user_id,
-        full_name: fullname,
-        phone: phone.toString(),
-        province_city,
-        district,
-        ward_commune,
-        specific_address,
+        full_name: address_choose.full_name,
+        phone: address_choose.phone.toString(),
+        province_id: address_choose.province_id,
+        province_name: address_choose.province_name,
+        district_id: address_choose.district_id,
+        district_name: address_choose.district_name,
+        ward_code: address_choose.ward_code,
+        ward_name: address_choose.ward_name,
+        specific_address: address_choose.specific_address,
         voucher_user_id: voucher_user_id,
         type_voucher: voucher_type,
         value_voucher: voucher_value,
-        delivery_method_id: delivery_id_defau,
-        delivery_fee: delivery_method?.delivery_fee ?? 0,
+        delivery_fee: delivery_fee,
+        leadtime: handleDate.convertTimestampToDate(leadtime).toJSON(),
         payment_method: payment_name_choose,
         total_amount: total_amount_final,
         products_order,
@@ -298,7 +269,6 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       };
       setisLoadingOrder(true);
       const data = await orderAPI(body);
-      console.log(data);
       queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
       if (
         data &&
@@ -317,14 +287,33 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       ) {
         setisLoadingOrder(false);
         navigaiton.navigate('PaypalWebview', {approve: data.metadata.approve});
-      } else if(data &&
+      } else if (
+        data &&
         data.status === 201 &&
-        data.metadata.payment_method === 'COD') {
-          setisLoadingOrder(false)
-          navigaiton.navigate('OrderSuccessScreen')
-        }
+        data.metadata.payment_method === 'COD'
+      ) {
+        setisLoadingOrder(false);
+        navigaiton.navigate('OrderSuccessScreen');
+      }
     }
   };
+
+  const getDeliveryFee = async () => {
+    const data = await getDeliveryFeeAPI({
+      to_district_id: address_choose.district_id,
+      to_ward_code: address_choose.ward_code,
+    });
+    if (data?.metadata) {
+      setdelivery_fee(data.metadata.delivery_fee);
+      setleadtime(data.metadata.leadtime);
+    }
+  };
+
+  useEffect(() => {
+    if (address_choose.district_id > 0 && address_choose.ward_code) {
+      getDeliveryFee();
+    }
+  }, [address_choose]);
 
   return (
     <ContainerComponent
@@ -338,7 +327,11 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
 
         <SectionComponent
           style={styles.section}
-          onPress={() => navigaiton.navigate('SelectShippingAddressScreen')}>
+          onPress={() =>
+            navigaiton.navigate('SelectShippingAddressScreen', {
+              is_select: true,
+            })
+          }>
           <RowComponent>
             <RowComponent style={styles.rowAddress} flex={0.8}>
               <FontAwesome5
@@ -350,13 +343,13 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
               <SectionComponent flex={0}>
                 <RowComponent justify="flex-start">
                   <TextComponent
-                    text={fullname}
+                    text={address_choose.full_name}
                     size={14}
                     font={fontFamilies.semiBold}
                   />
                   <SpaceComponent width={5} />
                   <TextComponent
-                    text={phone}
+                    text={address_choose.phone.toString()}
                     size={12}
                     font={fontFamilies.medium}
                     color={colors.Gray_Color}
@@ -364,14 +357,14 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                 </RowComponent>
                 <SpaceComponent height={7} />
                 <TextComponent
-                  text={specific_address}
+                  text={address_choose.specific_address}
                   size={12}
                   style={styles.txtAddress}
                   font={fontFamilies.medium}
                 />
                 <SpaceComponent height={5} />
                 <TextComponent
-                  text={`${ward_commune}, ${district}, ${province_city}`}
+                  text={`${address_choose.ward_name}, ${address_choose.district_name}, ${address_choose.province_name}`}
                   size={12}
                   style={styles.txtAddress}
                   font={fontFamilies.medium}
@@ -533,7 +526,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                     voucher_type === 'deduct_money' ? 'reduced by ' : ''
                   }${
                     voucher_type === 'deduct_money'
-                      ? `${fotmatedAmount(voucher_value * 1000)} `
+                      ? `${fotmatedAmount(voucher_value)} `
                       : '%'
                   }`}
                   size={11}
@@ -545,41 +538,39 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           </RowComponent>
         </SectionComponent>
 
-        <SectionComponent
-          style={styles.section}
-          onPress={() => {
-            navigaiton.navigate('DeliveryMethodScreen', {
-              delivery_id: delivery_id_defau,
-            });
-          }}>
-          <RowComponent>
-            <TextComponent
-              text="Delivery methods"
-              size={15}
-              font={fontFamilies.medium}
-            />
-            <RowComponent style={styles.txtAddress}>
-              <TextComponent text="See all" size={12} />
-              <SpaceComponent width={5} />
-              <FontAwesome5 name="chevron-right" />
-            </RowComponent>
-          </RowComponent>
+        <SectionComponent style={styles.section}>
+          <TextComponent text="Delivery" size={15} font={fontFamilies.medium} />
           <SpaceComponent height={10} />
-          {delivery_method && (
-            <SectionComponent style={styles.contentDelivery}>
-              <RowComponent>
-                <TextComponent
-                  text={delivery_method.name_delivery}
-                  size={13}
-                  font={fontFamilies.medium}
-                />
-                <TextComponent
-                  text={fotmatedAmount(delivery_method.delivery_fee ?? 0)}
-                  size={12}
-                  font={fontFamilies.medium}
-                />
-              </RowComponent>
-            </SectionComponent>
+          {delivery_fee > 0 && (
+            <RowComponent>
+              <TextComponent
+                text={'Delivery fee'}
+                size={13}
+                font={fontFamilies.regular}
+              />
+              <TextComponent
+                text={fotmatedAmount(delivery_fee)}
+                size={12}
+                font={fontFamilies.medium}
+              />
+            </RowComponent>
+          )}
+          <SpaceComponent height={10} />
+          {leadtime > 0 && (
+            <RowComponent>
+              <TextComponent
+                text={'Estimated delivery time'}
+                size={13}
+                font={fontFamilies.regular}
+              />
+              <TextComponent
+                text={handleDate.convertTimestampToDate(leadtime).toDateString()}
+                size={13}
+                font={fontFamilies.medium}
+                color={colors.Success_Color}
+                style={{fontStyle: 'italic'}}
+              />
+            </RowComponent>
           )}
         </SectionComponent>
 
@@ -635,7 +626,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           <RowComponent>
             <TextComponent text="Total cost of goods" size={12} />
             <TextComponent
-              text={fotmatedAmount(total_amount * 1000)}
+              text={fotmatedAmount(total_amount)}
               size={12}
               font={fontFamilies.medium}
             />
@@ -644,7 +635,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           <RowComponent>
             <TextComponent text="Total shipping cost" size={12} />
             <TextComponent
-              text={fotmatedAmount(delivery_method?.delivery_fee ?? 0)}
+              text={fotmatedAmount(delivery_fee)}
               size={12}
               font={fontFamilies.medium}
             />
@@ -655,8 +646,8 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
             <TextComponent
               text={`-${fotmatedAmount(
                 voucher_type === 'deduct_money'
-                  ? voucher_value * 1000
-                  : total_amount * 1000 * (voucher_value / 100),
+                  ? voucher_value
+                  : total_amount * (voucher_value / 100),
               )}`}
               size={12}
               font={fontFamilies.medium}
@@ -671,15 +662,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
               font={fontFamilies.semiBold}
             />
             <TextComponent
-              text={fotmatedAmount(
-                delivery_method?.delivery_fee
-                  ? total_amount * 1000 +
-                      delivery_method.delivery_fee -
-                      (voucher_type === 'deduct_money'
-                        ? voucher_value * 1000
-                        : total_amount * 1000 * (voucher_value / 100))
-                  : 0,
-              )}
+              text={fotmatedAmount(total_amount_final)}
               size={12}
               font={fontFamilies.medium}
             />

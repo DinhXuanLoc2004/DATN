@@ -55,7 +55,7 @@ const ContainerComponent: FC<Props> = ({
   onRefresh,
   backOnPress
 }) => {
-  const navigation: any = useNavigation();
+  const navigation: any = useNavigation<stackParamListMain>();
   const [height_header, setheight_header] = useState<number>(0);
   return (
     <View style={[globalStyles.container, style]}>

@@ -14,5 +14,6 @@ export const colors = {
   Gray_Light_Color : '#F6F6F6',
   Gray_Dark_Color:'#BEA9A9',
   Yellow_Light_Color:'#E2BB8D',
-  Blue_Dark_Color:'#151867'
+  Blue_Dark_Color:'#151867',
+  Action_Dialog_Blue: '#1C98F3'
 };

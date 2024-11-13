@@ -94,10 +94,10 @@ const ProfileScreen = () => {
         description="Already have 12 orders"
         onPress={() => navigation.navigate('OrdersScreen')}
       />
-      <ButtonProfileComponent
+      <ButtonProfileComponent  
         title="Shipping addresses"
         description="3 ddresses"
-        onPress={() => navigation.navigate('SelectShippingAddressScreen')}
+        onPress={() => navigation.navigate('SelectShippingAddressScreen', {is_select: false})}
       />
       <ButtonProfileComponent
         title="Payment methods"

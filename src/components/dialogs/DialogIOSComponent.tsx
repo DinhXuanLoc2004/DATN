@@ -51,7 +51,7 @@ const DialogIOSComponent: FC<Props> = ({
             <SectionComponent
               style={styles.btnDialog}
               onPress={() => {
-                fnLeft ?? setIsVisible(false);
+                fnLeft ? fnLeft() : setIsVisible(false);
               }}>
               <TextComponent
                 text={txtBtnLeft ?? 'Cancel'}
