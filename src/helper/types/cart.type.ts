@@ -7,7 +7,7 @@ export interface product_order_sale {
 }
 
 export interface cartCheck {
-  cart_id: string;
+  cart_id: string
   product_variant_id: string;
   quantity: number;
   price: number;

@@ -37,6 +37,8 @@ interface Props {
   refreshing?: boolean;
   onRefresh?: () => void;
   backOnPress?: () => void;
+  iconBack?: ReactNode;
+  customHeader?: ReactNode;
 }
 
 const ContainerComponent: FC<Props> = ({
@@ -53,9 +55,11 @@ const ContainerComponent: FC<Props> = ({
   styleHeader,
   refreshing,
   onRefresh,
-  backOnPress
+  backOnPress,
+  iconBack,
+  customHeader,
 }) => {
-  const navigation: any = useNavigation<stackParamListMain>();
+  const navigation: any = useNavigation();
   const [height_header, setheight_header] = useState<number>(0);
   return (
     <View style={[globalStyles.container, style]}>
@@ -70,31 +74,39 @@ const ContainerComponent: FC<Props> = ({
             styleHeader,
           ]}
           onLayout={event => onLayout(event, setheight_header)}>
-          {back ? (
-            <TouchableOpacity
-              onPress={() => {
-                 backOnPress ? backOnPress() : navigation.goBack();
-              }}>
-              <IonIcon
-                name="chevron-back-outline"
-                size={handleSize(24)}
-                color={colors.Text_Color}
-              />
-            </TouchableOpacity>
+          {customHeader ? (
+            customHeader
           ) : (
-            <SpaceComponent width={10} />
-          )}
-          {title ? (
-            <TitleComponent text={title} />
-          ) : (
-            <SpaceComponent width={10} />
-          )}
-          {rightIcon ? (
-            <TouchableOpacity onPress={rightOnPress}>
-              {rightIcon}
-            </TouchableOpacity>
-          ) : (
-            <SpaceComponent width={10} />
+            <RowComponent flex={1}>
+              {back ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    backOnPress ? backOnPress() : navigation.goBack();
+                  }}>
+                  {iconBack ?? (
+                    <IonIcon
+                      name="chevron-back-outline"
+                      size={handleSize(24)}
+                      color={colors.Text_Color}
+                    />
+                  )}
+                </TouchableOpacity>
+              ) : (
+                <SpaceComponent width={10} />
+              )}
+              {title ? (
+                <TitleComponent text={title} />
+              ) : (
+                <SpaceComponent width={10} />
+              )}
+              {rightIcon ? (
+                <TouchableOpacity onPress={rightOnPress}>
+                  {rightIcon}
+                </TouchableOpacity>
+              ) : (
+                <SpaceComponent width={10} />
+              )}
+            </RowComponent>
           )}
         </RowComponent>
       )}
@@ -126,5 +138,4 @@ const ContainerComponent: FC<Props> = ({
 
 export default ContainerComponent;
 
-const styles = StyleSheet.create({
-})
+const styles = StyleSheet.create({});

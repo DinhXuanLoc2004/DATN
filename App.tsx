@@ -10,6 +10,7 @@ import {Provider} from 'react-redux';
 import {store} from './src/helper/store/store';
 import {navigationRef, RootNavigation} from './src/navigation/RootNavigation';
 import ProvinceScreen from './src/screens/mains/stacks/addresses/ProvinceScreen';
+import PaymentFailScreen from './src/screens/mains/stacks/orders/result_order/PaymentFailScreen';
 const queryClient = new QueryClient();
 function App(): React.JSX.Element {
   return (
@@ -21,7 +22,6 @@ function App(): React.JSX.Element {
               <BottomSheetModalProvider>
                 <PortalProvider>
                   <RootNavigation />
-                  {/* <ProvinceScreen/> */}
                 </PortalProvider>
               </BottomSheetModalProvider>
             </NavigationContainer>

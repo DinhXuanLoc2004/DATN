@@ -11,9 +11,13 @@ export const colors = {
   Transperen_Color: 'transparent',
   Black_Color_RGBA: 'rgba(0,0,0,0.4)',
   Text_Rating_Color: '#4F4F4F',
-  Gray_Light_Color : '#F6F6F6',
-  Gray_Dark_Color:'#BEA9A9',
-  Yellow_Light_Color:'#E2BB8D',
-  Blue_Dark_Color:'#151867',
-  Action_Dialog_Blue: '#1C98F3'
+  Gray_Light_Color: '#F6F6F6',
+  Gray_Dark_Color: '#BEA9A9',
+  Yellow_Light_Color: '#E2BB8D',
+  Blue_Dark_Color: '#151867',
+  Action_Dialog_Blue: '#1C98F3',
+  Yellow_Color: '#FFD700',
+  Order_Status_Bar: '#00C6AE',
+  Line_Status_Order: '#E0E0E0',
+  Dot_Status_Order: '#C4C4C4'
 };

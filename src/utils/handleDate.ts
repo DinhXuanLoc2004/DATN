@@ -1,8 +1,26 @@
 export class handleDate {
-  static convertTimestampToDate = (time: number) => {
-    const date = new Date(time * 1000)
-    return date
+  static formatDateTimeHHMM(input: string) {
+    const date = new Date(input); // Chuyển chuỗi ISO 8601 thành đối tượng Date
+    
+    const hours = date.getHours().toString().padStart(2, '0'); // Giờ (hh)
+    const minutes = date.getMinutes().toString().padStart(2, '0'); // Phút (mm)
+    
+    const day = date.getDate().toString().padStart(2, '0'); // Ngày (dd)
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Tháng (mm)
+  
+    return `${hours}:${minutes} ${day}-${month}`;
   }
+
+  static handleTimeEndVoucher = (time_end: string) => {
+    const timeEnd = new Date(time_end);
+    const now = new Date();
+    return now > timeEnd;
+  };
+
+  static convertTimestampToDate = (time: number) => {
+    const date = new Date(time * 1000);
+    return date;
+  };
 
   static handleIsNewProduct = (createAt: string) => {
     const today = new Date();

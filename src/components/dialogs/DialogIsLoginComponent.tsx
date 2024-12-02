@@ -20,6 +20,7 @@ import {setDiaLogLogin} from '../../helper/store/slices/sort.slice';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RootStackParamList} from '../../navigation/RootNavigation';
 import {useNavigation} from '@react-navigation/native';
+import DialogBase from './DialogBase';
 
 interface Props {
   isvisiable: boolean;
@@ -44,33 +45,31 @@ const DialogIsLoginComponent: FC<Props> = ({isvisiable}) => {
   };
 
   return (
-    <Modal animationType="slide" transparent={true} visible={isvisiable}>
-      <SectionComponent style={styles.container}>
-        <SectionComponent style={styles.containerDialog}>
-          <TouchableOpacity
-            style={styles.btnCancel}
-            onPress={() => handleCancel()}>
-            <TextComponent
-              text="X"
-              font={fontFamilies.bold}
-              size={20}
-              color={colors.Gray_Light_Color}
-            />
-          </TouchableOpacity>
-          <Image
-            source={require('../../assets/images/img_dialog_login.png')}
-            style={styles.img}
+    <DialogBase isVisible={isvisiable}>
+      <SectionComponent style={styles.containerDialog}>
+        <TouchableOpacity
+          style={styles.btnCancel}
+          onPress={() => handleCancel()}>
+          <TextComponent
+            text="X"
+            font={fontFamilies.bold}
+            size={20}
+            color={colors.Gray_Light_Color}
           />
-          <ButtonComponent
-            text="Login"
-            style={styles.btnLogin}
-            onPress={() => {
-              handleLogin();
-            }}
-          />
-        </SectionComponent>
+        </TouchableOpacity>
+        <Image
+          source={require('../../assets/images/img_dialog_login.png')}
+          style={styles.img}
+        />
+        <ButtonComponent
+          text="Login"
+          style={styles.btnLogin}
+          onPress={() => {
+            handleLogin();
+          }}
+        />
       </SectionComponent>
-    </Modal>
+    </DialogBase>
   );
 };
 
@@ -79,7 +78,7 @@ export default DialogIsLoginComponent;
 const styles = StyleSheet.create({
   containerDialog: {
     flex: 0,
-    zIndex: 5
+    zIndex: 5,
   },
   btnCancel: {
     top: 20,
@@ -96,10 +95,5 @@ const styles = StyleSheet.create({
   },
   img: {
     transform: [{scale: 1}],
-  },
-  container: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  }
 });

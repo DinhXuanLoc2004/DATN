@@ -1,6 +1,5 @@
-import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, {useEffect, useState} from 'react';
+import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import DoubleButtonComponent from '../../../../components/buttons/DoubleButtonComponent';
 import ContainerComponent from '../../../../components/layouts/ContainerComponent';
 import ItemProductOrderComponent from '../../../../components/layouts/items/ItemProductOrderComponent';
@@ -13,156 +12,229 @@ import {fontFamilies} from '../../../../constants/fontFamilies';
 import {handleDate} from '../../../../utils/handleDate';
 import {handleSize} from '../../../../utils/handleSize';
 import {onLayout} from '../../../../utils/onLayout';
-import { RouteProp } from '@react-navigation/native';
-import { stackParamListMain } from '../../../../navigation/StackMainNavigation';
+import {RouteProp, useNavigation} from '@react-navigation/native';
+import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
+import {order_detail} from '../../../../helper/types/order.type';
+import {getOrderDetailAPI} from '../../../../helper/apis/order.api';
+import StatusOrderBar from '../../../../components/bars/StatusOrderBar';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import SectionComponent from '../../../../components/layouts/SectionComponent';
+import {StackNavigationProp} from '@react-navigation/stack';
+import LinearGradient from 'react-native-linear-gradient';
+import DisplayPaymentMethod from '../../../../components/layouts/DisplayPaymentMethod';
+import {globalStyles} from '../../../../styles/globalStyle';
+import {fotmatedAmount} from '../../../../utils/fotmats';
+import {ActivityIndicator} from 'react-native';
+import ButtonOrderStatus from '../../../../components/buttons/ButtonOrderStatus';
 
-type routeProp = RouteProp<stackParamListMain, 'OrderDetailScreen'>
+type routeProp = RouteProp<stackParamListMain, 'OrderDetailScreen'>;
+type stackProp = StackNavigationProp<stackParamListMain, 'OrderDetailScreen'>;
 
 const OrderDetailScreen = ({route}: {route: routeProp}) => {
-  const {order_id} = route.params
+  const {order_id} = route.params;
   console.log(order_id);
   const [status, setstatus] = useState('Delivered');
-  const productsOrderExample = [
-    {
-      img: 'https://th.bing.com/th/id/R.40dab7893a187d62cb310120d0947903?rik=20HbPQ4AYthKlA&pid=ImgRaw&r=0',
-      category: 'Pullover',
-      brand: 'Mango',
-      color: 'Gray',
-      size: 'L',
-      quantity: 2,
-      price: 51,
-    },
-    {
-      img: 'https://th.bing.com/th/id/R.40dab7893a187d62cb310120d0947903?rik=20HbPQ4AYthKlA&pid=ImgRaw&r=0',
-      category: 'Pullover',
-      brand: 'Mango',
-      color: 'Gray',
-      size: 'L',
-      quantity: 2,
-      price: 51,
-    },
-    {
-      img: 'https://th.bing.com/th/id/R.40dab7893a187d62cb310120d0947903?rik=20HbPQ4AYthKlA&pid=ImgRaw&r=0',
-      category: 'Pullover',
-      brand: 'Mango',
-      color: 'Gray',
-      size: 'L',
-      quantity: 2,
-      price: 51,
-    },
-    {
-      img: 'https://th.bing.com/th/id/R.40dab7893a187d62cb310120d0947903?rik=20HbPQ4AYthKlA&pid=ImgRaw&r=0',
-      category: 'Pullover',
-      brand: 'Mango',
-      color: 'Gray',
-      size: 'L',
-      quantity: 2,
-      price: 51,
-    },
-  ];
   const [height_bottom, setheight_bottom] = useState<number>(0);
+  const [order_detail, setorder_detail] = useState<order_detail>();
+  const [is_loading, setis_loading] = useState(false);
+  const setOrderDetail = async () => {
+    setis_loading(true);
+    const data = await getOrderDetailAPI(order_id);
+    if (data?.metadata) setorder_detail(data.metadata);
+    setis_loading(false);
+  };
+  useEffect(() => {
+    setOrderDetail();
+  }, []);
+
+  const navigation = useNavigation<stackProp>();
+
+  if (is_loading)
+    return (
+      <ContainerComponent
+        isHeader
+        back
+        style={{justifyContent: 'center', alignItems: 'center'}}
+        styleHeader={globalStyles.headerElevation}>
+        <ActivityIndicator color={colors.Primary_Color} size={handleSize(30)} />
+      </ContainerComponent>
+    );
+
   return (
     <ContainerComponent
       isHeader
-      back
-      title="Order Details"
-      rightIcon={
-        <Ionicons
-          name="search"
-          size={handleSize(24)}
-          color={colors.Text_Color}
-        />
+      customHeader={
+        <RowComponent style={{alignItems: 'center'}}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons
+              name="chevron-back-outline"
+              size={handleSize(24)}
+              color={colors.Text_Color}
+            />
+          </TouchableOpacity>
+          <SpaceComponent width={10} />
+          <SectionComponent>
+            <TextComponent
+              text={order_detail?.current_status ?? ''}
+              size={18}
+              font={fontFamilies.bold}
+              color={
+                order_detail?.current_status === 'Canceled'
+                  ? colors.Primary_Color
+                  : colors.Text_Color
+              }
+            />
+            {order_detail?.current_status !== 'Canceled' &&
+              order_detail?.leadtime && (
+                <SectionComponent>
+                  <SpaceComponent height={5} />
+                  <RowComponent justify="flex-start">
+                    <TextComponent
+                      text="Estimated delivery date: "
+                      size={12}
+                      color={colors.Gray_Color}
+                      font={fontFamilies.medium}
+                    />
+                    <TextComponent
+                      text={handleDate.formatDate(
+                        new Date(order_detail.leadtime),
+                      )}
+                      size={12}
+                      font={fontFamilies.medium}
+                      style={{fontStyle: 'italic'}}
+                    />
+                  </RowComponent>
+                </SectionComponent>
+              )}
+          </SectionComponent>
+        </RowComponent>
       }
-      styleHeader={styles.containerHeader}
+      styleHeader={globalStyles.headerElevation}
       style={styles.container}>
       <ContainerComponent isScroll style={{paddingBottom: height_bottom}}>
         <SpaceComponent height={31} />
-        <RowComponent>
-          <TextComponent text="Order No1947034" font={fontFamilies.semiBold} />
-          <TextComponent
-            text={handleDate.formatDate(new Date())}
-            size={14}
-            color={colors.Gray_Color}
+        {order_detail?.current_status && order_detail.payment_method && (
+          <StatusOrderBar
+            current_status={order_detail.current_status}
+            payment_method={order_detail.payment_method}
+            previous_status={
+              order_detail.current_status === 'Delivering'
+                ? order_detail.order_status[1].status
+                : order_detail.current_status
+            }
           />
-        </RowComponent>
-        <SpaceComponent height={15} />
+        )}
+        <SpaceComponent height={20} />
         <RowComponent>
-          <RowComponent justify="flex-start" style={{width: '68%'}}>
-            <TextComponent
-              text="Tracking number: "
-              size={14}
-              color={colors.Gray_Color}
-            />
-            <TextComponent
-              text="IW3475453455"
-              size={14}
-              font={fontFamilies.medium}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            />
-          </RowComponent>
+          <TextComponent text="Order date" font={fontFamilies.semiBold} />
           <TextComponent
-            text={status}
+            text={
+              order_detail?.current_status !== 'Canceled' &&
+              order_detail?.order_date
+                ? handleDate.formatDate(new Date(order_detail.order_date))
+                : 'Canceled'
+            }
             size={14}
-            font={fontFamilies.medium}
             color={
-              status === 'Delivered'
-                ? colors.Success_Color
-                : status === 'Processing'
-                ? colors.Star_Color
+              order_detail?.current_status !== 'Canceled'
+                ? colors.Gray_Color
                 : colors.Primary_Color
             }
           />
         </RowComponent>
-        <SpaceComponent height={18} />
+        {order_detail?.current_status &&
+          order_detail.current_status === 'Canceled' && (
+            <SectionComponent>
+              <SpaceComponent height={10} />
+              <RowComponent>
+                <TextComponent
+                  text="Reason for canceltion"
+                  size={14}
+                  color={colors.Gray_Color}
+                  font={fontFamilies.medium}
+                />
+                <TextComponent
+                  text={order_detail.order_status[0].cancellation_reason}
+                  size={14}
+                  font={fontFamilies.medium}
+                />
+              </RowComponent>
+            </SectionComponent>
+          )}
+        <SpaceComponent height={15} />
         <TextComponent
-          text={`${productsOrderExample.length} items`}
+          text={`${order_detail?.products_order.length} items`}
           size={14}
           font={fontFamilies.medium}
         />
         <SpaceComponent height={16} />
-        {productsOrderExample.map((item, index) => (
-          <ItemProductOrderComponent
-            category={item.category}
-            brand={item.brand}
-            color={item.color}
-            size={item.size}
-            price={item.price}
-            quantity={item.quantity}
-            thumb={item.img}
-            key={index}
+        {order_detail?.products_order && (
+          <FlatList
+            data={order_detail.products_order}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({item}) => (
+              <ItemProductOrderComponent
+                name_product={item.name_product}
+                category={item.name_category}
+                brand={item.name_brand}
+                color={item.color}
+                size={item.size}
+                price={item.price}
+                quantity={item.quantity}
+                thumb={item.thumb_color}
+              />
+            )}
+            scrollEnabled={false}
           />
-        ))}
+        )}
         <TextComponent
           text="Order information"
-          size={14}
-          font={fontFamilies.medium}
+          size={15}
+          font={fontFamilies.semiBold}
         />
         <SpaceComponent height={15} />
         <TextOrderInformation
           lable="Shipping Address:"
-          content="74m/1 đường HT44, khu phố 3, phường Hiệp Thành, quận 12, thành phố HCM"
+          content={`${order_detail?.specific_address}, ${order_detail?.ward_name}, ${order_detail?.district_name}, ${order_detail?.province_name}`}
         />
         <SpaceComponent height={26} />
-        <TextOrderInformation lable="Payment method:" content="Zalo pay" />
+        <RowComponent justify="flex-start" flex={1}>
+          <TextComponent
+            text="Payment method:"
+            size={14}
+            color={colors.Gray_Color}
+            flex={0.4}
+            lineHeight={20}
+          />
+          <DisplayPaymentMethod
+            payment_method={order_detail?.payment_method ?? 'COD'}
+          />
+        </RowComponent>
         <SpaceComponent height={26} />
-        <TextOrderInformation lable="Delivery method:" content="Zalo pay" />
+        <TextOrderInformation
+          lable="Delivery fee:"
+          content={fotmatedAmount(order_detail?.delivery_fee ?? 0)}
+        />
         <SpaceComponent height={26} />
-        <TextOrderInformation lable="Discount:" content="Zalo pay" />
+        <TextOrderInformation
+          lable="Discount:"
+          content={`-${fotmatedAmount(order_detail?.value_voucher ?? 0)}`}
+        />
         <SpaceComponent height={26} />
-        <TextOrderInformation lable="Total Amount:" content="Zalo pay" />
+        <TextOrderInformation
+          lable="Total Amount:"
+          content={fotmatedAmount(order_detail?.total_amount ?? 0)}
+        />
         <SpaceComponent height={34} />
       </ContainerComponent>
-      <DoubleButtonComponent
-        textBtnLeft="Reorder"
-        textBtnRight="Leave feedback"
-        onPressBtnLeft={() => {}}
-        onPressBtnRigth={() => {}}
-        bottom={0}
-        zIndex={1}
-        backgroundColor={colors.White_Color}
-        onLayout={event => onLayout(event, setheight_bottom)}
-      />
+      {order_detail?._id && order_detail.current_status && (
+        <SectionComponent style={styles.containerButtons}>
+          <ButtonOrderStatus
+            order_id={order_detail._id}
+            order_status={order_detail?.current_status}
+          />
+        </SectionComponent>
+      )}
     </ContainerComponent>
   );
 };
@@ -170,6 +242,14 @@ const OrderDetailScreen = ({route}: {route: routeProp}) => {
 export default OrderDetailScreen;
 
 const styles = StyleSheet.create({
+  containerButtons:{
+    padding: handleSize(16),
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    backgroundColor: colors.White_Color,
+    elevation: 100
+  },
   containerHeader: {
     backgroundColor: colors.White_Color,
     elevation: handleSize(1),

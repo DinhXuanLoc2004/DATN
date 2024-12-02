@@ -12,6 +12,7 @@ import TextComponent from '../../../../../components/texts/TextComponent';
 import {fontFamilies} from '../../../../../constants/fontFamilies';
 import {StackNavigationProp} from '@react-navigation/stack';
 import ButtonComponent from '../../../../../components/buttons/ButtonComponent';
+import FastImage from 'react-native-fast-image';
 
 type routeProp = RouteProp<stackParamListMain, 'OrderSuccessScreen'>;
 type stackProp = StackNavigationProp<stackParamListMain, 'OrderSuccessScreen'>;
@@ -20,13 +21,17 @@ const OrderSuccessScreen = ({route}: {route: routeProp}) => {
   const navigation = useNavigation<stackProp>();
 
   return (
-    <ContainerComponent>
+    <ContainerComponent style={styles.container}>
       <SpaceComponent height={50} />
       <SectionComponent style={styles.containerContent}>
-        <Image
-          source={require('../../../../../assets/images/img_order_success.png')}
+        <FastImage
+          source={{
+            uri: 'https://i.stack.imgur.com/GQFRr.gif',
+            priority: FastImage.priority.low,
+          }}
+          style={styles.img}
+          resizeMode={FastImage.resizeMode.center}
         />
-        <SpaceComponent height={49} />
         <TextComponent
           text="Order Success!"
           size={25}
@@ -51,6 +56,14 @@ const OrderSuccessScreen = ({route}: {route: routeProp}) => {
 export default OrderSuccessScreen;
 
 const styles = StyleSheet.create({
+  container:{
+    backgroundColor: colors.White_Color
+  },
+  img: {
+    width: handleSize(300),
+    height: handleSize(300),
+    borderRadius: handleSize(20),
+  },
   btnShopping: {
     bottom: handleSize(20),
   },

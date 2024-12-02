@@ -1,8 +1,8 @@
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { RouteProp, useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useRef, useState } from 'react';
+import {BottomSheetModal} from '@gorhom/bottom-sheet';
+import {RouteProp, useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {useQueryClient} from '@tanstack/react-query';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -27,35 +27,41 @@ import SpaceComponent from '../../../../components/layouts/SpaceComponent';
 import CountDownTime from '../../../../components/layouts/times/CountDownTime';
 import SalePriceComponent from '../../../../components/texts/SalePriceComponent';
 import TextComponent from '../../../../components/texts/TextComponent';
-import { colors } from '../../../../constants/colors';
-import { fontFamilies } from '../../../../constants/fontFamilies';
+import {colors} from '../../../../constants/colors';
+import {fontFamilies} from '../../../../constants/fontFamilies';
 import {
   payment_methods,
   payment_name,
 } from '../../../../constants/payment_methods';
-import { getAllCartQueryKey } from '../../../../constants/queryKeys';
-import { getCartChecksAPI } from '../../../../helper/apis/cart.api';
-import { orderAPI } from '../../../../helper/apis/order.api';
+import {getAllCartQueryKey} from '../../../../constants/queryKeys';
+import {getCartChecksAPI} from '../../../../helper/apis/cart.api';
+import {
+  continueOrderAPI,
+  findZpTransTokenAPI,
+  getProductsContinueOrderAPI,
+  orderAPI,
+} from '../../../../helper/apis/order.api';
 import {
   getDeliveryFeeAPI,
   getShippingAddressDefaultAPI,
 } from '../../../../helper/apis/shippingaddress.api';
-import { getAllVoucherUserAPI } from '../../../../helper/apis/voucher_user.api';
+import {getAllVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
+import {set_address_choose} from '../../../../helper/store/slices/sort.slice';
+import {useAppDispatch, useAppSelector} from '../../../../helper/store/store';
+import {cartCheck} from '../../../../helper/types/cart.type';
 import {
-  set_address_choose,
-} from '../../../../helper/store/slices/sort.slice';
-import { useAppDispatch, useAppSelector } from '../../../../helper/store/store';
-import { cartCheck } from '../../../../helper/types/cart.type';
-import {
+  bodyContinueOrder,
   createOrderRequet,
+  product_order,
   products_orderResquet,
 } from '../../../../helper/types/order.type';
-import { voucher_user } from '../../../../helper/types/voucher_user.type';
-import { stackParamListMain } from '../../../../navigation/StackMainNavigation';
-import { globalStyles } from '../../../../styles/globalStyle';
-import { fotmatedAmount } from '../../../../utils/fotmats';
-import { handleDate } from '../../../../utils/handleDate';
-import { handleSize } from '../../../../utils/handleSize';
+import {voucher_user} from '../../../../helper/types/voucher_user.type';
+import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
+import {globalStyles} from '../../../../styles/globalStyle';
+import {fotmatedAmount} from '../../../../utils/fotmats';
+import {handleDate} from '../../../../utils/handleDate';
+import {handleSize} from '../../../../utils/handleSize';
+import DialogErrorIOS from '../../../../components/dialogs/DialogErrorIOS';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'CheckoutScreen'>;
 type routeProp = RouteProp<stackParamListMain, 'CheckoutScreen'>;
@@ -65,9 +71,10 @@ const payZaloBridgeEmitter = new NativeEventEmitter(
 );
 
 const CheckoutScreen = ({route}: {route: routeProp}) => {
-  const {cart_ids} = route.params;
-  const [product_variant_carts, setproduct_variant_carts] =
-    useState<cartCheck[]>();
+  const {cart_ids, is_continue_checkout, order_id, is_re_order} = route.params;
+  const [product_variant_carts, setproduct_variant_carts] = useState<
+    cartCheck[] | product_order[]
+  >();
   const [total_quantity, settotal_quantity] = useState<number>(0);
   const [total_amount, settotal_amount] = useState<number>(0);
   const dispatch = useAppDispatch();
@@ -81,6 +88,10 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const [voucher_time_end, setvoucher_time_end] = useState<string>('');
   const [voucher_code, setvoucher_code] = useState<string>('');
   const [voucher_user_id, setvoucher_user_id] = useState<string>('');
+  const [voucher_is_used, setvoucher_is_used] = useState<boolean>(false);
+  const [voucher_is_active, setvoucher_is_active] = useState<boolean>(true);
+  const [voucher_quantity, setvoucher_quantity] = useState<string | number>('');
+  const [mes_err_voucher, setmes_err_voucher] = useState<string>('');
   const [payment_name_choose, setpayment_name_choose] =
     useState<payment_name>('COD');
   const [total_amount_final, settotal_amount_final] = useState<number>(0);
@@ -89,6 +100,82 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const address_choose = useAppSelector(state => state.sort.address_choose);
   const [delivery_fee, setdelivery_fee] = useState<number>(0);
   const [leadtime, setleadtime] = useState<number>(0);
+  const [is_visible_dialog_err, setis_visible_dialog_err] =
+    useState<boolean>(false);
+
+  useEffect(() => {
+    if (voucher_id) {
+      if (!voucher_is_active) {
+        setmes_err_voucher('Voucher is not valid!');
+      } else if (handleDate.handleTimeEndVoucher(voucher_time_end)) {
+        setmes_err_voucher('Voucher expires!');
+      } else if (voucher_is_used) {
+        setmes_err_voucher('Used vouchers!');
+      } else if (
+        (typeof voucher_quantity === 'string' &&
+          voucher_quantity !== 'Infinity') ||
+        (typeof voucher_quantity === 'number' && voucher_quantity <= 0)
+      ) {
+        setmes_err_voucher('The number of vouchers has expired!');
+      } else {
+        setmes_err_voucher('');
+      }
+    }
+  }, [voucher_time_end, voucher_is_used, voucher_is_active, voucher_quantity]);
+
+  useEffect(() => {
+    if (is_continue_checkout) {
+      getProductsContinueOrder();
+    } else {
+      getCartChecks();
+    }
+    getAddressChoose();
+  }, []);
+
+  const getProductsContinueOrder = async () => {
+    const data = await getProductsContinueOrderAPI(order_id ?? '');
+    if (data?.metadata) {
+      setproduct_variant_carts(data.metadata.products_order);
+      const result = data.metadata.products_order.reduce(
+        (acc, item) => {
+          const itemTotal =
+            item.price * item.quantity * (1 - item.total_discount / 100);
+          acc.totalAmount += itemTotal;
+          acc.totalQuantity += item.quantity;
+          acc.totalDiscount += item.total_discount;
+          return acc;
+        },
+        {totalAmount: 0, totalQuantity: 0, totalDiscount: 0},
+      );
+      settotal_amount(result.totalAmount);
+      settotal_quantity(result.totalQuantity);
+      dispatch(
+        set_address_choose({
+          full_name: data.metadata.full_name,
+          phone: Number(data.metadata.phone),
+          province_id: data.metadata.province_id,
+          province_name: data.metadata.province_name,
+          district_id: data.metadata.district_id,
+          district_name: data.metadata.district_name,
+          ward_code: data.metadata.ward_code,
+          ward_name: data.metadata.ward_name,
+          specific_address: data.metadata.specific_address,
+        }),
+      );
+      setpayment_name_choose(data.metadata.payment_method);
+      if (data.metadata.voucher_detail && data.metadata.voucher_user_id && !is_re_order) {
+        setvoucher_id(data.metadata.voucher_detail.voucher_id);
+        setvoucher_code(data.metadata.voucher_detail.voucher_code);
+        setvoucher_thumb(data.metadata.voucher_detail.voucher_thumb);
+        setvoucher_value(data.metadata.voucher_detail.voucher_value);
+        setvoucher_type(data.metadata.voucher_detail.voucher_type);
+        setvoucher_time_end(data.metadata.voucher_detail.time_end);
+        setname_voucher(data.metadata.voucher_detail.voucher_name);
+        setvoucher_user_id(data.metadata.voucher_user_id)
+        setvoucher_quantity(data.metadata.voucher_detail.quantity)
+      }
+    }
+  };
 
   const getCartChecks = async () => {
     const str_cart_ids = JSON.stringify(cart_ids);
@@ -111,14 +198,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     }
   };
 
-  
-
   const user_id = useAppSelector(state => state.auth.user.userId);
 
   const getVouchersUserNotUsed = async () => {
     const data = await getAllVoucherUserAPI({
       user_id,
-      is_used: 'false',
+      is_used: is_continue_checkout && voucher_id ? 'all' : 'false',
       min_order_value: total_amount.toString(),
     });
     if (data?.metadata) {
@@ -146,15 +231,10 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   };
 
   useEffect(() => {
-    getCartChecks();
-    getAddressChoose();
-  }, []);
-
-  useEffect(() => {
     if (total_amount > 0) {
       getVouchersUserNotUsed();
     }
-  }, [total_amount]);
+  }, [total_amount, voucher_id]);
 
   const bottomsheet = useRef<BottomSheetModal>(null);
 
@@ -171,6 +251,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     voucher_thumb_choose: string,
     voucher_time_end_choose: string,
     voucher_user_id_choose: string,
+    voucher_is_used: boolean,
+    voucher_is_active: boolean,
+    voucher_quantity: number | string,
   ) => {
     if (voucher_id === voucher_id_choose) {
       setvoucher_id('');
@@ -181,6 +264,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       setvoucher_thumb('');
       setvoucher_time_end('');
       setvoucher_user_id('');
+      setvoucher_is_used(false);
+      setvoucher_is_active(true);
+      setvoucher_quantity('');
     } else {
       setvoucher_id(voucher_id_choose);
       setvoucher_code(voucher_code_choose);
@@ -190,6 +276,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       setvoucher_thumb(voucher_thumb_choose);
       setvoucher_time_end(voucher_time_end_choose);
       setvoucher_user_id(voucher_user_id_choose);
+      setvoucher_is_used(voucher_is_used);
+      setvoucher_is_active(voucher_is_active);
+      setvoucher_quantity(voucher_quantity);
     }
     bottomsheet.current?.close();
   };
@@ -205,12 +294,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           : total_amount + deliveryFee;
       settotal_amount_final(total);
     }
-  }, [
-    total_amount,
-    delivery_fee,
-    voucher_value,
-    voucher_type,
-  ]);
+  }, [total_amount, delivery_fee, voucher_value, voucher_type]);
 
   const queryClient = useQueryClient();
 
@@ -218,11 +302,10 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     const subscription = payZaloBridgeEmitter.addListener(
       'EventPayZalo',
       data => {
-        console.log('data event zalo pay:: ', data);
         if (data.returnCode == 1) {
           navigaiton.navigate('OrderSuccessScreen');
         } else {
-          Alert.alert('Giao dịch thất bại!');
+          navigatePaymentFail(data.zpTranstoken);
         }
       },
     );
@@ -232,68 +315,130 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     };
   }, []);
 
+  const navigatePaymentFail = async (zp_trans_token: string) => {
+    const data = await findZpTransTokenAPI(zp_trans_token);
+    navigaiton.navigate('PaymentFailScreen', {order_id: data?.metadata ?? ''});
+  };
+
   const handleCheckout = async () => {
-    if (product_variant_carts) {
-      const products_order: products_orderResquet[] = product_variant_carts.map(
-        product_variant => {
-          const product_order: products_orderResquet = {
-            product_variant_id: product_variant.product_variant_id,
-            quantity: product_variant.quantity,
-            price: product_variant.price,
-            discount: product_variant.total_discount,
-            name_product: product_variant.name_product,
+    if (mes_err_voucher) {
+      setis_visible_dialog_err(true);
+    } else {
+      if (product_variant_carts) {
+        if (is_continue_checkout && order_id && !is_re_order) {
+          const body: bodyContinueOrder = {
+            full_name: address_choose.full_name,
+            phone: address_choose.phone.toString(),
+            province_id: address_choose.province_id,
+            province_name: address_choose.province_name,
+            district_id: address_choose.district_id,
+            district_name: address_choose.district_name,
+            ward_code: address_choose.ward_code,
+            ward_name: address_choose.ward_name,
+            specific_address: address_choose.specific_address,
+            voucher_user_id: voucher_user_id,
+            type_voucher: voucher_type,
+            value_voucher: voucher_value,
+            delivery_fee: delivery_fee,
+            leadtime: handleDate.convertTimestampToDate(leadtime).toJSON(),
+            payment_method: payment_name_choose,
+            total_amount: total_amount_final,
+          } 
+          setisLoadingOrder(true);
+          const data = await continueOrderAPI(order_id, body);
+          console.log(data);
+          if (
+            data &&
+            data.status === 200 &&
+            data.metadata.payment_method === 'Zalo Pay' &&
+            data.metadata.zp_trans_token
+          ) {
+            const payZP = NativeModules.PayZaloBridge;
+            payZP.payOrder(data.metadata.zp_trans_token);
+            setisLoadingOrder(false);
+          } else if (
+            data &&
+            data.status === 200 &&
+            data.metadata.payment_method === 'PayPal' &&
+            data.metadata.approve
+          ) {
+            setisLoadingOrder(false);
+            navigaiton.navigate('PaypalWebview', {
+              approve: data.metadata.approve,
+            });
+          } else if (
+            data &&
+            data.status === 200 &&
+            data.metadata.payment_method === 'COD'
+          ) {
+            setisLoadingOrder(false);
+            navigaiton.navigate('OrderSuccessScreen');
+          }
+        } else {
+          const products_order: products_orderResquet[] =
+            product_variant_carts.map(product_variant => {
+              const product_order: products_orderResquet = {
+                product_variant_id: product_variant.product_variant_id,
+                quantity: product_variant.quantity,
+                price: product_variant.price,
+                discount: product_variant.total_discount,
+                name_product: product_variant.name_product,
+              };
+              return product_order;
+            });
+          const body: createOrderRequet = {
+            user_id,
+            full_name: address_choose.full_name,
+            phone: address_choose.phone.toString(),
+            province_id: address_choose.province_id,
+            province_name: address_choose.province_name,
+            district_id: address_choose.district_id,
+            district_name: address_choose.district_name,
+            ward_code: address_choose.ward_code,
+            ward_name: address_choose.ward_name,
+            specific_address: address_choose.specific_address,
+            voucher_user_id: voucher_user_id,
+            type_voucher: voucher_type,
+            value_voucher: voucher_value,
+            delivery_fee: delivery_fee,
+            leadtime: handleDate.convertTimestampToDate(leadtime).toJSON(),
+            payment_method: payment_name_choose,
+            total_amount: total_amount_final,
+            products_order,
+            cart_ids,
           };
-          return product_order;
-        },
-      );
-      const body: createOrderRequet = {
-        user_id,
-        full_name: address_choose.full_name,
-        phone: address_choose.phone.toString(),
-        province_id: address_choose.province_id,
-        province_name: address_choose.province_name,
-        district_id: address_choose.district_id,
-        district_name: address_choose.district_name,
-        ward_code: address_choose.ward_code,
-        ward_name: address_choose.ward_name,
-        specific_address: address_choose.specific_address,
-        voucher_user_id: voucher_user_id,
-        type_voucher: voucher_type,
-        value_voucher: voucher_value,
-        delivery_fee: delivery_fee,
-        leadtime: handleDate.convertTimestampToDate(leadtime).toJSON(),
-        payment_method: payment_name_choose,
-        total_amount: total_amount_final,
-        products_order,
-        cart_ids,
-      };
-      setisLoadingOrder(true);
-      const data = await orderAPI(body);
-      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
-      if (
-        data &&
-        data.status === 201 &&
-        data.metadata.payment_method === 'Zalo Pay' &&
-        data.metadata.zp_trans_token
-      ) {
-        const payZP = NativeModules.PayZaloBridge;
-        payZP.payOrder(data.metadata.zp_trans_token);
-        setisLoadingOrder(false);
-      } else if (
-        data &&
-        data.status === 201 &&
-        data.metadata.payment_method === 'PayPal' &&
-        data.metadata.approve
-      ) {
-        setisLoadingOrder(false);
-        navigaiton.navigate('PaypalWebview', {approve: data.metadata.approve});
-      } else if (
-        data &&
-        data.status === 201 &&
-        data.metadata.payment_method === 'COD'
-      ) {
-        setisLoadingOrder(false);
-        navigaiton.navigate('OrderSuccessScreen');
+          setisLoadingOrder(true);
+          const data = await orderAPI(body);
+          console.log(data);
+          queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
+          if (
+            data &&
+            data.status === 201 &&
+            data.metadata.payment_method === 'Zalo Pay' &&
+            data.metadata.zp_trans_token
+          ) {
+            const payZP = NativeModules.PayZaloBridge;
+            payZP.payOrder(data.metadata.zp_trans_token);
+            setisLoadingOrder(false);
+          } else if (
+            data &&
+            data.status === 201 &&
+            data.metadata.payment_method === 'PayPal' &&
+            data.metadata.approve
+          ) {
+            setisLoadingOrder(false);
+            navigaiton.navigate('PaypalWebview', {
+              approve: data.metadata.approve,
+            });
+          } else if (
+            data &&
+            data.status === 201 &&
+            data.metadata.payment_method === 'COD'
+          ) {
+            setisLoadingOrder(false);
+            navigaiton.navigate('OrderSuccessScreen');
+          }
+        }
       }
     }
   };
@@ -379,7 +524,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           <SectionComponent>
             {product_variant_carts &&
               product_variant_carts.map((item, index) => (
-                <SectionComponent key={item.cart_id} style={styles.itemProduct}>
+                <SectionComponent
+                  key={item.product_variant_id}
+                  style={styles.itemProduct}>
                   <TextComponent
                     text={item.name_product}
                     size={14}
@@ -388,8 +535,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                   <SpaceComponent height={5} />
                   <RowComponent
                     onPress={() =>
-                      navigaiton.navigate('DetailProductScreen', {
-                        product_id: item.product_id,
+                      navigaiton.navigate({
+                        name: 'DetailProductScreen',
+                        params: {
+                          product_id: item.product_id,
+                        },
+                        key: `${item.product_id}_${Date.now()}`,
                       })
                     }>
                     <Image
@@ -461,7 +612,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         </SectionComponent>
 
         <SectionComponent
-          style={styles.section}
+          style={[styles.section, {opacity: mes_err_voucher ? 0.5 : 1}]}
           onPress={() => handleBottomSheet()}>
           <RowComponent>
             <RowComponent justify="flex-start">
@@ -504,38 +655,47 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
               <FontAwesome5 name="chevron-right" />
             </RowComponent>
           </RowComponent>
-          <RowComponent>
-            {voucher_thumb && (
-              <Image
-                source={{uri: voucher_thumb}}
-                style={styles.imgVoucherChoose}
-              />
+          <SectionComponent>
+            <RowComponent>
+              {voucher_thumb && (
+                <Image
+                  source={{uri: voucher_thumb}}
+                  style={styles.imgVoucherChoose}
+                />
+              )}
+              <SpaceComponent width={10} />
+              <SectionComponent>
+                {name_voucher && (
+                  <TextComponent
+                    text={name_voucher}
+                    size={13}
+                    font={fontFamilies.medium}
+                  />
+                )}
+                {voucher_type && voucher_value && (
+                  <TextComponent
+                    text={`Order is ${
+                      voucher_type === 'deduct_money' ? 'reduced by ' : 'are '
+                    }${
+                      voucher_type === 'deduct_money'
+                        ? `${fotmatedAmount(voucher_value)} `
+                        : `${voucher_value}% off`
+                    }`}
+                    size={11}
+                    numberOfLines={3}
+                    lineHeight={15}
+                  />
+                )}
+              </SectionComponent>
+            </RowComponent>
+            {mes_err_voucher && (
+              <SectionComponent>
+                <RowComponent justify="center">
+                  <TextComponent text={mes_err_voucher} size={12} />
+                </RowComponent>
+              </SectionComponent>
             )}
-            <SpaceComponent width={10} />
-            <SectionComponent>
-              {name_voucher && (
-                <TextComponent
-                  text={name_voucher}
-                  size={13}
-                  font={fontFamilies.medium}
-                />
-              )}
-              {voucher_type && voucher_value && (
-                <TextComponent
-                  text={`Order is ${
-                    voucher_type === 'deduct_money' ? 'reduced by ' : ''
-                  }${
-                    voucher_type === 'deduct_money'
-                      ? `${fotmatedAmount(voucher_value)} `
-                      : '%'
-                  }`}
-                  size={11}
-                  numberOfLines={3}
-                  lineHeight={15}
-                />
-              )}
-            </SectionComponent>
-          </RowComponent>
+          </SectionComponent>
         </SectionComponent>
 
         <SectionComponent style={styles.section}>
@@ -564,7 +724,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                 font={fontFamilies.regular}
               />
               <TextComponent
-                text={handleDate.convertTimestampToDate(leadtime).toDateString()}
+                text={handleDate
+                  .convertTimestampToDate(leadtime)
+                  .toDateString()}
                 size={13}
                 font={fontFamilies.medium}
                 color={colors.Success_Color}
@@ -788,6 +950,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                           item.thumb,
                           item.time_end,
                           item._id,
+                          item.is_used,
+                          item.is_active,
+                          item.quantity,
                         );
                       }}>
                       <TextComponent
@@ -825,6 +990,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           />
         </SectionComponent>
       </Modal>
+      <DialogErrorIOS
+        isVisible={is_visible_dialog_err}
+        setIsvisble={setis_visible_dialog_err}
+        title="Voucher is not valid"
+        content="Voucher is invalid, please choose another voucher or cancel voucher!"
+      />
     </ContainerComponent>
   );
 };

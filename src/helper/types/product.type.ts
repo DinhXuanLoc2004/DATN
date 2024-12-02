@@ -1,6 +1,7 @@
 import {brandType} from './brand.type';
 import {colorType} from './color.type';
 import {imageType} from './image.type';
+import { media } from './media.type';
 import {sizeType} from './size.type';
 
 export interface colors_size_toProduct extends Response {
@@ -51,7 +52,7 @@ export interface productDetailResponse {
   price: number;
   inventory_quantity: number;
   description: string;
-  images_product: Array<imageType>;
+  images_product: media[];
   category_id: string;
   createdAt: string;
   sizes: Array<sizeType>;

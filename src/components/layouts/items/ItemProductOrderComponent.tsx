@@ -8,6 +8,7 @@ import TextComponent from '../../texts/TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import SpaceComponent from '../SpaceComponent';
 import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
+import { fotmatedAmount } from '../../../utils/fotmats';
 
 interface Props {
   thumb: string;
@@ -17,6 +18,7 @@ interface Props {
   size: string;
   quantity: number;
   price: number;
+  name_product: string
 }
 
 const ItemProductOrderComponent: FC<Props> = ({
@@ -27,14 +29,15 @@ const ItemProductOrderComponent: FC<Props> = ({
   size,
   quantity,
   price,
+  name_product
 }) => {
   return (
     <RowComponent justify="flex-start" style={styles.container}>
       <Image source={{uri: thumb}} style={styles.thumb} />
       <SectionComponent style={styles.containerContent}>
-        <TextComponent text={category} font={fontFamilies.semiBold} />
+        <TextComponent text={name_product} font={fontFamilies.semiBold} />
         <SpaceComponent height={4} />
-        <TextComponent text={brand} size={11} color={colors.Gray_Color} />
+        <TextComponent text={`${brand} - ${category}`} size={11} color={colors.Gray_Color} />
         <SpaceComponent height={9} />
         <TextColorAndSizeComponent color={color} size={size} />
         <SpaceComponent height={13} />
@@ -44,7 +47,7 @@ const ItemProductOrderComponent: FC<Props> = ({
             <TextComponent text={`${quantity}`} size={11} />
           </RowComponent>
           <TextComponent
-            text={`${price}$`}
+            text={fotmatedAmount(price)}
             font={fontFamilies.medium}
             size={14}
           />
@@ -71,6 +74,7 @@ const styles = StyleSheet.create({
     height: handleSize(104),
     backgroundColor: colors.White_Color,
     borderRadius: handleSize(8),
-    marginBottom: handleSize(24)
+    marginBottom: handleSize(24),
+    elevation: 5
   },
 });
