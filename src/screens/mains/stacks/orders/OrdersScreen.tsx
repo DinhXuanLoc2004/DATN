@@ -14,10 +14,18 @@ import SectionComponent from '../../../../components/layouts/SectionComponent';
 import RowComponent from '../../../../components/layouts/RowComponent';
 import {handleDate} from '../../../../utils/handleDate';
 import {color} from 'react-native-elements/dist/helpers';
+import ButtonComponent from '../../../../components/buttons/ButtonComponent';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
+import {useNavigation} from '@react-navigation/native';
+import ItemOrderComponent from '../../../../components/layouts/items/ItemOrderComponent';
+
+type stackProp = StackNavigationProp<stackParamListMain, 'OrdersScreen'>;
 
 const OrdersScreen = () => {
   const [orderStatusChoose, setorderStatusChoose] = useState<string>('all');
   const [orders, setorders] = useState<order[]>([]);
+  const navigation = useNavigation<stackProp>();
   interface typeDataOrderStatus {
     title: string;
     value: string;
@@ -29,30 +37,30 @@ const OrdersScreen = () => {
     },
     {
       title: 'Unpaid',
-      value: 'unpaid',
+      value: 'Unpaid',
     },
     {
       title: 'Confirming',
-      value: 'confirming',
+      value: 'Confirming',
     },
     {
       title: 'Confirmed',
-      value: 'confirmed',
+      value: 'Confirmed',
     },
     {
       title: 'Delivering',
-      value: 'delivering',
+      value: 'Delivering',
     },
     {
       title: 'Delivered Successfully',
-      value: 'delivered_successfully',
+      value: 'Delivered Successfully',
     },
     {
       title: 'Delivery Failed',
-      value: 'delivery_failed',
+      value: 'Delivery Failed',
     },
     {
-      title: 'canceled',
+      title: 'Canceled',
       value: 'Canceled',
     },
   ];
@@ -71,8 +79,6 @@ const OrdersScreen = () => {
     getOrders();
   }, [orderStatusChoose]);
 
-  console.log(orders);
-
   return (
     <ContainerComponent
       isHeader
@@ -80,85 +86,51 @@ const OrdersScreen = () => {
       title="My Orders"
       styleHeader={globalStyles.headerElevation}>
       <SpaceComponent height={10} />
-      <FlatList
-        data={dataOrderStatus}
-        keyExtractor={(_, index) => index.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        renderItem={({item, index}) => (
-          <TouchableOpacity
-            onPress={() => {
-              setorderStatusChoose(item.value);
-            }}
-            style={[
-              styles.btnOrderStatus,
-              {
-                backgroundColor:
-                  orderStatusChoose === item.value
-                    ? colors.Text_Color
-                    : colors.Backgournd_Color,
-              },
-            ]}>
-            <TextComponent
-              text={item.title}
-              color={
-                item.value === orderStatusChoose
-                  ? colors.White_Color
-                  : colors.Text_Color
-              }
-              font={fontFamilies.medium}
-              size={14}
-            />
-          </TouchableOpacity>
-        )}
-        ItemSeparatorComponent={() => <SpaceComponent width={10} />}
-      />
+      <RowComponent>
+        <FlatList
+          data={dataOrderStatus}
+          keyExtractor={(_, index) => index.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={({item, index}) => (
+            <TouchableOpacity
+              onPress={() => {
+                setorderStatusChoose(item.value);
+              }}
+              style={[
+                styles.btnOrderStatus,
+                {
+                  backgroundColor:
+                    orderStatusChoose === item.value
+                      ? colors.Text_Color
+                      : colors.Backgournd_Color,
+                },
+              ]}>
+              <TextComponent
+                text={item.title}
+                color={
+                  item.value === orderStatusChoose
+                    ? colors.White_Color
+                    : colors.Text_Color
+                }
+                font={fontFamilies.medium}
+                size={14}
+              />
+            </TouchableOpacity>
+          )}
+          ItemSeparatorComponent={() => <SpaceComponent width={10} />}
+        />
+      </RowComponent>
       <SpaceComponent height={10} />
-      {orders && (
-            <FlatList
+      {orders && orders.length > 0 && (
+        <FlatList
           data={orders}
           keyExtractor={item => item._id}
           showsVerticalScrollIndicator={false}
-          renderItem={({item}) => (
-            <SectionComponent style={styles.containerOrder}>
-              <RowComponent>
-                <TextComponent text="Order date" font={fontFamilies.semiBold} />
-                <TextComponent
-                  text={handleDate.convertDateToDDMMYYYY(item.createdAt)}
-                  size={14}
-                  color={colors.Gray_Color}
-                />
-              </RowComponent>
-              <SpaceComponent height={10} />
-              <RowComponent>
-                <RowComponent>
-                  <TextComponent
-                    text={'Quantity: '}
-                    color={colors.Gray_Color}
-                  />
-                  <TextComponent text={item.quantity.toString()} />
-                </RowComponent>
-                <RowComponent>
-                  <TextComponent
-                    text={'Total amount: '}
-                    color={colors.Gray_Color}
-                  />
-                  <TextComponent text={item.total_amount.toString()} />
-                </RowComponent>
-              </RowComponent>
-              <SpaceComponent height={10} />
-              <RowComponent>
-                <TextComponent
-                  text={'Status: '}
-                  color={colors.Gray_Color}
-                />
-                <TextComponent text={item.order_status.toString()} />
-              </RowComponent>
-            </SectionComponent>
-          )}
+          renderItem={({item}) => <ItemOrderComponent item={item} />}
           ItemSeparatorComponent={() => <SpaceComponent height={10} />}
         />
-    )}
+      )}
     </ContainerComponent>
   );
 };

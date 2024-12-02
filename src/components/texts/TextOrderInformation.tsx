@@ -21,14 +21,14 @@ const TextOrderInformation: FC<Props> = ({lable, content}) => {
         size={14}
         color={colors.Gray_Color}
         flex={0.4}
-        lineHeight={20}
+        lineHeight={14}
       />
       <TextComponent
         text={content}
         size={14}
         font={fontFamilies.medium}
         flex={0.6}
-        lineHeight={20}
+        lineHeight={14}
       />
     </RowComponent>
   );

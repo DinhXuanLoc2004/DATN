@@ -18,6 +18,7 @@ const getAllVoucherUserAPI = async ({
   min_order_value?: string
 }) => {
   try {
+    console.log(is_used);
     const queryString = createQueryString({user_id, is_used, min_order_value});
     const data = await axiosIntercreptor.get<
       undefined,

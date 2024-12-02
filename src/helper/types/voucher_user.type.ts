@@ -14,6 +14,7 @@ export interface voucher_user {
   min_order_value: number;
   voucher_id: string;
   is_new_voucher_user: boolean;
+  is_active: boolean
 }
 
 export interface getAllVoucherUserResponse extends Response {

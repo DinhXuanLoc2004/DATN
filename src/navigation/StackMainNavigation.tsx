@@ -1,4 +1,4 @@
-import { createStackNavigator } from '@react-navigation/stack';
+import {createStackNavigator} from '@react-navigation/stack';
 import DetailProductScreen from '../screens/mains/stacks/DetailProductScreen';
 import FilterScreen from '../screens/mains/stacks/FilterScreen';
 import ProductSearchScreen from '../screens/mains/stacks/ProductSearchScreen';
@@ -19,7 +19,11 @@ import VouchersUserScreen from '../screens/mains/stacks/voucher_user/VouchersUse
 import VoucherDetailScreen from '../screens/mains/stacks/vouchers/VoucherDetailScreen';
 import VouchersScreen from '../screens/mains/stacks/vouchers/VouchersScreen';
 import CartScreen from '../screens/mains/tabs/CartScreen';
-import { BottomTab } from './BottomTabNavigation';
+import {BottomTab} from './BottomTabNavigation';
+import PaymentFailScreen from '../screens/mains/stacks/orders/result_order/PaymentFailScreen';
+import CancelOrderScreen from '../screens/mains/stacks/orders/CancelOrderScreen';
+import ReviewProductsScreen from '../screens/mains/stacks/reviews/ReviewProductsScreen';
+import ReviewScreen from '../screens/mains/stacks/reviews/ReviewScreen';
 
 export type stackParamListMain = {
   BottomTab: undefined;
@@ -35,7 +39,12 @@ export type stackParamListMain = {
   VouchersScreen: undefined;
   VoucherDetailScreen: {voucher_id: string};
   VouchersUserScreen: undefined;
-  CheckoutScreen: {cart_ids: string[]};
+  CheckoutScreen: {
+    cart_ids?: string[];
+    order_id?: string;
+    is_continue_checkout: boolean;
+    is_re_order?: boolean;
+  };
   OrderSuccessScreen: undefined;
   OrderDetailScreen: {order_id: string};
   PaypalWebview: {approve: string};
@@ -43,6 +52,10 @@ export type stackParamListMain = {
   ProvinceScreen: undefined;
   DistrictScreen: undefined;
   WardScreen: undefined;
+  PaymentFailScreen: {order_id: string};
+  CancelOrderScreen: {order_id: string};
+  ReviewProductsScreen: {order_id: string};
+  ReviewScreen: {product_order_id: string};
 };
 
 const Stack = createStackNavigator<stackParamListMain>();
@@ -85,6 +98,13 @@ export const StackMainNavigation = () => {
       <Stack.Screen name="ProvinceScreen" component={ProvinceScreen} />
       <Stack.Screen name="DistrictScreen" component={DistrictScreen} />
       <Stack.Screen name="WardScreen" component={WardScreen} />
+      <Stack.Screen name="PaymentFailScreen" component={PaymentFailScreen} />
+      <Stack.Screen name="CancelOrderScreen" component={CancelOrderScreen} />
+      <Stack.Screen
+        name="ReviewProductsScreen"
+        component={ReviewProductsScreen}
+      />
+      <Stack.Screen name="ReviewScreen" component={ReviewScreen} />
     </Stack.Navigator>
   );
 };

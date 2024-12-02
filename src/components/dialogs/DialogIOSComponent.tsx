@@ -7,6 +7,7 @@ import {fontFamilies} from '../../constants/fontFamilies';
 import RowComponent from '../layouts/RowComponent';
 import {colors} from '../../constants/colors';
 import {handleSize} from '../../utils/handleSize';
+import DialogBase from './DialogBase';
 
 interface Props {
   title?: string;
@@ -30,48 +31,50 @@ const DialogIOSComponent: FC<Props> = ({
   txtBtnLeft,
 }) => {
   return (
-    <Modal animationType="slide" transparent={true} visible={isVisible}>
-      <SectionComponent style={styles.modal}>
-        <View style={styles.containerDiaLogIOS}>
-          <SectionComponent style={styles.containerContent}>
+    <DialogBase isVisible={isVisible}>
+      <View style={styles.containerDiaLogIOS}>
+        <SectionComponent style={styles.containerContent}>
+          <TextComponent
+            text={title ?? 'Notification'}
+            font={fontFamilies.semiBold}
+            size={15}
+          />
+          <SpaceComponent height={7} />
+          <TextComponent
+            text={content}
+            size={13}
+            font={fontFamilies.medium}
+            style={{textAlign: 'center'}}
+          />
+        </SectionComponent>
+        <RowComponent style={styles.containerBtnDialog}>
+          <SectionComponent
+            style={styles.btnDialog}
+            onPress={() => {
+              fnLeft ? fnLeft() : setIsVisible(false);
+            }}>
             <TextComponent
-              text={title ?? 'Notification'}
-              font={fontFamilies.semiBold}
+              text={txtBtnLeft ?? 'Cancel'}
               size={15}
-            />
-            <SpaceComponent height={7} />
-            <TextComponent
-              text={content}
-              size={13}
-              font={fontFamilies.medium}
-              style={{textAlign: 'center'}}
+              color="#1C98F3"
             />
           </SectionComponent>
-          <RowComponent style={styles.containerBtnDialog}>
-            <SectionComponent
-              style={styles.btnDialog}
-              onPress={() => {
-                fnLeft ? fnLeft() : setIsVisible(false);
-              }}>
-              <TextComponent
-                text={txtBtnLeft ?? 'Cancel'}
-                size={15}
-                color="#1C98F3"
-              />
-            </SectionComponent>
-            <SpaceComponent style={styles.line} />
-            <SectionComponent style={styles.btnDialog} onPress={() => {fnRight()}}>
-              <TextComponent
-                text={txtBtnRight}
-                size={15}
-                color={colors.Primary_Color}
-                font={fontFamilies.medium}
-              />
-            </SectionComponent>
-          </RowComponent>
-        </View>
-      </SectionComponent>
-    </Modal>
+          <SpaceComponent style={styles.line} />
+          <SectionComponent
+            style={styles.btnDialog}
+            onPress={() => {
+              fnRight();
+            }}>
+            <TextComponent
+              text={txtBtnRight}
+              size={15}
+              color={colors.Primary_Color}
+              font={fontFamilies.medium}
+            />
+          </SectionComponent>
+        </RowComponent>
+      </View>
+    </DialogBase>
   );
 };
 
@@ -86,7 +89,7 @@ const styles = StyleSheet.create({
   btnDialog: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.White_Color
+    backgroundColor: colors.White_Color,
   },
   containerBtnDialog: {
     height: handleSize(44),
@@ -103,10 +106,5 @@ const styles = StyleSheet.create({
     height: handleSize(139),
     borderRadius: handleSize(15),
     backgroundColor: colors.White_Color,
-  },
-  modal: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  }
 });

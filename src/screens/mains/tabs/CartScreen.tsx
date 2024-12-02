@@ -276,7 +276,7 @@ const CartScreen = ({route}: {route: routeProp}) => {
           <SpaceComponent height={10} />
           <ButtonComponent
             disable={cartChecks.length < 1}
-            onPress={() => {navigation.navigate('CheckoutScreen', {cart_ids: cartChecks})}}
+            onPress={() => {navigation.navigate('CheckoutScreen', {cart_ids: cartChecks, is_continue_checkout: false})}}
             text="Checkout"
             style={[
               styles.btnCheckout,

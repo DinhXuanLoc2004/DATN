@@ -5,6 +5,8 @@ import WebView, {WebViewNavigation} from 'react-native-webview';
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {findPaypalIdAPI} from '../../../../helper/apis/order.api';
+import {globalStyles} from '../../../../styles/globalStyle';
 
 type routeProp = RouteProp<stackParamListMain, 'PaypalWebview'>;
 type stackProp = StackNavigationProp<stackParamListMain, 'PaypalWebview'>;
@@ -16,6 +18,7 @@ const PaypalWebview = ({route}: {route: routeProp}) => {
 
   const _onNavigationStateChange = async (webViewState: WebViewNavigation) => {
     const {url} = webViewState;
+    console.log(url);
     if (
       url.includes(
         'https://backenddatn-production.up.railway.app/v1/api/payment_method/return_url_paypal',
@@ -25,14 +28,21 @@ const PaypalWebview = ({route}: {route: routeProp}) => {
     }
 
     // Kiểm tra URL hủy bỏ
-    // if (url.includes('https://example.cancel.com')) {
-    //   Alert.alert('Thanh toán bị hủy', 'Bạn đã hủy thanh toán.');
-    //   navigaiton.goBack(); // Quay lại ứng dụng
-    // }
+    if (
+      url.includes(
+        'https://backenddatn-production.up.railway.app/v1/api/payment_method/cancel_url_paypal',
+      )
+    ) {
+      const token = url.split('token=')[1];
+      const data = await findPaypalIdAPI(token ?? '');
+      navigation.navigate('PaymentFailScreen', {
+        order_id: data?.metadata ?? '',
+      });
+    }
   };
 
   return (
-    <ContainerComponent>
+    <ContainerComponent style={{paddingHorizontal: 0}}>
       <WebView
         source={{uri: approve}}
         style={{flex: 1}}

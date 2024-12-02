@@ -20,7 +20,6 @@ import {stackParamListMain} from '../../../navigation/StackMainNavigation';
 type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
 const ProfileScreen = () => {
-
   const navigation = useNavigation<stackProp>();
 
   const handlePress = (screen: string) => {};
@@ -36,7 +35,7 @@ const ProfileScreen = () => {
   };
 
   return (
-    <SectionComponent>
+    <SectionComponent style={{backgroundColor: colors.Backgournd_Color}}>
       <SpaceComponent height={20} />
       <TouchableOpacity>
         <Icon
@@ -89,15 +88,22 @@ const ProfileScreen = () => {
         </RowComponent>
       </RowComponent>
       <SpaceComponent height={28} />
-      <ButtonProfileComponent 
+      <ButtonProfileComponent
         title="My orders"
         description="Already have 12 orders"
-        onPress={() => navigation.navigate('OrdersScreen')}
+        onPress={() =>
+          navigation.navigate({
+            name: 'OrdersScreen',
+            key: `${Date.now()}`,
+          })
+        }
       />
-      <ButtonProfileComponent  
+      <ButtonProfileComponent
         title="Shipping addresses"
         description="3 ddresses"
-        onPress={() => navigation.navigate('SelectShippingAddressScreen', {is_select: false})}
+        onPress={() =>
+          navigation.navigate('SelectShippingAddressScreen', {is_select: false})
+        }
       />
       <ButtonProfileComponent
         title="Payment methods"

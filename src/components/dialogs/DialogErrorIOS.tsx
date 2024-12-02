@@ -5,6 +5,7 @@ import {handleSize} from '../../utils/handleSize';
 import SectionComponent from '../layouts/SectionComponent';
 import TextComponent from '../texts/TextComponent';
 import {fontFamilies} from '../../constants/fontFamilies';
+import DialogBase from './DialogBase';
 
 interface Props {
   title?: string;
@@ -24,38 +25,36 @@ const DialogErrorIOS: FC<Props> = ({
   txtButton,
 }) => {
   return (
-    <Modal animationType="slide" transparent={true} visible={isVisible}>
-      <SectionComponent style={styles.modal}>
-        <View style={styles.containerDiaLogIOS}>
-          <SectionComponent style={styles.containerContent}>
-            <TextComponent
-              text={title ?? 'Error'}
-              font={fontFamilies.medium}
-              lineHeight={22}
-            />
-            <TextComponent
-              text={content}
-              size={13}
-              font={fontFamilies.medium}
-              lineHeight={18}
-              style={styles.txtContent}
-            />
-          </SectionComponent>
-          <TouchableOpacity
-            style={styles.btn}
-            onPress={() => {
-              onPress ? onPress() : setIsvisble(false);
-            }}>
-            <TextComponent
-              text={txtButton ?? 'OK'}
-              color={colors.Action_Dialog_Blue}
-              font={fontFamilies.medium}
-              lineHeight={22}
-            />
-          </TouchableOpacity>
-        </View>
-      </SectionComponent>
-    </Modal>
+    <DialogBase isVisible={isVisible}>
+      <View style={styles.containerDiaLogIOS}>
+        <SectionComponent style={styles.containerContent}>
+          <TextComponent
+            text={title ?? 'Error'}
+            font={fontFamilies.medium}
+            lineHeight={22}
+          />
+          <TextComponent
+            text={content}
+            size={13}
+            font={fontFamilies.medium}
+            lineHeight={18}
+            style={styles.txtContent}
+          />
+        </SectionComponent>
+        <TouchableOpacity
+          style={styles.btn}
+          onPress={() => {
+            onPress ? onPress() : setIsvisble(false);
+          }}>
+          <TextComponent
+            text={txtButton ?? 'OK'}
+            color={colors.Action_Dialog_Blue}
+            font={fontFamilies.medium}
+            lineHeight={22}
+          />
+        </TouchableOpacity>
+      </View>
+    </DialogBase>
   );
 };
 
@@ -96,10 +95,5 @@ const styles = StyleSheet.create({
     borderRadius: handleSize(15),
     backgroundColor: colors.White_Color,
     justifyContent: 'space-between',
-  },
-  modal: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  }
 });

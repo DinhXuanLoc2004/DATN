@@ -23,6 +23,7 @@ interface Props {
   flex?: number;
   itemRating?: boolean;
   style?: StyleProp<ViewStyle>;
+  spaceStar?: number;
 }
 
 const StarComponent: FC<Props> = ({
@@ -34,8 +35,8 @@ const StarComponent: FC<Props> = ({
   flex,
   itemRating,
   style,
+  spaceStar,
 }) => {
-  
   const roudingStar = Math.floor(star ?? 0);
   const lengthListStar = maxStar ?? 5;
 
@@ -46,7 +47,12 @@ const StarComponent: FC<Props> = ({
           key={index}
           disabled={onPress ? false : true}
           onPress={() => {
-            onPress && onPress(index + 1);
+            onPress &&
+              onPress(
+                roudingStar > 1 && index + 1 === roudingStar
+                  ? index
+                  : index + 1,
+              );
           }}>
           {!itemRating ? (
             <View>
@@ -55,14 +61,18 @@ const StarComponent: FC<Props> = ({
                   name="star"
                   color={colors.Star_Color}
                   size={handleSize(size ?? 14)}
-                  style={styles.icon}
+                  style={{
+                    marginEnd: index === 4 ? 0 : handleSize(spaceStar ?? 3.5),
+                  }}
                 />
               ) : (
                 <IonIcon
                   name="star-outline"
                   color={colors.Gray_Color}
                   size={handleSize(size ?? 14)}
-                  style={styles.icon}
+                  style={{
+                    marginEnd: index === 4 ? 0 : handleSize(spaceStar ?? 3.5),
+                  }}
                 />
               )}
             </View>
@@ -73,7 +83,9 @@ const StarComponent: FC<Props> = ({
                   name="star"
                   color={colors.Star_Color}
                   size={handleSize(size ?? 14)}
-                  style={styles.icon}
+                  style={{
+                    marginEnd: index === 4 ? 0 : handleSize(spaceStar ?? 3.5),
+                  }}
                 />
               ) : (
                 <SpaceComponent />
@@ -95,8 +107,4 @@ const StarComponent: FC<Props> = ({
 
 export default memo(StarComponent);
 
-const styles = StyleSheet.create({
-  icon: {
-    marginEnd: 3.5,
-  },
-});
+const styles = StyleSheet.create({});
