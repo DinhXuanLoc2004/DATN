@@ -1,13 +1,15 @@
+import { Response } from "./response.type";
+
 export interface product_order_sale {
   product_sale_id: string;
   discount: number;
   name_sale: string;
   time_end: string;
-  thumb_sale: string
+  thumb_sale: string;
 }
 
 export interface cartCheck {
-  cart_id: string
+  cart_id: string;
   product_variant_id: string;
   quantity: number;
   price: number;
@@ -19,12 +21,12 @@ export interface cartCheck {
   name_category: string;
   name_brand: string;
   product_sales: product_order_sale[];
-  total_discount: number,
-  product_id: string
+  total_discount: number;
+  product_id: string;
 }
 
 export interface getCartChecksResponse extends Response {
-  metadata: cartCheck[]
+  metadata: cartCheck[];
 }
 
 export interface getLengthCartResponse extends Response {
@@ -62,6 +64,8 @@ export interface item_cart {
   isFavorite: boolean;
   product_id: string;
   product_variant_id: string;
+  discount: number;
+  can_be_plus: boolean
 }
 
 export interface getAllCartResponse extends Response {

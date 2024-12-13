@@ -133,6 +133,7 @@ const VouchersUserNotUsed = () => {
                     text={`${item.voucher_name}`}
                     size={14}
                     font={fontFamilies.semiBold}
+                    numberOfLines={1}
                   />
                   <SpaceComponent height={4} />
                   <TextComponent

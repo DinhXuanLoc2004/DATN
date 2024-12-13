@@ -66,7 +66,7 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
             ArrColor={[colors.Transperen_Color, colors.Text_Color]}
             style={styles.liner}>
             <Image
-              source={require('../../../assets/images/pager_view/img_pv_header2.jpg')}
+              source={require('../../../assets/images/pager_view/img_pv_header2.png')}
               style={styles.img}
             />
           </LinearGradientComponet>
@@ -76,7 +76,7 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
             ArrColor={[colors.Transperen_Color, colors.Text_Color]}
             style={styles.liner}>
             <Image
-              source={require('../../../assets/images/pager_view/img_pv_header3.jpg')}
+              source={require('../../../assets/images/pager_view/img_pv_header3.png')}
               style={styles.img}
             />
           </LinearGradientComponet>
@@ -86,7 +86,7 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
             ArrColor={[colors.Transperen_Color, colors.Text_Color]}
             style={styles.liner}>
             <Image
-              source={require('../../../assets/images/pager_view/img_pv_header4.jpg')}
+              source={require('../../../assets/images/pager_view/img_pv_header4.png')}
               style={styles.img}
             />
           </LinearGradientComponet>
@@ -96,7 +96,7 @@ const PagerViewHeaderHome: FC<Props> = ({animationValue}) => {
             ArrColor={[colors.Transperen_Color, colors.Text_Color]}
             style={styles.liner}>
             <Image
-              source={require('../../../assets/images/pager_view/img_pv_header5.jpg')}
+              source={require('../../../assets/images/pager_view/img_pv_header5.png')}
               style={styles.img}
             />
           </LinearGradientComponet>

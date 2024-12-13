@@ -1,5 +1,5 @@
 import {Animated, StyleSheet, Text, View} from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
 import HeaderScreenAnimation from '../../../components/layouts/HeaderScreenAnimation';
 import {useQuery} from '@tanstack/react-query';
@@ -37,6 +37,9 @@ import {
   getAllFavoritesQueryKey,
   getCategoryIdsToFavoritesQueryKey,
 } from '../../../constants/queryKeys';
+import {productResponse} from '../../../helper/types/product.type';
+import ListProductsAnimation from '../../../components/layouts/lists/ListProductsAnimation';
+import FilterBar from '../../../components/bars/FilterBar';
 
 type stackProps = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
@@ -44,12 +47,15 @@ const FavoriteScreen = () => {
   const animatedValue = useRef(new Animated.Value(0)).current;
   const [categoryIds, setcategoryIds] = useState<categoryIdsResponse[]>([]);
   const [category_id_choose, setcategory_id_choose] = useState<string>('');
-  const [product_id_choose, setproduct_id_choose] = useState<string>('');
-  const [favorites, setfavorites] = useState<favorite[]>([]);
-  const isColumn = useAppSelector(
-    state => state.app.layoutItem.columnProductsCategory,
-  );
+  const [favorites, setfavorites] = useState<productResponse[]>([]);
+
   const sort = useAppSelector(state => state.sort.sort);
+  const stateFilter = useAppSelector(state => state.sort.filter);
+  const price = [stateFilter.price.min, stateFilter.price.max];
+  const colors_id = stateFilter.colors;
+  const sizes_id = stateFilter.sizes;
+  const rating = stateFilter.rating;
+  const brands_id = stateFilter.brands;
 
   const navigation = useNavigation<stackProps>();
 
@@ -97,31 +103,27 @@ const FavoriteScreen = () => {
     }
   }, [dataCategoryIds?.metadata]);
 
-  const dispatch = useAppDispatch();
-
-  const bottomSheet = useRef<BottomSheetModal>(null);
-
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheet.current?.present();
-  }, []);
+  const body = useMemo(
+    () => ({price, colors_id, sizes_id, rating, brands_id}),
+    [price, colors_id, sizes_id, rating, brands_id],
+  );
 
   const {data: dataFavorites} = useQuery({
-    queryKey: [getAllFavoritesQueryKey, user_id, category_id_choose],
+    queryKey: [
+      getAllFavoritesQueryKey,
+      user_id,
+      category_id_choose,
+      sort.value,
+      body,
+    ],
     queryFn: getAllFavoritesAPI,
   });
 
   useEffect(() => {
     if (dataFavorites?.metadata) {
-      setfavorites(dataFavorites.metadata);
+      setfavorites(dataFavorites.metadata.products);
     }
   }, [dataFavorites?.metadata]);
-
-  const bottomSheetAddToCart = useRef<BottomSheetModal>(null);
-
-  const handleBottomSheetAddToCart = useCallback((product_id: string) => {
-    setproduct_id_choose(product_id);
-    bottomSheetAddToCart.current?.present();
-  }, []);
 
   return (
     <ContainerComponent style={styles.container}>
@@ -176,51 +178,7 @@ const FavoriteScreen = () => {
             </SectionComponent>
           )}
           <SpaceComponent height={18} />
-          <RowComponent style={styles.containerFiler}>
-            <TouchableOpacity
-              onPress={() => {
-                // navigation.navigate('FilterScreen');
-              }}>
-              <RowComponent>
-                <FontAwesome5
-                  name="filter"
-                  size={20}
-                  color={colors.Text_Color}
-                />
-                <SpaceComponent width={7} />
-                <TextComponent text="Filters" size={14} />
-              </RowComponent>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={handlePresentModalPress}>
-              <RowComponent>
-                <FontAwesome5
-                  name={
-                    sort.value === 'price_min: 1'
-                      ? 'sort-amount-up-alt'
-                      : sort.value === 'price_min: -1'
-                      ? 'sort-amount-down-alt'
-                      : 'newspaper'
-                  }
-                  size={20}
-                  color={colors.Text_Color}
-                />
-                <SpaceComponent width={7} />
-                <TextComponent text={sort.title} size={14} />
-              </RowComponent>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                dispatch(setColumnProductsCategory());
-              }}>
-              <FontAwesome5
-                name={isColumn ? 'th-list' : 'th-large'}
-                size={20}
-                color={colors.Text_Color}
-              />
-            </TouchableOpacity>
-          </RowComponent>
+          <FilterBar navigation={navigation} />
           <LinearGradient
             colors={[colors.Black_Color_RGBA, colors.Transperen_Color]}
             style={{width: '100%', height: 5}}
@@ -229,136 +187,12 @@ const FavoriteScreen = () => {
       )}
       <SpaceComponent height={10} />
 
-      <Animated.View
-        style={{
-          transform: [
-            {
-              translateY: translateY,
-            },
-          ],
-          flex: 0,
-          paddingBottom: handleSize(150),
-        }}>
-        <Animated.FlatList
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    y: animatedValue,
-                  },
-                },
-              },
-            ],
-            {useNativeDriver: true},
-          )}
-          scrollEventThrottle={16}
-          initialNumToRender={10}
-          windowSize={5}
-          removeClippedSubviews={true}
-          style={styles.listProducts}
-          data={favorites}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({item}) => (
-            <SectionComponent flex={0}>
-              {isColumn ? (
-                <ItemColumnComponent
-                  _id={item.product_id}
-                  onPress={() => {
-                    navigation.navigate('DetailProductScreen', {
-                      product_id: item.product_id,
-                    });
-                  }}
-                  trademark={item.name_category}
-                  name={item.name_product}
-                  imageUrl={item.thumb}
-                  createAt={item.createdAt}
-                  price={item.price_min}
-                  discount={0}
-                  stock={item.inventory}
-                  star={0}
-                  reviewCount={0}
-                  isItemFavorite
-                  style={styles.itemColumn}
-                  onPressBag={() => handleBottomSheetAddToCart(item.product_id)}
-                />
-              ) : (
-                <ItemRowComponent
-                  onPress={() => {
-                    navigation.navigate('DetailProductScreen', {
-                      product_id: item.product_id,
-                    });
-                  }}
-                  trademark={item.name_category}
-                  name={item.name_product}
-                  img={item.thumb}
-                  createAt={item.createdAt}
-                  price={item.price_min}
-                  discount={0}
-                  stock={item.inventory}
-                  star={0}
-                  numberReviews={0}
-                  isItemFavorite
-                  _id={item.product_id}
-                  onPressBag={() => handleBottomSheetAddToCart(item.product_id)}
-                />
-              )}
-              <SpaceComponent height={26} />
-            </SectionComponent>
-          )}
-          numColumns={isColumn ? 2 : 1}
-          key={isColumn ? 2 : 1}
-          columnWrapperStyle={isColumn ? styles.row : null}
-          showsVerticalScrollIndicator={false}
-        />
-      </Animated.View>
-
-      <BottomSheetAddToCart
-        bottomSheet={bottomSheetAddToCart}
-        product_id={product_id_choose}
-      />
-
-      <CustomBottomSheet
-        title="Sort by"
-        bottomSheet={bottomSheet}
-        snapPoint={[100, handleSize(250)]}
-        content={
-          <SectionComponent flex={1}>
-            <SectionComponent style={styles.contentBottomSheet}>
-              {listSort.map((item, index) => (
-                <TouchableOpacity
-                  key={index.toString()}
-                  style={[
-                    styles.itemSort,
-                    {
-                      backgroundColor:
-                        item.value === sort.value
-                          ? colors.Primary_Color
-                          : colors.White_Color,
-                    },
-                  ]}
-                  onPress={() => {
-                    dispatch(setSort(item));
-                    bottomSheet.current?.close();
-                  }}>
-                  <TextComponent
-                    text={item.title}
-                    font={
-                      item.value === sort.value
-                        ? fontFamilies.semiBold
-                        : fontFamilies.regular
-                    }
-                    color={
-                      item.value === sort.value
-                        ? colors.White_Color
-                        : colors.Text_Color
-                    }
-                  />
-                </TouchableOpacity>
-              ))}
-            </SectionComponent>
-          </SectionComponent>
-        }
+      <ListProductsAnimation
+        data={favorites}
+        contentOffsetY={animatedValue}
+        navigation={navigation}
+        translateY={translateY}
+        isItemFavorite
       />
     </ContainerComponent>
   );
@@ -369,11 +203,10 @@ export default FavoriteScreen;
 const styles = StyleSheet.create({
   row: {
     justifyContent: 'space-between',
-    marginBottom: handleSize(26),
+    marginBottom: handleSize(5),
   },
   itemColumn: {
     width: handleSize(164),
-    height: handleSize(260),
   },
   listProducts: {
     paddingHorizontal: handleSize(16),

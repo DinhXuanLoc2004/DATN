@@ -1,23 +1,5 @@
-import React, {useState} from 'react';
-import {Image, StyleSheet, TouchableOpacity} from 'react-native';
-import Entypo from 'react-native-vector-icons/Entypo';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
-import {colors} from '../../../constants/colors';
-import {fontFamilies} from '../../../constants/fontFamilies';
-import {handleSize} from '../../../utils/handleSize';
-import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
-import TextComponent from '../../texts/TextComponent';
-import NewOrDiscountComponent from '../../texts/NewOrDiscountComponent';
-import RowComponent from '../RowComponent';
-import SalePriceComponent from '../../texts/SalePriceComponent';
-import SectionComponent from '../SectionComponent';
-import SpaceComponent from '../SpaceComponent';
-import {
-  bodyChangeQuantityCart,
-  changeQuantityCartResponse,
-  getAllCartResponse,
-} from '../../../helper/types/cart.type';
-import {changeQuantityCartAPI} from '../../../helper/apis/cart.api';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import {
   QueryKey,
   QueryObserverResult,
@@ -25,12 +7,42 @@ import {
   useMutation,
   useQueryClient,
 } from '@tanstack/react-query';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {stackParamListMain} from '../../../navigation/StackMainNavigation';
-import {useNavigation} from '@react-navigation/native';
-import {addFavoriteResponse} from '../../../helper/types/favorite.type';
+import React, {useState} from 'react';
+import {
+  ActivityIndicator,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import Entypo from 'react-native-vector-icons/Entypo';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import {colors} from '../../../constants/colors';
+import {fontFamilies} from '../../../constants/fontFamilies';
+import {
+  getAllCartQueryKey,
+  getAllFavoritesQueryKey,
+  getAllProductsHomeSreen,
+  getCategoryIdsToFavoritesQueryKey,
+  getProductsToCategoryScreen,
+} from '../../../constants/queryKeys';
+import {changeQuantityCartAPI} from '../../../helper/apis/cart.api';
 import {addFavoriteAPI} from '../../../helper/apis/favorite.api';
-import {getAllCartQueryKey, getAllFavoritesQueryKey, getAllProductsHomeSreen, getCategoryIdsToFavoritesQueryKey, getProductsToCategoryScreen} from '../../../constants/queryKeys';
+import {
+  bodyChangeQuantityCart,
+  getAllCartResponse,
+} from '../../../helper/types/cart.type';
+import {addFavoriteResponse} from '../../../helper/types/favorite.type';
+import {stackParamListMain} from '../../../navigation/StackMainNavigation';
+import {handleSize} from '../../../utils/handleSize';
+import NewOrDiscountComponent from '../../texts/NewOrDiscountComponent';
+import SalePriceComponent from '../../texts/SalePriceComponent';
+import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
+import TextComponent from '../../texts/TextComponent';
+import RowComponent from '../RowComponent';
+import SectionComponent from '../SectionComponent';
+import SpaceComponent from '../SpaceComponent';
+import {fotmatedAmount} from '../../../utils/fotmats';
+import {useAppSelector} from '../../../helper/store/store';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
@@ -53,6 +65,7 @@ interface Props {
   cart_id_select_menu: string;
   setcart_id_select_menu: (val: string) => void;
   product_id: string;
+  can_be_plus: number;
 }
 
 const ItemCartComponent: React.FC<Props> = ({
@@ -72,7 +85,10 @@ const ItemCartComponent: React.FC<Props> = ({
   cart_id_select_menu,
   setcart_id_select_menu,
   product_id,
+  can_be_plus,
 }) => {
+  const [is_loadding_minus, setis_loadding_minus] = useState(false);
+  const [is_loadding_plus, setis_loadding_plus] = useState(false);
   const navigation = useNavigation<stackProp>();
   const updateQuantity = async (value: number) => {
     const body: bodyChangeQuantityCart = {
@@ -86,14 +102,18 @@ const ItemCartComponent: React.FC<Props> = ({
   const handleChangeQuantity = (value: number) => {
     setcart_id_select_menu('');
     if (value < 0) {
+      setis_loadding_minus(true);
       if (quantity <= 1) {
         setisVisibleModal(true);
         setcart_id_delete(cart_id);
       } else {
         updateQuantity(value);
       }
+      setis_loadding_minus(false);
     } else {
+      setis_loadding_plus(true);
       updateQuantity(value);
+      setis_loadding_plus(false);
     }
   };
 
@@ -105,6 +125,7 @@ const ItemCartComponent: React.FC<Props> = ({
     }
   };
 
+  const user_id = useAppSelector(state => state.auth.user.userId);
   const queryClient = useQueryClient();
 
   const {mutate: toggleFavorite} = useMutation<
@@ -114,7 +135,7 @@ const ItemCartComponent: React.FC<Props> = ({
     {preAllCart: [QueryKey, unknown][]}
   >({
     mutationFn: (product_id: string) => {
-      return addFavoriteAPI({product_id});
+      return addFavoriteAPI({product_id, user_id});
     },
 
     onMutate: async (product_id: string) => {
@@ -141,24 +162,29 @@ const ItemCartComponent: React.FC<Props> = ({
         },
       );
 
-      return {preAllCart}
+      return {preAllCart};
     },
 
     onError(error, variables, context) {
-      queryClient.setQueriesData({queryKey: [getAllCartQueryKey]}, context?.preAllCart)
+      queryClient.setQueriesData(
+        {queryKey: [getAllCartQueryKey]},
+        context?.preAllCart,
+      );
     },
 
     onSettled(data, error, variables, context) {
-      queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]})
-      queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]})
-      queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]})
-      queryClient.invalidateQueries({queryKey: [getCategoryIdsToFavoritesQueryKey]})
+      queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]});
+      queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]});
+      queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]});
+      queryClient.invalidateQueries({
+        queryKey: [getCategoryIdsToFavoritesQueryKey],
+      });
     },
   });
 
   const handleAddToFavorites = () => {
     setcart_id_select_menu('');
-    toggleFavorite(product_id)
+    toggleFavorite(product_id);
   };
 
   const handleDeleteFromList = () => {
@@ -171,7 +197,7 @@ const ItemCartComponent: React.FC<Props> = ({
     setcart_id_select_menu('');
     navigation.navigate('DetailProductScreen', {product_id: product_id});
   };
-  
+
   return (
     <RowComponent
       flex={0}
@@ -183,20 +209,43 @@ const ItemCartComponent: React.FC<Props> = ({
       <SectionComponent style={styles.containerContent}>
         <RowComponent justify="space-between">
           <SectionComponent>
-            <TextComponent text={name} font={fontFamilies.semiBold} />
+            <TextComponent text={name} font={fontFamilies.semiBold} numberOfLines={1}/>
             <SpaceComponent height={4} />
             <TextColorAndSizeComponent color={color} size={size} />
+            <SpaceComponent height={2} />
+            <RowComponent justify="flex-start">
+              <TextComponent
+                text="Price: "
+                color={colors.Gray_Color}
+                size={11}
+              />
+              <SalePriceComponent
+                price={price}
+                discount={discount}
+                justify="flex-start"
+                flex={0}
+                flex_left={0}
+                flex_right={0}
+                size={12}
+              />
+            </RowComponent>
           </SectionComponent>
           <TouchableOpacity onPress={toggleMenu}>
             <Entypo name="dots-three-vertical" style={styles.iconMenu} />
           </TouchableOpacity>
         </RowComponent>
-        <RowComponent justify="space-between">
+        <SpaceComponent height={5} />
+        <RowComponent>
           <RowComponent>
             <TouchableOpacity
+              disabled={is_loadding_minus || is_loadding_plus}
               onPress={() => handleChangeQuantity(-1)}
               style={styles.iconButton}>
-              <FontAwesome5 name="minus" style={styles.icon} />
+              {is_loadding_minus ? (
+                <ActivityIndicator size={12} color={colors.Gray_Color} />
+              ) : (
+                <FontAwesome5 name="minus" style={styles.icon} />
+              )}
             </TouchableOpacity>
             <SpaceComponent width={12} />
             <TextComponent
@@ -206,17 +255,17 @@ const ItemCartComponent: React.FC<Props> = ({
             />
             <SpaceComponent width={12} />
             <TouchableOpacity
+              disabled={is_loadding_minus || is_loadding_plus || !can_be_plus}
               onPress={() => handleChangeQuantity(1)}
-              style={styles.iconButton}>
-              <FontAwesome5 name="plus" style={styles.icon} />
+              style={[styles.iconButton, {opacity: !can_be_plus ? 0.6 : 1}]}>
+              {is_loadding_plus ? (
+                <ActivityIndicator size={12} color={colors.Gray_Color} />
+              ) : (
+                <FontAwesome5 name="plus" style={styles.icon} />
+              )}
             </TouchableOpacity>
           </RowComponent>
           <SpaceComponent width={10} />
-          <SalePriceComponent
-            discount={discount}
-            price={price * quantity}
-            flex={1}
-          />
         </RowComponent>
       </SectionComponent>
       {cart_id_select_menu === cart_id && (
@@ -264,7 +313,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   image: {
-    width: handleSize(120),
+    width: handleSize(100),
     height: '100%',
     borderBottomLeftRadius: handleSize(8),
     borderTopLeftRadius: handleSize(8),
@@ -275,8 +324,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   iconButton: {
-    width: handleSize(36),
-    height: handleSize(36),
+    width: handleSize(26),
+    height: handleSize(26),
     borderRadius: 100,
     backgroundColor: colors.White_Color,
     justifyContent: 'center',
@@ -284,7 +333,7 @@ const styles = StyleSheet.create({
     elevation: handleSize(4),
   },
   icon: {
-    fontSize: 20,
+    fontSize: 12,
     color: colors.Gray_Color,
   },
   iconMenu: {

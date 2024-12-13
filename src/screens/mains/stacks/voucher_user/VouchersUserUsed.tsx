@@ -134,6 +134,7 @@ const VouchersUserUsed = () => {
                     text={`${item.voucher_name}`}
                     size={14}
                     font={fontFamilies.semiBold}
+                    numberOfLines={1}
                   />
                   <SpaceComponent height={4} />
                   <TextComponent
@@ -147,19 +148,23 @@ const VouchersUserUsed = () => {
                       item.voucher_type === 'deduct_money' ? '$' : '%'
                     } off on orders of at least $${item.min_order_value}.`}
                     size={11}
-                    numberOfLines={3}
+                    numberOfLines={2}
                     lineHeight={15}
+                    flex={0.8}
                   />
                 </SectionComponent>
                 <SectionComponent style={styles.containerRight} flex={1}>
                   <CountDownTime time_end={item.time_end} is_not_end_later />
                   <SpaceComponent height={5} />
                   <TouchableOpacity
-                    disabled
                     style={[styles.btn]}
-                    onPress={() => navigation.navigate('CartScreen', {})}>
+                    onPress={() =>
+                      navigation.navigate('OrderDetailScreen', {
+                        order_id: item.order_id ?? '',
+                      })
+                    }>
                     <TextComponent
-                      text={'Use'}
+                      text={'Used'}
                       size={14}
                       font={fontFamilies.semiBold}
                       color={colors.White_Color}

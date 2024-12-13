@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
   btnDialog: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.White_Color,
+    backgroundColor: colors.Transperen_Color,
+    padding: handleSize(10)
   },
   containerBtnDialog: {
     height: handleSize(44),

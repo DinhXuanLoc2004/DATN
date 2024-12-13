@@ -127,7 +127,7 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </SectionComponent>
 
-      <GGAndFbComponent text="Or login with social account" marginTop={194} />
+      {/* <GGAndFbComponent text="Or login with social account" marginTop={194} /> */}
     </ContainerComponent>
   );
 };

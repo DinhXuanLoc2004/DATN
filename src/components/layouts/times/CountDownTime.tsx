@@ -40,6 +40,7 @@ const CountDownTime: FC<Props> = ({time_end, is_not_end_later}) => {
         size={12}
         font={fontFamilies.medium}
         color={colors.Gray_Color}
+        numberOfLines={1}
       />
     </View>
   );

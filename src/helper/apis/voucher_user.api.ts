@@ -11,22 +11,21 @@ const URL_VOUCHER_USER = '/voucher_user';
 const getAllVoucherUserAPI = async ({
   user_id,
   is_used,
-  min_order_value
+  min_order_value,
 }: {
   user_id: string;
   is_used: string;
-  min_order_value?: string
+  min_order_value?: string;
 }) => {
   try {
-    console.log(is_used);
     const queryString = createQueryString({user_id, is_used, min_order_value});
     const data = await axiosIntercreptor.get<
       undefined,
       getAllVoucherUserResponse
     >(`${URL_VOUCHER_USER}/get_vouchers_user/?${queryString}`);
-    return data
+    return data;
   } catch (error) {
-    console.log('Error get all voucher user:: ',error);
+    console.log('Error get all voucher user:: ', error);
   }
 };
 

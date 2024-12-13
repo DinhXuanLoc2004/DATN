@@ -30,6 +30,7 @@ import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
 import {useNavigation} from '@react-navigation/native';
 import {globalStyles} from '../../../../styles/globalStyle';
 import SearchComponent from '../../../../components/layouts/SearchComponent';
+import ItemVoucherComponent from '../../../../components/layouts/items/ItemVoucherComponent';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'VouchersScreen'>;
 
@@ -139,80 +140,7 @@ const VouchersScreen = () => {
             keyExtractor={item => item._id}
             showsVerticalScrollIndicator={false}
             renderItem={({item}) => (
-              <RowComponent
-                style={styles.item}
-                justify="space-between"
-                onPress={() =>
-                  navigation.navigate('VoucherDetailScreen', {
-                    voucher_id: item._id,
-                  })
-                }>
-                <RowComponent justify="flex-start">
-                  <Image source={{uri: item.thumb}} style={styles.img} />
-                </RowComponent>
-                <SpaceComponent width={10} />
-                <SectionComponent flex={1.5}>
-                  <TextComponent
-                    text={`${item.voucher_name}`}
-                    size={14}
-                    font={fontFamilies.semiBold}
-                  />
-                  <SpaceComponent height={4} />
-                  <TextComponent
-                    text={`Code: ${item.voucher_code}`}
-                    size={11}
-                    font={fontFamilies.medium}
-                  />
-                  <SpaceComponent height={4} />
-                  <TextComponent
-                    text={`Get up to ${item.voucher_value}${
-                      item.voucher_type === 'deduct_money' ? '$' : '%'
-                    } off on orders of at least $${item.min_order_value}.`}
-                    size={11}
-                    numberOfLines={3}
-                    lineHeight={15}
-                  />
-                </SectionComponent>
-                <SectionComponent style={styles.containerRight} flex={1}>
-                  <CountDownTime time_end={item.time_end} is_not_end_later />
-                  <SpaceComponent height={5} />
-                  <TouchableOpacity
-                    disabled={item.is_used}
-                    style={[
-                      styles.btn,
-                      {
-                        backgroundColor:
-                          item?.is_saved && item.is_used === false
-                            ? colors.White_Color
-                            : item?.is_saved && item.is_used
-                            ? colors.Gray_Color
-                            : colors.Primary_Color,
-                        opacity: item.is_used ? 0.55 : 1,
-                        borderColor: item?.is_used
-                          ? colors.Gray_Color
-                          : colors.Primary_Color,
-                      },
-                    ]}
-                    onPress={() => handleSaveVoucher(item._id, item.is_saved)}>
-                    <TextComponent
-                      text={
-                        item?.is_saved && item.is_used === false
-                          ? 'Use'
-                          : item?.is_saved && item.is_used
-                          ? 'Used'
-                          : 'Save'
-                      }
-                      size={14}
-                      font={fontFamilies.semiBold}
-                      color={
-                        item.is_saved && item.is_used === false
-                          ? colors.Primary_Color
-                          : colors.White_Color
-                      }
-                    />
-                  </TouchableOpacity>
-                </SectionComponent>
-              </RowComponent>
+              <ItemVoucherComponent item={item} handleSaveVoucher={handleSaveVoucher}/>
             )}
             ItemSeparatorComponent={() => <SpaceComponent height={24} />}
           />

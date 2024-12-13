@@ -2,7 +2,7 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import axios from 'axios';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {FlatList, StyleSheet, TouchableOpacity} from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import CustomBottomSheet from '../../../components/layouts/bottom_sheets/CustomBottomSheet';
@@ -23,17 +23,24 @@ import {listSort} from '../../../models/listSort';
 import {stackParamListMain} from '../../../navigation/StackMainNavigation';
 import {handleSize} from '../../../utils/handleSize';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useQuery } from '@tanstack/react-query';
-import { getAllProductsHomeSreen, searchProductsQueryKey } from '../../../constants/queryKeys';
-import { getAllProductAPI } from '../../../helper/apis/product.api';
-import { productResponse } from '../../../helper/types/product.type';
+import {useQuery} from '@tanstack/react-query';
+import {
+  getAllProductsHomeSreen,
+  searchProductsQueryKey,
+} from '../../../constants/queryKeys';
+import {getAllProductAPI} from '../../../helper/apis/product.api';
+import {productResponse} from '../../../helper/types/product.type';
+import ItemRowOrColumn from '../../../components/layouts/items/ItemRowOrColumn';
+import FilterBar from '../../../components/bars/FilterBar';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'SearchScreen'>;
 
 const ProductSearchScreen = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [products, setProducts] = useState<productResponse[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<productResponse[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<productResponse[]>(
+    [],
+  );
 
   const filterProducts = (term: string) => {
     if (term) {
@@ -61,22 +68,34 @@ const ProductSearchScreen = () => {
   };
 
   const user_id = useAppSelector(state => state.auth.user.userId);
+  const sort = useAppSelector(state => state.sort.sort);
+  const stateFilter = useAppSelector(state => state.sort.filter);
+  const price = [stateFilter.price.min, stateFilter.price.max];
+  const colors_id = stateFilter.colors;
+  const sizes_id = stateFilter.sizes;
+  const rating = stateFilter.rating;
+  const brands_id = stateFilter.brands;
+
+  const body = useMemo(
+    () => ({price, colors_id, sizes_id, rating, brands_id}),
+    [price, colors_id, sizes_id, rating, brands_id],
+  );
 
   const {data, isLoading, error, refetch} = useQuery({
-    queryKey: [searchProductsQueryKey, user_id],
+    queryKey: [searchProductsQueryKey, user_id, '', sort.value, body],
     queryFn: getAllProductAPI,
   });
 
   useEffect(() => {
-    if(data?.metadata){
-      setProducts(data.metadata.products)
+    if (data?.metadata) {
+      setProducts(data.metadata.products);
     }
   }, [data?.metadata]);
 
   useEffect(() => {
     const debounceFilter = setTimeout(() => {
       filterProducts(searchTerm);
-    }, 200)
+    }, 200);
 
     return () => clearTimeout(debounceFilter);
   }, [searchTerm, products]);
@@ -84,21 +103,18 @@ const ProductSearchScreen = () => {
   const isColumn = useAppSelector(
     state => state.app.layoutItem.columnProductsCategory,
   );
-  const sort = useAppSelector(state => state.sort.sort);
-  const bottomSheet = useRef<BottomSheetModal | null>(null);
-  const dispatch = useAppDispatch();
-  const navigation = useNavigation<stackProp>();
 
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheet.current?.present();
-  }, []);
+  const navigation = useNavigation<stackProp>();
 
   return (
     <ContainerComponent style={styles.container}>
       <SectionComponent flex={0} style={styles.containerHeader}>
         <SpaceComponent height={20} />
         <RowComponent style={styles.containerSearch}>
-          <TouchableOpacity onPress={() => {navigation.goBack()}}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack();
+            }}>
             <Ionicons
               name="arrow-back-outline"
               size={handleSize(24)}
@@ -106,149 +122,36 @@ const ProductSearchScreen = () => {
             />
           </TouchableOpacity>
           <SpaceComponent width={5} />
-          <SearchComponent value={searchTerm} onChange={setSearchTerm} onClear placeholder='Search...'/>
+          <SearchComponent
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onClear
+            placeholder="Search..."
+          />
         </RowComponent>
-        <RowComponent style={styles.containerFiler}>
-          <TouchableOpacity
-            onPress={() => {
-              // navigation.navigate('FilterScreen');
-            }}>
-            <RowComponent>
-              <FontAwesome5 name="filter" size={20} color={colors.Text_Color} />
-              <SpaceComponent width={7} />
-              <TextComponent text="Filters" size={14} />
-            </RowComponent>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handlePresentModalPress}>
-            <RowComponent>
-              <FontAwesome5
-                name={
-                  sort.value === 'price_min: 1'
-                    ? 'sort-amount-up-alt'
-                    : sort.value === 'price_min: -1'
-                    ? 'sort-amount-down-alt'
-                    : 'newspaper'
-                }
-                size={20}
-                color={colors.Text_Color}
-              />
-              <SpaceComponent width={7} />
-              <TextComponent text={sort.title} size={14} />
-            </RowComponent>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              dispatch(setColumnProductsCategory());
-            }}>
-            <FontAwesome5
-              name={isColumn ? 'th-list' : 'th-large'}
-              size={20}
-              color={colors.Text_Color}
-            />
-          </TouchableOpacity>
-        </RowComponent>
+        <FilterBar
+          navigation={navigation}
+          styleContainerBar={styles.containerFiler}
+        />
         <SpaceComponent height={5} />
       </SectionComponent>
-        <SpaceComponent height={5} />
+      <SpaceComponent height={5} />
       <ContainerComponent>
         <FlatList
           data={filteredProducts}
           keyExtractor={item => item._id}
           renderItem={({item}) => (
-            <SectionComponent flex={0}>
-              {isColumn ? (
-                <ItemColumnComponent
-                  _id={item._id}
-                  onPress={() =>
-                    navigation.navigate('DetailProductScreen', {
-                      product_id: item._id,
-                    })
-                  }
-                  trademark={item.name_category}
-                  name={item.name_product}
-                  imageUrl={item.thumb}
-                  createAt={item.createdAt}
-                  price={item.price_min}
-                  discount={item.discount}
-                  stock={item.inventory_quantity}
-                  star={item.averageRating}
-                  reviewCount={item.countReview}
-                  isFavorite={item.isFavorite}
-                  style={styles.itemColumn}
-                />
-              ) : (
-                <ItemRowComponent
-                  onPress={() =>
-                    navigation.navigate('DetailProductScreen', {
-                      product_id: item._id,
-                    })
-                  }
-                  trademark={item.name_category}
-                  name={item.name_product}
-                  img={item.thumb}
-                  createAt={item.createdAt}
-                  price={item.price_min}
-                  discount={item.discount}
-                  stock={item.inventory_quantity}
-                  star={item.averageRating}
-                  numberReviews={item.countReview}
-                  isFavorite={item.isFavorite}
-                  _id={item._id}
-                />
-              )}
-              <SpaceComponent height={26} />
-            </SectionComponent>
+            <ItemRowOrColumn
+              isColumn={isColumn}
+              item={item}
+              navigation={navigation}
+            />
           )}
           contentContainerStyle={{marginTop: 15}}
           numColumns={isColumn ? 2 : 1}
           key={isColumn ? 2 : 1}
           columnWrapperStyle={isColumn ? styles.row : null}
           showsVerticalScrollIndicator={false}
-        />
-
-        <CustomBottomSheet
-          title="Sort by"
-          bottomSheet={bottomSheet}
-          snapPoint={[100, handleSize(250)]}
-          content={
-            <SectionComponent flex={0}>
-              <SectionComponent style={styles.contentBottomSheet}>
-                {listSort.map((item, index) => (
-                  <TouchableOpacity
-                    key={index.toString()}
-                    style={[
-                      styles.itemSort,
-                      {
-                        backgroundColor:
-                          item.value === sort.value
-                            ? colors.Primary_Color
-                            : colors.White_Color,
-                      },
-                    ]}
-                    onPress={() => {
-                      dispatch(setSort(item));
-                      bottomSheet.current?.close();
-                    }}>
-                    <TextComponent
-                      text={item.title}
-                      font={
-                        item.value === sort.value
-                          ? fontFamilies.semiBold
-                          : fontFamilies.regular
-                      }
-                      color={
-                        item.value === sort.value
-                          ? colors.White_Color
-                          : colors.Text_Color
-                      }
-                    />
-                  </TouchableOpacity>
-                ))}
-              </SectionComponent>
-            </SectionComponent>
-          }
         />
       </ContainerComponent>
     </ContainerComponent>
@@ -258,11 +161,10 @@ const ProductSearchScreen = () => {
 const styles = StyleSheet.create({
   itemColumn: {
     width: handleSize(164),
-    height: handleSize(260),
   },
   row: {
     justifyContent: 'space-between',
-    marginBottom: handleSize(26),
+    marginBottom: handleSize(5),
   },
   container: {
     paddingHorizontal: 0,

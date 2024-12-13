@@ -2,6 +2,7 @@ import {brandType} from './brand.type';
 import {colorType} from './color.type';
 import {imageType} from './image.type';
 import { media } from './media.type';
+import { addReviewMetadata } from './review.type';
 import {sizeType} from './size.type';
 
 export interface colors_size_toProduct extends Response {
@@ -36,6 +37,7 @@ export interface productResponse {
   name_brand: string;
   name_category: string;
   isFavorite: boolean;
+  total_orders: number
 }
 
 export interface saleProductDetail {
@@ -61,9 +63,10 @@ export interface productDetailResponse {
   name_brand: string;
   name_category: string;
   averageRating: number;
-  countReview: number;
   sales_active: saleProductDetail[];
-  discount: number
+  discount: number;
+  total_orders: number;
+  reviews: addReviewMetadata[]
 }
 
 export interface getDetailProductResponse extends Response {

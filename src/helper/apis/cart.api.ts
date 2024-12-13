@@ -71,6 +71,7 @@ const getAllCartAPI = async ({queryKey}: {queryKey: [string, string]}) => {
     const data = await axiosIntercreptor.get<undefined, getAllCartResponse>(
       `${URL_CART}/get_all_cart/?${queryString}`,
     );
+    console.log(data.metadata);
     return data;
   } catch (error) {
     console.log('Error get all item cart::', error);
@@ -94,6 +95,7 @@ const addToCartAPI = async ({
       `${URL_CART}/add_to_cart`,
       body,
     );
+    console.log('data add cart:: ', data);
     return data;
   } catch (error) {
     console.log('Error add to cart::', error);
@@ -106,5 +108,5 @@ export {
   changeQuantityCartAPI,
   deleteCartAPI,
   getLengthCartAPI,
-  getCartChecksAPI
+  getCartChecksAPI,
 };

@@ -13,6 +13,7 @@ import TextComponent from '../../texts/TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import SalePriceComponent from '../../texts/SalePriceComponent';
 import ButtonComponent from '../../buttons/ButtonComponent';
+import {fotmatedAmount} from '../../../utils/fotmats';
 
 interface Props {
   item: reviews_order;
@@ -54,6 +55,7 @@ const ItemOrderReview: FC<Props> = ({item}) => {
             <TextComponent
               text={item.name_product}
               font={fontFamilies.semiBold}
+              numberOfLines={1}
             />
             <SpaceComponent height={5} />
             <TextComponent
@@ -92,11 +94,34 @@ const ItemOrderReview: FC<Props> = ({item}) => {
                 />
                 <TextComponent text={item.quantity.toString()} size={11} />
               </RowComponent>
-              <SalePriceComponent
-                price={item.price}
-                discount={item.discount}
-                size={11}
-              />
+              <RowComponent justify={'flex-end'}>
+                <TextComponent
+                  color={
+                    item.discount > 0 ? colors.Primary_Color : colors.Text_Color
+                  }
+                  size={12}
+                  font={fontFamilies.medium}
+                  text={`${fotmatedAmount(
+                    item.price - (item.price * item.discount) / 100,
+                  )}`}
+                  numberOfLines={1}
+                />
+                {item.discount > 0 && (
+                  <RowComponent style={{flexShrink: 1}}>
+                    <SpaceComponent width={5} />
+                    <TextComponent
+                      color={colors.Gray_Color}
+                      size={12}
+                      font={fontFamilies.medium}
+                      text={`${fotmatedAmount(item.price)}`}
+                      style={{
+                        textDecorationLine: 'line-through',
+                      }}
+                      numberOfLines={1}
+                    />
+                  </RowComponent>
+                )}
+              </RowComponent>
             </RowComponent>
             <SpaceComponent height={5} />
             <TextComponent

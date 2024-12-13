@@ -1,4 +1,4 @@
-import { Response } from "./response.type";
+import {Response} from './response.type';
 
 export interface voucher_user {
   _id: string;
@@ -14,11 +14,12 @@ export interface voucher_user {
   min_order_value: number;
   voucher_id: string;
   is_new_voucher_user: boolean;
-  is_active: boolean
+  is_active: boolean;
+  order_id: string | null | undefined;
 }
 
 export interface getAllVoucherUserResponse extends Response {
-  metadata: voucher_user[]
+  metadata: voucher_user[];
 }
 
 export interface saveVoucherUserBody {

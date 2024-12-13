@@ -1,5 +1,7 @@
+type status = 200 | 201 | 203 | 401 | 403 | 404 | 409
+
 export interface Response {
     message: string,
-    status: number,
+    status: status,
     metadata: any
 }

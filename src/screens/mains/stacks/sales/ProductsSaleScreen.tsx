@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {animationInterpolate} from '../../../../utils/animations';
 import {RouteProp, useNavigation} from '@react-navigation/native';
 import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
@@ -38,6 +38,9 @@ import ItemColumnComponent from '../../../../components/layouts/items/ItemColumn
 import {useQuery} from '@tanstack/react-query';
 import {getProductsSaleQuerykey} from '../../../../constants/queryKeys';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {productResponse} from '../../../../helper/types/product.type';
+import ListProductsAnimation from '../../../../components/layouts/lists/ListProductsAnimation';
+import FilterBar from '../../../../components/bars/FilterBar';
 
 type routeProp = RouteProp<stackParamListMain, 'ProductsSaleScreen'>;
 
@@ -47,7 +50,7 @@ const ProductsSaleScreen = ({route}: {route: routeProp}) => {
   const {sale_id, name_sale} = route.params;
   const [categories, setcategories] = useState<categorySale[]>([]);
   const [category_id_choose, setcategory_id_choose] = useState<string>('');
-  const [products, setproducts] = useState<productSale[]>([]);
+  const [products, setproducts] = useState<productResponse[]>([]);
   const animatedValue = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     Animated.timing(animatedValue, {
@@ -100,18 +103,34 @@ const ProductsSaleScreen = ({route}: {route: routeProp}) => {
   );
   const sort = useAppSelector(state => state.sort.sort);
 
-  const dispath = useAppDispatch();
-
   const user_id = useAppSelector(state => state.auth.user.userId);
 
+  const stateFilter = useAppSelector(state => state.sort.filter);
+  const price = [stateFilter.price.min, stateFilter.price.max];
+  const colors_id = stateFilter.colors;
+  const sizes_id = stateFilter.sizes;
+  const rating = stateFilter.rating;
+  const brands_id = stateFilter.brands;
+  const body = useMemo(
+    () => ({price, colors_id, sizes_id, rating, brands_id}),
+    [price, colors_id, sizes_id, rating, brands_id],
+  );
+
   const {data, isLoading} = useQuery({
-    queryKey: [getProductsSaleQuerykey, sale_id, user_id, category_id_choose],
+    queryKey: [
+      getProductsSaleQuerykey,
+      sale_id,
+      user_id,
+      category_id_choose,
+      sort.value,
+      body,
+    ],
     queryFn: getProductsSaleAPI,
   });
 
   useEffect(() => {
     if (data?.metadata) {
-      setproducts(data.metadata);
+      setproducts(data.metadata.products);
     }
   }, [data?.metadata]);
 
@@ -165,116 +184,19 @@ const ProductsSaleScreen = ({route}: {route: routeProp}) => {
           </SectionComponent>
         )}
         <SpaceComponent height={18} />
-        {/* <RowComponent style={styles.containerFiler}>
-          <TouchableOpacity
-            onPress={() => {
-              //   navigation.navigate('FilterScreen');
-            }}>
-            <RowComponent>
-              <FontAwesome5Icon
-                name="filter"
-                size={20}
-                color={colors.Text_Color}
-              />
-              <SpaceComponent width={7} />
-              <TextComponent text="Filters" size={14} />
-            </RowComponent>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handlePresentModalPress}>
-            <RowComponent>
-              <FontAwesome5Icon
-                name={
-                  sort.value === 'price_min: 1'
-                    ? 'sort-amount-up-alt'
-                    : sort.value === 'price_min: -1'
-                    ? 'sort-amount-down-alt'
-                    : 'newspaper'
-                }
-                size={20}
-                color={colors.Text_Color}
-              />
-              <SpaceComponent width={7} />
-              <TextComponent text={sort.title} size={14} />
-            </RowComponent>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              dispath(setColumnProductsCategory());
-            }}>
-            <FontAwesome5Icon
-              name={isColumn ? 'th-list' : 'th-large'}
-              size={20}
-              color={colors.Text_Color}
-            />
-          </TouchableOpacity>
-        </RowComponent> */}
+        <FilterBar navigation={navigation} />
         <LinearGradient
           colors={[colors.Black_Color_RGBA, colors.Transperen_Color]}
           style={{width: '100%', height: 5}}
         />
       </Animated.View>
       <SpaceComponent height={10} />
-      <Animated.View
-        style={{
-          transform: [
-            {
-              translateY: translateY,
-            },
-          ],
-          flex: 0,
-          paddingBottom: handleSize(150),
-        }}>
-        <Animated.FlatList
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    y: animatedValue,
-                  },
-                },
-              },
-            ],
-            {useNativeDriver: true},
-          )}
-          scrollEventThrottle={16}
-          initialNumToRender={10}
-          windowSize={5}
-          removeClippedSubviews={true}
-          data={products}
-          keyExtractor={item => item._id}
-          style={styles.listProducts}
-          renderItem={({item}) => (
-            <SectionComponent flex={0}>
-              <ItemColumnComponent
-                onPress={() =>
-                  navigation.navigate('DetailProductScreen', {
-                    product_id: item._id,
-                  })
-                }
-                style={styles.itemColumn}
-                _id={item._id}
-                name={item.name_product}
-                createAt={item.createdAt}
-                isFavorite={item.isFavorite}
-                imageUrl={item.thumb}
-                price={item.price_min}
-                stock={item.inventory}
-                trademark={`${item.name_brand} - ${item.name_category}`}
-                reviewCount={item.countReview}
-                star={item.averageRating}
-                discount={item.discount}
-              />
-            </SectionComponent>
-          )}
-          numColumns={2}
-          key={2}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={styles.row}
-        />
-      </Animated.View>
+      <ListProductsAnimation
+        data={products}
+        contentOffsetY={animatedValue}
+        translateY={translateY}
+        navigation={navigation}
+      />
     </ContainerComponent>
   );
 };
@@ -284,7 +206,6 @@ export default ProductsSaleScreen;
 const styles = StyleSheet.create({
   itemColumn: {
     width: handleSize(164),
-    height: handleSize(260),
   },
   row: {
     justifyContent: 'space-between',

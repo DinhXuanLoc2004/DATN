@@ -182,6 +182,7 @@ const OrderDetailScreen = ({route}: {route: routeProp}) => {
                 price={item.price}
                 quantity={item.quantity}
                 thumb={item.thumb_color}
+                discount={item.discount}
               />
             )}
             scrollEnabled={false}
@@ -218,7 +219,16 @@ const OrderDetailScreen = ({route}: {route: routeProp}) => {
         <SpaceComponent height={26} />
         <TextOrderInformation
           lable="Discount:"
-          content={`-${fotmatedAmount(order_detail?.value_voucher ?? 0)}`}
+          content={`- ${
+            order_detail?.value_voucher && order_detail?.value_voucher > 0
+              ? fotmatedAmount(
+                  order_detail?.type_voucher === 'percent'
+                    ? (order_detail.value_voucher * order_detail.total_amount) /
+                        100
+                    : order_detail?.value_voucher,
+                )
+              : 0
+          }`}
         />
         <SpaceComponent height={26} />
         <TextOrderInformation
@@ -235,6 +245,7 @@ const OrderDetailScreen = ({route}: {route: routeProp}) => {
           />
         </SectionComponent>
       )}
+      <SpaceComponent height={50} />
     </ContainerComponent>
   );
 };
@@ -242,13 +253,13 @@ const OrderDetailScreen = ({route}: {route: routeProp}) => {
 export default OrderDetailScreen;
 
 const styles = StyleSheet.create({
-  containerButtons:{
+  containerButtons: {
     padding: handleSize(16),
     position: 'absolute',
     bottom: 0,
     width: '100%',
     backgroundColor: colors.White_Color,
-    elevation: 100
+    elevation: 100,
   },
   containerHeader: {
     backgroundColor: colors.White_Color,

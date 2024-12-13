@@ -3,7 +3,11 @@ import BottomSheet, {
   BottomSheetModalProvider,
 } from '@gorhom/bottom-sheet';
 import {Portal} from '@gorhom/portal';
-import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {
+  RouteProp,
+  useFocusEffect,
+  useNavigation,
+} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, FlatList, StyleSheet, TouchableOpacity} from 'react-native';
@@ -36,7 +40,10 @@ import {listSort, sort} from '../../../../models/listSort';
 import {setSort} from '../../../../helper/store/slices/sort.slice';
 import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
-import { getProductsToCategoryScreen } from '../../../../constants/queryKeys';
+import {getProductsToCategoryScreen} from '../../../../constants/queryKeys';
+import ItemRowOrColumn from '../../../../components/layouts/items/ItemRowOrColumn';
+import ListProductsAnimation from '../../../../components/layouts/lists/ListProductsAnimation';
+import FilterBar from '../../../../components/bars/FilterBar';
 
 type ProductsToCategoryScreenRouteProp = RouteProp<
   StackParamsListCategory,
@@ -60,6 +67,7 @@ const ProductsToCategoryScreen = ({
   const isColumn = useAppSelector(
     state => state.app.layoutItem.columnProductsCategory,
   );
+
   const sort = useAppSelector(state => state.sort.sort);
 
   const stateFilter = useAppSelector(state => state.sort.filter);
@@ -152,12 +160,6 @@ const ProductsToCategoryScreen = ({
     extrapolate: 'clamp',
   });
 
-  const bottomSheet = useRef<BottomSheetModal>(null);
-
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheet.current?.present();
-  }, []);
-
   return (
     <ContainerComponent style={styles.container}>
       <HeaderScreenAnimation
@@ -208,47 +210,7 @@ const ProductsToCategoryScreen = ({
           </SectionComponent>
         )}
         <SpaceComponent height={18} />
-        <RowComponent style={styles.containerFiler}>
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('FilterScreen');
-            }}>
-            <RowComponent>
-              <FontAwesome5 name="filter" size={20} color={colors.Text_Color} />
-              <SpaceComponent width={7} />
-              <TextComponent text="Filters" size={14} />
-            </RowComponent>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={handlePresentModalPress}>
-            <RowComponent>
-              <FontAwesome5
-                name={
-                  sort.value === 'price_min: 1'
-                    ? 'sort-amount-up-alt'
-                    : sort.value === 'price_min: -1'
-                    ? 'sort-amount-down-alt'
-                    : 'newspaper'
-                }
-                size={20}
-                color={colors.Text_Color}
-              />
-              <SpaceComponent width={7} />
-              <TextComponent text={sort.title} size={14} />
-            </RowComponent>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => {
-              dispath(setColumnProductsCategory());
-            }}>
-            <FontAwesome5
-              name={isColumn ? 'th-list' : 'th-large'}
-              size={20}
-              color={colors.Text_Color}
-            />
-          </TouchableOpacity>
-        </RowComponent>
+        <FilterBar navigation={navigation}/>
         <LinearGradient
           colors={[colors.Black_Color_RGBA, colors.Transperen_Color]}
           style={{width: '100%', height: 5}}
@@ -257,129 +219,11 @@ const ProductsToCategoryScreen = ({
 
       <SpaceComponent height={10} />
 
-      <Animated.View
-        style={{
-          transform: [
-            {
-              translateY: translateY,
-            },
-          ],
-          flex: 0,
-          paddingBottom: handleSize(150),
-        }}>
-        <Animated.FlatList
-          onScroll={Animated.event(
-            [
-              {
-                nativeEvent: {
-                  contentOffset: {
-                    y: animatedValue,
-                  },
-                },
-              },
-            ],
-            {useNativeDriver: true},
-          )}
-          scrollEventThrottle={16}
-          initialNumToRender={10}
-          windowSize={5}
-          removeClippedSubviews={true}
-          style={styles.listProducts}
-          data={products}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={({item}) => (
-            <SectionComponent flex={0}>
-              {isColumn ? (
-                <ItemColumnComponent
-                  _id={item._id}
-                  onPress={() =>
-                    navigation.navigate('DetailProductScreen', {
-                      product_id: item._id,
-                    })
-                  }
-                  trademark={`${item.name_brand} - ${item.name_category}`}
-                  name={item.name_product}
-                  imageUrl={item.thumb}
-                  createAt={item.createdAt}
-                  price={item.price_min}
-                  discount={item.discount}
-                  stock={item.inventory_quantity}
-                  star={item.averageRating}
-                  reviewCount={item.countReview}
-                  isFavorite={item.isFavorite}
-                  style={styles.itemColumn}
-                />
-              ) : (
-                <ItemRowComponent
-                  onPress={() =>
-                    navigation.navigate('DetailProductScreen', {
-                      product_id: item._id,
-                    })
-                  }
-                  trademark={`${item.name_brand} - ${item.name_category}`}
-                  name={item.name_product}
-                  img={item.thumb}
-                  createAt={item.createdAt}
-                  price={item.price_min}
-                  discount={item.discount}
-                  stock={item.inventory_quantity}
-                  star={item.averageRating}
-                  numberReviews={item.countReview}
-                  isFavorite={item.isFavorite}
-                  _id={item._id}
-                />
-              )}
-              <SpaceComponent height={26} />
-            </SectionComponent>
-          )}
-          numColumns={isColumn ? 2 : 1}
-          key={isColumn ? 2 : 1}
-          columnWrapperStyle={isColumn ? styles.row : null}
-          showsVerticalScrollIndicator={false}
-        />
-      </Animated.View>
-
-      <CustomBottomSheet
-        title="Sort by"
-        bottomSheet={bottomSheet}
-        snapPoint={[100, handleSize(250)]}
-        content={
-          <SectionComponent flex={0}>
-            <SectionComponent style={styles.contentBottomSheet}>
-              {listSort.map((item, index) => (
-                <TouchableOpacity
-                  key={index.toString()}
-                  style={[
-                    styles.itemSort,
-                    {
-                      backgroundColor:
-                        item.value === sort.value
-                          ? colors.Primary_Color
-                          : colors.White_Color,
-                    },
-                  ]}
-                  onPress={() => {
-                    dispath(setSort(item));
-                    bottomSheet.current?.close();
-                  }}>
-                  <TextComponent
-                    text={item.title}
-                    font={
-                      item.value === sort.value
-                        ? fontFamilies.semiBold
-                        : fontFamilies.regular
-                    }
-                    color={
-                      item.value === sort.value
-                        ? colors.White_Color
-                        : colors.Text_Color
-                    }
-                  />
-                </TouchableOpacity>
-              ))}
-            </SectionComponent>
-          </SectionComponent>
-        }
+      <ListProductsAnimation
+        data={products}
+        contentOffsetY={animatedValue}
+        translateY={translateY}
+        navigation={navigation}
       />
     </ContainerComponent>
   );
@@ -388,23 +232,12 @@ const ProductsToCategoryScreen = ({
 export default ProductsToCategoryScreen;
 
 const styles = StyleSheet.create({
-  itemSort: {
-    width: '100%',
-    height: handleSize(48),
-    paddingLeft: handleSize(16),
-    justifyContent: 'center',
-  },
-  contentBottomSheet: {
-    justifyContent: 'flex-start',
-    paddingVertical: handleSize(20),
-  },
   row: {
     justifyContent: 'space-between',
-    marginBottom: handleSize(26),
+    marginBottom: handleSize(10),
   },
   itemColumn: {
     width: handleSize(164),
-    height: handleSize(260),
   },
   listProducts: {
     paddingHorizontal: handleSize(16),

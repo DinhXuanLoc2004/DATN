@@ -10,6 +10,7 @@ export interface product_variant {
 export interface findProductVariantReponse extends Response {
   metadata: {
     variant: product_variant | null;
+    max_quantity: number
   };
 }
 

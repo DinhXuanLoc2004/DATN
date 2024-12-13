@@ -47,13 +47,14 @@ const findSizeProductVariant = async (
 const findProductVariant = async ({
   queryKey,
 }: {
-  queryKey: [string, string, string, string];
+  queryKey: [string, string, string, string, string];
 }) => {
-  const [, product_id, image_product_color_id, size_id] = queryKey;
+  const [, product_id, image_product_color_id, size_id, user_id] = queryKey;
   const queryString = createQueryString({
     product_id,
     image_product_color_id,
     size_id,
+    user_id
   });
 
   try {

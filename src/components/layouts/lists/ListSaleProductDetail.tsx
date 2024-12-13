@@ -43,12 +43,13 @@ const ListSaleProductDetail: FC<Props> = ({sales}) => {
                   <SpaceComponent width={10} />
                 </RowComponent>
               )}
-              <SectionComponent flex={0}>
+              <SectionComponent flex={0.8}>
                 <TextComponent
                   text={`${item.name_sale} - ${item.discount}%`}
                   size={16}
                   font={fontFamilies.medium}
                   color={colors.Primary_Color}
+                  numberOfLines={2}
                 />
                 <SpaceComponent height={5} />
                 <CountDownTime time_end={item.time_end} />

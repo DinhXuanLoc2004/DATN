@@ -1,5 +1,5 @@
 import React, {FC, useState} from 'react';
-import {StyleSheet, ViewStyle} from 'react-native';
+import {ActivityIndicator, StyleSheet, ViewStyle} from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import {colors} from '../../constants/colors';
@@ -20,6 +20,7 @@ import {
   getAllProductsHomeSreen,
   getCategoryIdsToFavoritesQueryKey,
   getDetailProductQueryKey,
+  getProductsQueryKey,
   getProductsSaleQuerykey,
   getProductsToCategoryScreen,
   searchProductsQueryKey,
@@ -46,7 +47,7 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
 
   const queryClient = useQueryClient();
 
-  const {mutate: toggleFavorite} = useMutation<
+  const {mutate: toggleFavorite, isPending} = useMutation<
     addFavoriteResponse | undefined,
     Error,
     string,
@@ -56,10 +57,11 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
       preProductDetail: [QueryKey, unknown][];
       perSearchProducts: [QueryKey, unknown][];
       preProductsSale: [QueryKey, unknown][];
+      preProducts: [QueryKey, unknown][];
     }
   >({
     mutationFn: (product_id: string) => {
-      return addFavoriteAPI({product_id});
+      return addFavoriteAPI({product_id, user_id: userId});
     },
     onMutate: async (product_id: string) => {
       await queryClient.cancelQueries({queryKey: [getAllProductsHomeSreen]});
@@ -86,6 +88,10 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
 
       const preProductsSale = queryClient.getQueriesData({
         queryKey: [getProductsSaleQuerykey],
+      });
+
+      const preProducts = queryClient.getQueriesData({
+        queryKey: [getProductsQueryKey],
       });
 
       queryClient.setQueriesData(
@@ -136,7 +142,10 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
             ...old_data,
             metadata: {
               ...old_data.metadata,
-              isFavorite: !old_data.metadata.isFavorite,
+              isFavorite:
+                old_data.metadata._id === product_id
+                  ? !old_data.metadata.isFavorite
+                  : old_data.metadata.isFavorite,
             },
           };
         },
@@ -164,16 +173,37 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
       queryClient.setQueriesData(
         {queryKey: [getProductsSaleQuerykey]},
         (
-          old_data: getProductsSaleResponse | undefined,
-        ): getProductsSaleResponse | undefined => {
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
           if (!old_data) return undefined;
           return {
             ...old_data,
-            metadata: old_data.metadata.map(product =>
-              product._id === product_id
-                ? {...product, isFavorite: !product.isFavorite}
-                : product,
-            ),
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [getProductsQueryKey]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
           };
         },
       );
@@ -183,7 +213,8 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
         preProductsToCate,
         preProductDetail,
         perSearchProducts,
-        preProductsSale
+        preProductsSale,
+        preProducts,
       };
     },
 
@@ -206,8 +237,12 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
       );
       queryClient.setQueriesData(
         {queryKey: [getProductsSaleQuerykey]},
-        context?.preProductsSale
-      )
+        context?.preProductsSale,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [getProductsQueryKey]},
+        context?.preProducts,
+      );
     },
 
     onSettled(data, error, variables, context) {
@@ -233,6 +268,7 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
 
   return (
     <SectionComponent
+      disabled={isPending}
       onPress={() => handleIconBagOrFavorite()}
       style={[
         styles.containerIconShopping,
@@ -252,6 +288,8 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
           size={handleSize(16)}
           color={colors.White_Color}
         />
+      ) : isPending ? (
+        <ActivityIndicator color={colors.Primary_Color} />
       ) : (
         <IonIcon
           name={isFavorite ? 'heart' : 'heart-outline'}

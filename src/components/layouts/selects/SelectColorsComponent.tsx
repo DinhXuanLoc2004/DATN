@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { colors } from '../../../constants/colors';
-import { colorType } from '../../../helper/types/color.type';
-import { handleSelect } from '../../../utils/handleSelect';
-import { handleSize } from '../../../utils/handleSize';
+import React, {memo} from 'react';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {colors} from '../../../constants/colors';
+import {colorType} from '../../../helper/types/color.type';
+import {handleSelect} from '../../../utils/handleSelect';
+import {handleSize} from '../../../utils/handleSize';
 import RowComponent from '../RowComponent';
 import SpaceComponent from '../SpaceComponent';
 
@@ -19,7 +19,7 @@ const SelectColorsComponent: React.FC<Props> = ({
   data,
 }) => {
   return (
-    <RowComponent justify="center">
+    <RowComponent justify="center" style={{flexWrap: 'wrap'}}>
       <FlatList
         data={data}
         keyExtractor={(_, index) => index.toString()}
@@ -39,7 +39,7 @@ const SelectColorsComponent: React.FC<Props> = ({
             <View style={[styles.viewBg, {backgroundColor: item.hex_color}]} />
           </TouchableOpacity>
         )}
-        ItemSeparatorComponent={() => (<SpaceComponent width={20}/>)}
+        ItemSeparatorComponent={() => <SpaceComponent width={20} />}
         contentContainerStyle={{justifyContent: 'center', flex: 1}}
       />
     </RowComponent>
@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     width: handleSize(44),
     height: handleSize(44),
     borderRadius: 100,
-    borderWidth: handleSize(1.5),
+    borderWidth: handleSize(2),
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.Backgournd_Color
+    backgroundColor: colors.Backgournd_Color,
   },
 });

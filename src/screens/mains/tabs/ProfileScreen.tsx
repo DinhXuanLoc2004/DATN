@@ -36,16 +36,7 @@ const ProfileScreen = () => {
 
   return (
     <SectionComponent style={{backgroundColor: colors.Backgournd_Color}}>
-      <SpaceComponent height={20} />
-      <TouchableOpacity>
-        <Icon
-          name="search"
-          style={styles.icon}
-          size={handleSize(24)}
-          color={colors.Text_Color}
-        />
-      </TouchableOpacity>
-      <SpaceComponent height={30} />
+      <SpaceComponent height={70} />
       <TextComponent
         style={styles.title}
         text="My profile"
@@ -90,7 +81,6 @@ const ProfileScreen = () => {
       <SpaceComponent height={28} />
       <ButtonProfileComponent
         title="My orders"
-        description="Already have 12 orders"
         onPress={() =>
           navigation.navigate({
             name: 'OrdersScreen',
@@ -100,31 +90,23 @@ const ProfileScreen = () => {
       />
       <ButtonProfileComponent
         title="Shipping addresses"
-        description="3 ddresses"
         onPress={() =>
           navigation.navigate('SelectShippingAddressScreen', {is_select: false})
         }
       />
       <ButtonProfileComponent
-        title="Payment methods"
-        description="Visa  **34"
-        onPress={() => handlePress('Payment')}
-      />
-      <ButtonProfileComponent
         title="My vouchers"
-        description="You have special promocodes"
         onPress={() => navigation.navigate('VouchersUserScreen')}
       />
       <ButtonProfileComponent
         title="My reviews"
-        description="Reviews for 4 items"
         onPress={() => handlePress('Reviews')}
       />
-      <ButtonProfileComponent
+      {/* <ButtonProfileComponent
         title="Settings"
         description="Notifications, password"
         onPress={() => handlePress('Settings')}
-      />
+      /> */}
     </SectionComponent>
   );
 };

@@ -134,7 +134,7 @@ const RegisterScreen = () => {
         <ButtonComponent text="SIGN UP" onPress={() => handleRegister()} />
       </SectionComponent>
 
-      <GGAndFbComponent text="Or sign up with social account" marginTop={54} />
+      {/* <GGAndFbComponent text="Or sign up with social account" marginTop={54} /> */}
     </ContainerComponent>
   );
 };

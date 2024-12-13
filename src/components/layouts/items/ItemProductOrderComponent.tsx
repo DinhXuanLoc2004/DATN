@@ -8,7 +8,8 @@ import TextComponent from '../../texts/TextComponent';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import SpaceComponent from '../SpaceComponent';
 import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
-import { fotmatedAmount } from '../../../utils/fotmats';
+import {fotmatedAmount} from '../../../utils/fotmats';
+import SalePriceComponent from '../../texts/SalePriceComponent';
 
 interface Props {
   thumb: string;
@@ -18,7 +19,8 @@ interface Props {
   size: string;
   quantity: number;
   price: number;
-  name_product: string
+  name_product: string;
+  discount: number;
 }
 
 const ItemProductOrderComponent: FC<Props> = ({
@@ -29,15 +31,24 @@ const ItemProductOrderComponent: FC<Props> = ({
   size,
   quantity,
   price,
-  name_product
+  name_product,
+  discount,
 }) => {
   return (
     <RowComponent justify="flex-start" style={styles.container}>
       <Image source={{uri: thumb}} style={styles.thumb} />
       <SectionComponent style={styles.containerContent}>
-        <TextComponent text={name_product} font={fontFamilies.semiBold} />
+        <TextComponent
+          text={name_product}
+          font={fontFamilies.semiBold}
+          numberOfLines={1}
+        />
         <SpaceComponent height={4} />
-        <TextComponent text={`${brand} - ${category}`} size={11} color={colors.Gray_Color} />
+        <TextComponent
+          text={`${brand} - ${category}`}
+          size={11}
+          color={colors.Gray_Color}
+        />
         <SpaceComponent height={9} />
         <TextColorAndSizeComponent color={color} size={size} />
         <SpaceComponent height={13} />
@@ -46,11 +57,34 @@ const ItemProductOrderComponent: FC<Props> = ({
             <TextComponent text="Units: " size={11} color={colors.Gray_Color} />
             <TextComponent text={`${quantity}`} size={11} />
           </RowComponent>
-          <TextComponent
-            text={fotmatedAmount(price)}
-            font={fontFamilies.medium}
-            size={14}
-          />
+          <RowComponent justify={'flex-end'}>
+                <TextComponent
+                  color={
+                    discount > 0 ? colors.Primary_Color : colors.Text_Color
+                  }
+                  size={12}
+                  font={fontFamilies.medium}
+                  text={`${fotmatedAmount(
+                    price - (price * discount) / 100,
+                  )}`}
+                  numberOfLines={1}
+                />
+                {discount > 0 && (
+                  <RowComponent style={{flexShrink: 1}}>
+                    <SpaceComponent width={5} />
+                    <TextComponent
+                      color={colors.Gray_Color}
+                      size={12}
+                      font={fontFamilies.medium}
+                      text={`${fotmatedAmount(price)}`}
+                      style={{
+                        textDecorationLine: 'line-through',
+                      }}
+                      numberOfLines={1}
+                    />
+                  </RowComponent>
+                )}
+              </RowComponent>
         </RowComponent>
       </SectionComponent>
     </RowComponent>
@@ -75,6 +109,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.White_Color,
     borderRadius: handleSize(8),
     marginBottom: handleSize(24),
-    elevation: 5
+    elevation: 5,
   },
 });

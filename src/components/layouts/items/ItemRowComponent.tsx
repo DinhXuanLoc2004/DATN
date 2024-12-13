@@ -13,105 +13,97 @@ import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
 import {handleSize} from '../../../utils/handleSize';
+import DisplayRating from '../DisplayRating';
+import {productResponse} from '../../../helper/types/product.type';
 
 interface Props {
-  _id: string;
-  trademark: string;
-  name: string;
-  price: number;
   color?: string;
   size?: string;
-  stock: number;
-  star: number;
-  numberReviews: number;
-  discount: number;
-  createAt: string;
-  img: string;
-  isFavorite?: boolean;
   onFavoriteToggle?: () => void;
   isItemFavorite?: boolean;
   onPress?: () => void;
-  onPressBag?: () => void
+  onPressBag?: () => void;
+  item: productResponse;
 }
 
 const ItemRowComponent: FC<Props> = ({
-  _id,
-  trademark,
-  name,
-  price,
   color,
   size,
-  discount,
-  stock,
-  star,
-  img,
-  createAt,
-  numberReviews,
   onFavoriteToggle,
-  isFavorite,
   isItemFavorite,
   onPress,
-  onPressBag
+  onPressBag,
+  item,
 }) => {
   return (
     <SectionComponent
-      style={{opacity: stock === 0 ? 0.5 : 1}}
+      style={{opacity: item.inventory_quantity === 0 ? 0.5 : 1}}
       onPress={onPress}>
       <SectionComponent style={styles.container}>
         <RowComponent justify="space-between" style={styles.containerItem}>
           <View style={styles.imageContainer}>
-            <Image source={{uri: img}} style={styles.image} />
+            {item.thumb && (
+              <Image source={{uri: item.thumb}} style={styles.image} />
+            )}
             <NewOrDiscountComponent
-              discount={discount}
-              createAt={createAt}
+              discount={item.discount}
+              createAt={item.createdAt}
               top={5}
               left={4}
             />
           </View>
           <SectionComponent style={styles.detailsContainer}>
-            {isItemFavorite && <IconDeleteItemComponent right={5} product_id={_id}/>}
+            {isItemFavorite && (
+              <IconDeleteItemComponent right={5} product_id={item._id} />
+            )}
             <TextComponent
-              text={trademark}
+              text={`${item.name_brand} - ${item.name_category}`}
               font={fontFamilies.regular}
               color={colors.Gray_Color}
               size={11}
+              numberOfLines={1}
             />
-            <SpaceComponent height={3} />
-            <TextComponent text={name} font={fontFamilies.semiBold} />
-            <SpaceComponent height={8} />
+            <SpaceComponent height={6} />
+            <TextComponent
+              text={item.name_product}
+              font={fontFamilies.semiBold}
+              numberOfLines={1}
+              flex={0.8}
+              style={{width: '90%'}}
+            />
+            <SpaceComponent height={6} />
             {isItemFavorite && color && size ? (
               <TextColorAndSizeComponent color={color} size={size} />
             ) : (
-              <StarComponent
-                star={star}
-                numberReviews={numberReviews}
-                flex={1}
+              <DisplayRating
+                avg_rating={item.averageRating}
+                total_order={item.total_orders}
+                size_icon={13}
+                size_text={11}
               />
             )}
             <SpaceComponent height={12} />
-            <RowComponent justify="space-between">
-              <SalePriceComponent discount={discount} price={price} flex={0} />
-              {/* {isItemFavorite && (
-                <StarComponent
-                  star={star}
-                  numberReviews={numberReviews}
-                  flex={1}
-                />
-              )} */}
-              <View style={{flex: 1}} />
-            </RowComponent>
+            <SalePriceComponent
+              discount={item.discount}
+              price={item.price_min}
+              flex={0}
+              justify="flex-start"
+              flex_left={0}
+              flex_right={0}
+              size={12}
+            />
           </SectionComponent>
         </RowComponent>
-        {stock > 0 && (
+        {item.inventory_quantity > 0 && (
           <IconBagOrFavoriteComponent
-            isFavorite={isFavorite}
+            isFavorite={item.isFavorite}
             isItemFavorite={isItemFavorite}
-            product_id={_id}
+            product_id={item._id}
             onPressBag={onPressBag}
           />
         )}
       </SectionComponent>
-      {stock === 0 && (
+      {item.inventory_quantity === 0 && (
         <View>
           <SpaceComponent height={7} />
           <TextComponent
@@ -136,6 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.White_Color,
     borderRadius: handleSize(8),
     flex: 0,
+    elevation: 4,
   },
   imageContainer: {
     width: 116,

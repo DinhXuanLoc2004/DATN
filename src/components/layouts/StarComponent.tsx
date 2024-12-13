@@ -24,6 +24,7 @@ interface Props {
   itemRating?: boolean;
   style?: StyleProp<ViewStyle>;
   spaceStar?: number;
+  allowZero?: boolean;
 }
 
 const StarComponent: FC<Props> = ({
@@ -36,6 +37,7 @@ const StarComponent: FC<Props> = ({
   itemRating,
   style,
   spaceStar,
+  allowZero = false,
 }) => {
   const roudingStar = Math.floor(star ?? 0);
   const lengthListStar = maxStar ?? 5;
@@ -49,7 +51,7 @@ const StarComponent: FC<Props> = ({
           onPress={() => {
             onPress &&
               onPress(
-                roudingStar > 1 && index + 1 === roudingStar
+                allowZero && roudingStar >= 1 && index + 1 === roudingStar
                   ? index
                   : index + 1,
               );

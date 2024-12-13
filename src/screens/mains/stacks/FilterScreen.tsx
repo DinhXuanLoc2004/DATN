@@ -1,4 +1,4 @@
-import BottomSheet from '@gorhom/bottom-sheet';
+import BottomSheet, {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {Portal} from '@gorhom/portal';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import React, {useEffect, useRef, useState} from 'react';
@@ -50,7 +50,7 @@ const FilterScreen = () => {
   const [brandSearch, setbrandSearch] = useState<Array<brandType>>([]);
   const [searchBrand, setsearchBrand] = useState<string>('');
 
-  const bottomSheet = useRef<BottomSheet>(null);
+  const bottomSheet = useRef<BottomSheetModal>(null);
 
   const navigation = useNavigation();
 
@@ -127,14 +127,16 @@ const FilterScreen = () => {
           style={styles.Margin}
         />
         <ContainerFilterComponent>
-          <RangeSliderComponent
-            min={dataFilter?.price[0].minPrice ?? 0}
-            max={dataFilter?.price[0].maxPrice ?? 0}
-            minSelected={minSelected}
-            maxSelected={maxSelected}
-            set_minSelected={setminSelected}
-            set_maxSelected={setmaxSelected}
-          />
+          {dataFilter && dataFilter?.price[0] && (
+            <RangeSliderComponent
+              min={dataFilter?.price[0]?.minPrice ?? 0}
+              max={dataFilter?.price[0]?.maxPrice ?? 0}
+              minSelected={minSelected}
+              maxSelected={maxSelected}
+              set_minSelected={setminSelected}
+              set_maxSelected={setmaxSelected}
+            />
+          )}
         </ContainerFilterComponent>
         <TextComponent
           style={styles.Margin}
@@ -171,13 +173,14 @@ const FilterScreen = () => {
             size={35}
             star={starSelect}
             onPress={(star: number) => setstarSelect(star)}
+            allowZero
           />
         </ContainerFilterComponent>
         <RowComponent
           justify="space-between"
           style={styles.containerBrands}
           onPress={() => {
-            bottomSheet.current?.expand();
+            bottomSheet.current?.present();
           }}>
           <SectionComponent
             flex={0}
@@ -222,41 +225,39 @@ const FilterScreen = () => {
         backgroundColor={colors.White_Color}
         onLayout={event => onLayout(event, setheight_bottom)}
       />
-      <Portal>
-        <CustomBottomSheet
-          bottomSheet={bottomSheet}
-          snapPoint={['95%']}
-          title="Brands"
-          styleHeader={styles.headerBottomSheet}
-          content={
-            <ContainerComponent style={styles.containerBottom}>
-              <SpaceComponent height={21} />
-              <SearchComponent
-                value={searchBrand}
-                onChange={(brand: string) => setsearchBrand(brand)}
-                onClear
-                placeholder="Search brand"
-                style={{elevation: 3}}
+      <CustomBottomSheet
+        bottomSheet={bottomSheet}
+        snapPoint={['95%']}
+        title="Brands"
+        styleHeader={styles.headerBottomSheet}
+        content={
+          <ContainerComponent style={styles.containerBottom}>
+            <SpaceComponent height={21} />
+            <SearchComponent
+              value={searchBrand}
+              onChange={(brand: string) => setsearchBrand(brand)}
+              onClear
+              placeholder="Search brand"
+              style={{elevation: 3, flex: 0}}
+            />
+            <SpaceComponent height={22} />
+            <SectionComponent style={styles.containerSelectBrand}>
+              <SelectBrandsComponent
+                data={searchBrand ? brandSearch : dataBrand}
+                arr_select={brands_selected}
+                set_arr_select={setbrands_selected}
               />
-              <SpaceComponent height={22} />
-              <SectionComponent style={styles.containerSelectBrand}>
-                <SelectBrandsComponent
-                  data={searchBrand ? brandSearch : dataBrand}
-                  arr_select={brands_selected}
-                  set_arr_select={setbrands_selected}
-                />
-              </SectionComponent>
-              <ButtonComponent
-                text="Select"
-                onPress={() => {
-                  bottomSheet.current?.close();
-                }}
-                style={styles.btnBottomSheet}
-              />
-            </ContainerComponent>
-          }
-        />
-      </Portal>
+            </SectionComponent>
+            <ButtonComponent
+              text="Select"
+              onPress={() => {
+                bottomSheet.current?.close();
+              }}
+              style={styles.btnBottomSheet}
+            />
+          </ContainerComponent>
+        }
+      />
     </ContainerComponent>
   );
 };

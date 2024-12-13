@@ -22,6 +22,7 @@ import CountDownTime from '../../../../components/layouts/times/CountDownTime';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
 import {useNavigation} from '@react-navigation/native';
+import ItemSaleComponent from '../../../../components/layouts/items/ItemSaleComponent';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'SalesScreen'>;
 
@@ -60,35 +61,7 @@ const SalesScreen = () => {
           keyExtractor={item => item._id}
           showsVerticalScrollIndicator={false}
           renderItem={({item}) => (
-            <RowComponent
-              justify="flex-start"
-              style={styles.item}
-              onPress={() => {
-                navigation.navigate('ProductsSaleScreen', {
-                  sale_id: item._id,
-                  name_sale: item.name_sale,
-                });
-              }}>
-              <Image source={{uri: item.thumb}} style={styles.img} />
-              <SpaceComponent width={10} />
-              <SectionComponent style={styles.containerRigth}>
-                <TextComponent
-                  text={item.name_sale}
-                  size={20}
-                  font={fontFamilies.medium}
-                  color={colors.Primary_Color}
-                />
-                <SpaceComponent height={5} />
-                <TextComponent
-                  text={`Sale: ${item.discount}%`}
-                  size={15}
-                  font={fontFamilies.medium}
-                  color={colors.Primary_Color}
-                />
-                <SpaceComponent height={20} />
-                <CountDownTime time_end={item.time_end} />
-              </SectionComponent>
-            </RowComponent>
+            <ItemSaleComponent item={item} navigation={navigation} />
           )}
           ItemSeparatorComponent={() => <SpaceComponent height={10} />}
         />
@@ -100,23 +73,6 @@ const SalesScreen = () => {
 export default SalesScreen;
 
 const styles = StyleSheet.create({
-  containerRigth: {
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  img: {
-    height: '100%',
-    width: '50%',
-    borderTopLeftRadius: handleSize(8),
-    borderBottomLeftRadius: handleSize(8),
-  },
-  item: {
-    height: handleSize(100),
-    width: '100%',
-    borderRadius: handleSize(8),
-    backgroundColor: colors.White_Color,
-    elevation: 3,
-  },
   header: {
     backgroundColor: colors.White_Color,
     elevation: handleSize(5),

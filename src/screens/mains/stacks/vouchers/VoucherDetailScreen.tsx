@@ -1,24 +1,25 @@
-import {Image, StyleSheet, Text, View} from 'react-native';
-import React, {FC, useEffect, useState} from 'react';
 import {RouteProp, useNavigation} from '@react-navigation/native';
-import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
-import {voucherDetail} from '../../../../helper/types/voucher.type';
-import {useAppSelector} from '../../../../helper/store/store';
-import {getVoucherDetailAPI} from '../../../../helper/apis/voucher.api';
-import ContainerComponent from '../../../../components/layouts/ContainerComponent';
-import {colors} from '../../../../constants/colors';
-import {globalStyles} from '../../../../styles/globalStyle';
-import SpaceComponent from '../../../../components/layouts/SpaceComponent';
-import RowComponent from '../../../../components/layouts/RowComponent';
-import {handleSize} from '../../../../utils/handleSize';
-import SectionComponent from '../../../../components/layouts/SectionComponent';
-import TextComponent from '../../../../components/texts/TextComponent';
-import {fontFamilies} from '../../../../constants/fontFamilies';
-import CountDownTime from '../../../../components/layouts/times/CountDownTime';
-import ButtonComponent from '../../../../components/buttons/ButtonComponent';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {saveVoucherUserBody} from '../../../../helper/types/voucher_user.type';
+import React, {useEffect, useState} from 'react';
+import {Image, StyleSheet} from 'react-native';
+import ButtonComponent from '../../../../components/buttons/ButtonComponent';
+import ContainerComponent from '../../../../components/layouts/ContainerComponent';
+import RowComponent from '../../../../components/layouts/RowComponent';
+import SectionComponent from '../../../../components/layouts/SectionComponent';
+import SpaceComponent from '../../../../components/layouts/SpaceComponent';
+import CountDownTime from '../../../../components/layouts/times/CountDownTime';
+import TextComponent from '../../../../components/texts/TextComponent';
+import {colors} from '../../../../constants/colors';
+import {fontFamilies} from '../../../../constants/fontFamilies';
+import {getVoucherDetailAPI} from '../../../../helper/apis/voucher.api';
 import {saveVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
+import {useAppSelector} from '../../../../helper/store/store';
+import {voucherDetail} from '../../../../helper/types/voucher.type';
+import {saveVoucherUserBody} from '../../../../helper/types/voucher_user.type';
+import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
+import {globalStyles} from '../../../../styles/globalStyle';
+import {handleSize} from '../../../../utils/handleSize';
+import {fotmatedAmount} from '../../../../utils/fotmats';
 
 type routeProp = RouteProp<stackParamListMain, 'VoucherDetailScreen'>;
 type stackProp = StackNavigationProp<stackParamListMain, 'VoucherDetailScreen'>;
@@ -110,9 +111,13 @@ const VoucherDetailScreen = ({route}: {route: routeProp}) => {
         </RowComponent>
         <SpaceComponent height={7} />
         <TextComponent
-          text={`- Get up to ${voucher?.voucher_value}${
-            voucher?.voucher_type === 'deduct_money' ? '$' : '%'
-          } off on orders of at least $${voucher?.min_order_value}.`}
+          text={`- Get up to ${
+            voucher?.voucher_type === 'deduct_money'
+              ? fotmatedAmount(voucher.voucher_value)
+              : `${voucher?.voucher_value}%`
+          } off on orders of at least ${fotmatedAmount(
+            voucher?.min_order_value ?? 0,
+          )}.`}
           size={15}
           numberOfLines={3}
           font={fontFamilies.medium}

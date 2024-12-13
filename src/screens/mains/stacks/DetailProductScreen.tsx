@@ -1,8 +1,18 @@
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import {RouteProp, useNavigation} from '@react-navigation/native';
-import {useQuery} from '@tanstack/react-query';
+import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query';
 import React, {useEffect, useRef, useState} from 'react';
-import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  GestureResponderEvent,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import ButtonComponent from '../../../components/buttons/ButtonComponent';
@@ -23,6 +33,7 @@ import {
   getDetailProductAPI,
 } from '../../../helper/apis/product.api';
 import {
+  getAllProductsResponse,
   productDetailResponse,
   productResponse,
 } from '../../../helper/types/product.type';
@@ -33,6 +44,22 @@ import {setDiaLogLogin} from '../../../helper/store/slices/sort.slice';
 import IconBagOrFavoriteComponent from '../../../components/layouts/IconBagOrFavoriteComponent';
 import IconCart from '../../../components/layouts/icons/IconCart';
 import ListSaleProductDetail from '../../../components/layouts/lists/ListSaleProductDetail';
+import DisplayRating from '../../../components/layouts/DisplayRating';
+import {
+  getAllFavoritesQueryKey,
+  getAllProductsHomeSreen,
+  getCategoryIdsToFavoritesQueryKey,
+  getDetailProductQueryKey,
+  getLengthCartQuerykey,
+  getProductsQueryKey,
+  getProductsSaleQuerykey,
+  getProductsToCategoryScreen,
+  searchProductsQueryKey,
+} from '../../../constants/queryKeys';
+import {globalStyles} from '../../../styles/globalStyle';
+import DialogErrorIOS from '../../../components/dialogs/DialogErrorIOS';
+import ProductsComponent from '../../../components/layouts/ProductsComponent';
+import MediaViewing from '../../../components/viewers/MediaViewing';
 
 type stackProp = NativeStackNavigationProp<
   stackParamListMain,
@@ -49,13 +76,16 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
   const [product, setproduct] = useState<productDetailResponse>();
   const [Products, setProducts] = useState<Array<productResponse>>([]);
   const [isBuyNow, setisBuyNow] = useState<boolean>(false);
+  const [is_err_add_cart, setis_err_add_cart] = useState(false);
+  const [is_visible_viewing, setis_visible_viewing] = useState(false);
+  const [index_viewing, setindex_viewing] = useState(0);
 
   const dispatch = useAppDispatch();
 
   const userId = useAppSelector(state => state.auth.user.userId);
 
-  const {data, isLoading, error} = useQuery({
-    queryKey: ['getDetailProduct', userId, product_id],
+  const {data, isLoading, error, isRefetching, refetch} = useQuery({
+    queryKey: [getDetailProductQueryKey, userId, product_id],
     queryFn: getDetailProductAPI,
   });
 
@@ -64,7 +94,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
     isLoading: isLoadingProducts,
     error: errorProducts,
   } = useQuery({
-    queryKey: ['getProducts', product?.category_id],
+    queryKey: [getProductsQueryKey, userId],
     queryFn: getAllProductAPI,
   });
 
@@ -94,24 +124,54 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
 
   const handleBottomSheet = () => {
     if (!userId) dispatch(setDiaLogLogin(true));
-    else bottomSheet.current?.present();
+    else {
+      setisBuyNow(false);
+      bottomSheet.current?.present();
+    }
   };
 
+  const queryClient = useQueryClient();
+  const handleErrorAddToCart = () => {
+    queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]});
+    queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]});
+    queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]});
+    queryClient.invalidateQueries({
+      queryKey: [getCategoryIdsToFavoritesQueryKey],
+    });
+    queryClient.invalidateQueries({queryKey: [searchProductsQueryKey]});
+    queryClient.invalidateQueries({queryKey: [getLengthCartQuerykey]});
+    queryClient.invalidateQueries({queryKey: [getProductsSaleQuerykey]});
+    queryClient.invalidateQueries({queryKey: [getProductsQueryKey]});
+    setis_err_add_cart(false);
+    navigation.navigate('BottomTab');
+  };
+
+  if (isLoading)
+    return (
+      <SectionComponent
+        style={{justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator color={colors.Primary_Color} size={handleSize(30)} />
+      </SectionComponent>
+    );
+
   return (
-    <ContainerComponent style={{flex: 1, padding: 0, paddingHorizontal: 0}}>
+    <ContainerComponent
+      style={{flex: 1, padding: 0, paddingHorizontal: 0}}
+      refreshing={isRefetching}
+      onRefresh={refetch}>
       <ContainerComponent
-        style={styles.container}
         isHeader
-        back
         isScroll
-        title={product?.name_product}
-        styleHeader={{
-          backgroundColor: colors.White_Color,
-          elevation: handleSize(3),
-          paddingVertical: handleSize(14),
-        }}
-        rightIcon={<IconCart />}>
-        <SliderImageComponent images={product?.images_product ?? []} />
+        back
+        rightIcon={<IconCart />}
+        style={styles.container}
+        title={'Detail'}>
+        <SliderImageComponent
+          images={product?.images_product ?? []}
+          index={index_viewing}
+          setindex={setindex_viewing}
+          is_show_index
+        />
         <SpaceComponent height={10} />
         <ListSaleProductDetail sales={product?.sales_active ?? []} />
         <ContainerComponent>
@@ -122,6 +182,10 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               discount={product?.discount ?? 0}
               size={24}
               font={fontFamilies.semiBold}
+              flex={0.9}
+              flex_left={0}
+              flex_right={0}
+              justify="flex-start"
             />
             <IconBagOrFavoriteComponent
               isFavorite={product?.isFavorite}
@@ -129,62 +193,79 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               styleContainer={styles.iconFavorite}
             />
           </RowComponent>
-          <SpaceComponent height={22} />
+          <SpaceComponent height={10} />
           <RowComponent>
             <TextComponent
-              text={product?.name_brand ?? ''}
-              size={24}
+              text={product?.name_product ?? ''}
+              size={18}
               font={fontFamilies.semiBold}
-              lineHeight={28.8}
+              lineHeight={24}
             />
           </RowComponent>
-          <TextComponent
-            text={product?.name_category ?? ''}
-            size={13}
-            color={colors.Gray_Color}
-          />
-          <SpaceComponent height={4} />
-          <FlatList
-            data={product?.colors}
-            keyExtractor={item => item._id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({item}) => (
-              <View style={styles.containerColor}>
-                <View
-                  style={[styles.itemColor, {backgroundColor: item.hex_color}]}
-                />
-              </View>
-            )}
-          />
+          <SpaceComponent height={7} />
+          <RowComponent justify="flex-start">
+            <TextComponent
+              text="- Brand: "
+              size={13}
+              color={colors.Gray_Color}
+              font={fontFamilies.medium}
+            />
+            <TextComponent
+              text={`${product?.name_brand}`}
+              size={13}
+              font={fontFamilies.medium}
+            />
+          </RowComponent>
+          <SpaceComponent height={7} />
+          <RowComponent justify="flex-start">
+            <TextComponent
+              text="- Category: "
+              size={13}
+              color={colors.Gray_Color}
+              font={fontFamilies.medium}
+            />
+            <TextComponent
+              text={`${product?.name_category}`}
+              size={13}
+              font={fontFamilies.medium}
+            />
+          </RowComponent>
+          {/* <SpaceComponent height={5} />
+          <RowComponent justify="flex-start">
+            <TextComponent
+              text="- Color: "
+              size={13}
+              color={colors.Gray_Color}
+              font={fontFamilies.medium}
+            />
+            <TextComponent
+              text={`${product?.colors.map(item => item.name_color).join(', ')}`}
+              size={13}
+              font={fontFamilies.medium}
+            />
+          </RowComponent>
           <SpaceComponent height={5} />
-          <FlatList
-            data={product?.sizes}
-            keyExtractor={item => item._id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            renderItem={({item}) => (
-              <View
-                style={[
-                  styles.containerColor,
-                  {
-                    borderRadius: 4,
-                    borderWidth: 1,
-                    borderColor: colors.Text_Color,
-                  },
-                ]}>
-                <TextComponent text={item.size} font={fontFamilies.medium} />
-              </View>
-            )}
-            ItemSeparatorComponent={() => <SpaceComponent width={5} />}
+          <RowComponent justify="flex-start">
+            <TextComponent
+              text="- Size: "
+              size={13}
+              color={colors.Gray_Color}
+              font={fontFamilies.medium}
+            />
+            <TextComponent
+              text={`${product?.sizes.map(item => item.size).join(', ')}`}
+              size={13}
+              font={fontFamilies.medium}
+            />
+          </RowComponent> */}
+          <SpaceComponent height={7} />
+          <DisplayRating
+            avg_rating={product?.averageRating ?? 0}
+            total_order={product?.total_orders ?? 0}
+            size_icon={18}
+            size_text={15}
           />
-          <SpaceComponent height={5} />
-          <StarComponent
-            star={product?.averageRating ?? 0}
-            numberReviews={product?.countReview ?? 0}
-          />
-          <SpaceComponent height={16} />
-
+          <SpaceComponent height={7} />
           <TouchableOpacity
             onPress={() =>
               setnumberOfLineTextDetail(numberOfLineTextDetail === 4 ? 0 : 4)
@@ -199,47 +280,12 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
             />
           </TouchableOpacity>
           <SpaceComponent height={24} />
-          <RowComponent justify="space-between">
-            <TextComponent
-              font={fontFamilies.semiBold}
-              size={18}
-              text="You can also like this"
-            />
-            <TextComponent
-              style={{fontFamily: 'Metropolis-Regular'}}
-              size={13}
-              color={colors.Gray_Color}
-              text={`${Products.length} items`}
-            />
-          </RowComponent>
-          <SpaceComponent height={12} />
-          <FlatList
-            data={Products}
-            horizontal
-            keyExtractor={(_, index) => index.toString()}
-            renderItem={({item}) => (
-              <ItemColumnComponent
-                _id={item._id}
-                onPress={() =>
-                  navigation.push('DetailProductScreen', {
-                    product_id: item._id,
-                  })
-                }
-                trademark={item.name_brand}
-                name={item.name_product}
-                price={item.price_min}
-                imageUrl={item.thumb}
-                star={item.averageRating}
-                stock={item.inventory_quantity}
-                createAt={item.createdAt}
-                isFavorite={item.isFavorite}
-                discount={item.discount}
-                reviewCount={item.countReview}
-                style={styles.itemProduct}
-              />
-            )}
-            ItemSeparatorComponent={() => <SpaceComponent width={11} />}
-            showsHorizontalScrollIndicator={false}
+          <ProductsComponent
+            title="You can also like this"
+            products={Products}
+            styleContainer={{paddingHorizontal: 0}}
+            place={`${Products.length} items`}
+            sizeTitle={18}
           />
           <SpaceComponent height={110} />
         </ContainerComponent>
@@ -267,11 +313,26 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
           </TouchableOpacity>
         </RowComponent>
       </SectionComponent>
+      <MediaViewing
+        medias={product?.images_product ?? []}
+        is_visible={is_visible_viewing}
+        set_isvisible={setis_visible_viewing}
+        media_index={index_viewing}
+        setmedia_index={setindex_viewing}
+      />
       <BottomSheetAddToCart
         product_id={product?._id ?? ''}
         bottomSheet={bottomSheet}
         isBuyNow={isBuyNow}
         setisBuyNow={setisBuyNow}
+        is_err_add_cart={is_err_add_cart}
+        setis_err_add_cart={setis_err_add_cart}
+      />
+      <DialogErrorIOS
+        isVisible={is_err_add_cart}
+        setIsvisble={setis_err_add_cart}
+        content="Product is no longer available!"
+        onPress={handleErrorAddToCart}
       />
     </ContainerComponent>
   );

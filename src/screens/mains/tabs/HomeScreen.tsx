@@ -63,6 +63,7 @@ const HomeScreen = () => {
 
   useEffect(() => {
     if (data) {
+      console.log(data.metadata.products);
       handleProducts(data.metadata.products);
     }
   }, [data?.metadata.products]);
@@ -91,7 +92,7 @@ const HomeScreen = () => {
         {products?.productsNew && products.productsNew.length > 0 && (
           <ProductsComponent
             title="New"
-            place="Super summer sale"
+            place="You’ve never seen it before!"
             products={products.productsNew}
           />
         )}

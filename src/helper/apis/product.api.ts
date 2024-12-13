@@ -10,7 +10,7 @@ import {
   getDetailProductResponse,
 } from '../types/product.type';
 
-const URL_PRODUCT = '/product';
+export const URL_PRODUCT = '/product';
 
 const getColorsSizesToProduct = async ({
   queryKey,
@@ -53,6 +53,7 @@ const getDetailProductAPI = async ({
       undefined,
       getDetailProductResponse
     >(`${URL_PRODUCT}/get_detail_product/?${queryString}`);
+    console.log('product:: ', product.metadata.reviews);
     return product;
   } catch (error) {
     console.log('Get detail product error::', error);

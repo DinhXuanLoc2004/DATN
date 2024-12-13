@@ -21,7 +21,7 @@ const getVoucherDetailAPI = async (voucher_id: string, user_id: string) => {
 
 const getAllVoucherAPI = async (user_id: string) => {
   try {
-    const queryString = createQueryString({user_id});
+    const queryString = createQueryString({user_id, active: 'true', is_public: 'true'});
     const data = await axiosIntercreptor.get<undefined, getAllVoucherResponse>(
       `${URL_VOUCHER}/get_all_vouchers/?${queryString}`,
     );

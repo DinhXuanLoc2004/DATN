@@ -6,16 +6,23 @@ import SectionComponent from './SectionComponent';
 import {imageType} from '../../helper/types/image.type';
 import {media} from '../../helper/types/media.type';
 import Video from 'react-native-video';
+import RowComponent from './RowComponent';
 interface Props {
   images: Array<media>;
   index?: number;
   setindex?: (val: number) => void;
+  is_show_index?: boolean;
 }
 
 const width_image = WIDTH_SCREEN * 1;
 const spacer_item_size = 0;
 
-const SliderImageComponent: React.FC<Props> = ({images, index, setindex}) => {
+const SliderImageComponent: React.FC<Props> = ({
+  images,
+  index,
+  setindex,
+  is_show_index,
+}) => {
   const initData: media = {
     url: '',
     public_id: '',
@@ -23,10 +30,6 @@ const SliderImageComponent: React.FC<Props> = ({images, index, setindex}) => {
   };
   const data: media[] = [initData, ...images, initData];
   const scrollX = useRef(new Animated.Value(0)).current;
-
-  console.log(images);
-
-  return <></>
 
   const onScrollEnd = (event: any) => {
     const newIndex = Math.round(
@@ -149,11 +152,41 @@ const SliderImageComponent: React.FC<Props> = ({images, index, setindex}) => {
           );
         }}
       />
+      {is_show_index && (
+        <RowComponent justify="center" style={styles.containerListDot}>
+          {Array.from({length: images.length}).map((item, indexItem) => (
+            <View
+              style={[
+                styles.dot,
+                {
+                  backgroundColor:
+                    index === indexItem
+                      ? colors.Primary_Color
+                      : colors.Gray_Color,
+                },
+              ]}
+              key={indexItem}
+            />
+          ))}
+        </RowComponent>
+      )}
     </SectionComponent>
   );
 };
 
 const styles = StyleSheet.create({
+  containerListDot: {
+    position: 'absolute',
+    bottom: handleSize(10),
+    width: '100%',
+  },
+  dot: {
+    width: handleSize(7),
+    height: handleSize(7),
+    borderRadius: 100,
+    backgroundColor: colors.Primary_Color,
+    marginRight: handleSize(5),
+  },
   image: {
     width: width_image,
     height: '100%',

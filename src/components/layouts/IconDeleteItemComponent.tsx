@@ -9,7 +9,16 @@ import {
   getAllFavoritesResponse,
 } from '../../helper/types/favorite.type';
 import {addFavoriteAPI} from '../../helper/apis/favorite.api';
-import {getAllCartQueryKey, getAllFavoritesQueryKey, getAllProductsHomeSreen, getCategoryIdsToFavoritesQueryKey, getLengthCartQuerykey, getProductsSaleQuerykey, getProductsToCategoryScreen} from '../../constants/queryKeys';
+import {
+  getAllCartQueryKey,
+  getAllFavoritesQueryKey,
+  getAllProductsHomeSreen,
+  getCategoryIdsToFavoritesQueryKey,
+  getLengthCartQuerykey,
+  getProductsSaleQuerykey,
+  getProductsToCategoryScreen,
+} from '../../constants/queryKeys';
+import {getAllProductsResponse} from '../../helper/types/product.type';
 
 interface Props {
   onPress?: () => {};
@@ -37,7 +46,7 @@ const IconDeleteItemComponent: FC<Props> = ({
     {preFavorites: [QueryKey, unknown][]}
   >({
     mutationFn: (product_id: string) => {
-      return addFavoriteAPI({product_id});
+      return addFavoriteAPI({product_id, user_id});
     },
 
     onMutate: async (product_id: string) => {
@@ -50,42 +59,52 @@ const IconDeleteItemComponent: FC<Props> = ({
       queryClient.setQueriesData(
         {queryKey: [getAllFavoritesQueryKey]},
         (
-          old_data: getAllFavoritesResponse | undefined,
-        ): getAllFavoritesResponse | undefined => {
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
           if (!old_data) return undefined;
           return {
             ...old_data,
-            metadata: old_data.metadata.filter(
-              favorite => favorite.product_id !== product_id,
-            ),
+            metadata: {
+              products: old_data.metadata.products.filter(
+                favorite => favorite._id !== product_id,
+              ),
+            },
           };
         },
       );
 
-      return {preFavorites}
+      return {preFavorites};
     },
 
     onError(error, variables, context) {
-      queryClient.setQueriesData({queryKey: [getAllFavoritesQueryKey]}, context?.preFavorites)
+      queryClient.setQueriesData(
+        {queryKey: [getAllFavoritesQueryKey]},
+        context?.preFavorites,
+      );
     },
 
     onSettled(data, error, variables, context) {
       queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]});
       queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]});
-      queryClient.invalidateQueries({queryKey: [getCategoryIdsToFavoritesQueryKey]});
+      queryClient.invalidateQueries({
+        queryKey: [getCategoryIdsToFavoritesQueryKey],
+      });
       queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
-      queryClient.invalidateQueries({queryKey: [getProductsSaleQuerykey]})
+      queryClient.invalidateQueries({queryKey: [getProductsSaleQuerykey]});
     },
   });
 
   return (
     <TouchableOpacity
       onPress={() => deleteFavorite(product_id)}
-      style={[{
-        position: 'absolute',
-        right: right ? handleSize(right) : 10,
-        top: top ? handleSize(top) : 15,
-      }, styles.btnDelete]}>
+      style={[
+        {
+          position: 'absolute',
+          right: right ? handleSize(right) : 10,
+          top: top ? handleSize(top) : 15,
+        },
+        styles.btnDelete,
+      ]}>
       <IonIcon name="close" size={size ? handleSize(size) : 24} />
     </TouchableOpacity>
   );
@@ -99,6 +118,6 @@ const styles = StyleSheet.create({
     height: handleSize(30),
     justifyContent: 'center',
     alignContent: 'center',
-    zIndex: 100
-  }
+    zIndex: 100,
+  },
 });

@@ -1,11 +1,8 @@
-import {
-  RouteProp,
-  useNavigation
-} from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useQuery } from '@tanstack/react-query';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
+import {RouteProp, useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {FlatList, StyleSheet, TouchableOpacity, View} from 'react-native';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import ButtonComponent from '../../../components/buttons/ButtonComponent';
 import DialogIOSComponent from '../../../components/dialogs/DialogIOSComponent';
@@ -16,20 +13,19 @@ import RowComponent from '../../../components/layouts/RowComponent';
 import SectionComponent from '../../../components/layouts/SectionComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';
 import TextComponent from '../../../components/texts/TextComponent';
-import { colors } from '../../../constants/colors';
-import { fontFamilies } from '../../../constants/fontFamilies';
+import {colors} from '../../../constants/colors';
+import {fontFamilies} from '../../../constants/fontFamilies';
 import {
-  getAllCartQueryKey
+  findProductVariantQueryKey,
+  getAllCartQueryKey,
 } from '../../../constants/queryKeys';
-import {
-  deleteCartAPI,
-  getAllCartAPI
-} from '../../../helper/apis/cart.api';
-import { set_length_cart } from '../../../helper/store/slices/auth.slice';
-import { useAppDispatch, useAppSelector } from '../../../helper/store/store';
-import { item_cart } from '../../../helper/types/cart.type';
-import { stackParamListMain } from '../../../navigation/StackMainNavigation';
-import { handleSize } from '../../../utils/handleSize';
+import {deleteCartAPI, getAllCartAPI} from '../../../helper/apis/cart.api';
+import {set_length_cart} from '../../../helper/store/slices/auth.slice';
+import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
+import {item_cart} from '../../../helper/types/cart.type';
+import {stackParamListMain} from '../../../navigation/StackMainNavigation';
+import {handleSize} from '../../../utils/handleSize';
+import {fotmatedAmount} from '../../../utils/fotmats';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 type routeProp = RouteProp<stackParamListMain, 'CartScreen'>;
@@ -42,15 +38,14 @@ const CartScreen = ({route}: {route: routeProp}) => {
   const [total_amount, settotal_amount] = useState<number>(0);
   const [checkAll, setcheckAll] = useState<boolean>(false);
   const user_id = useAppSelector(state => state.auth.user.userId);
-  const {data, isLoading, error, refetch} = useQuery({
+  const {data, isLoading, error, refetch, isRefetching} = useQuery({
     queryKey: [getAllCartQueryKey, user_id],
     queryFn: getAllCartAPI,
   });
   const [cart_id_select_menu, setcart_id_select_menu] = useState<string>('');
   const {cart_id} = route?.params || {};
-  const navigation = useNavigation<stackProp>()
+  const navigation = useNavigation<stackProp>();
   const flatListRef = useRef<FlatList>(null);
-
 
   useEffect(() => {
     if (cart_id) {
@@ -79,6 +74,8 @@ const CartScreen = ({route}: {route: routeProp}) => {
 
   const lengthCart = useAppSelector(state => state.auth.user.lengthCart);
 
+  const queryClient = useQueryClient();
+
   const handleDeleteCart = async () => {
     if (cart_id_delete) {
       const data = await deleteCartAPI(cart_id_delete);
@@ -88,6 +85,7 @@ const CartScreen = ({route}: {route: routeProp}) => {
         dispatch(set_length_cart(lengthCart - 1));
       }
     }
+    queryClient.invalidateQueries({queryKey: [findProductVariantQueryKey]});
   };
 
   const conditionChecked = (cart_id: string): boolean => {
@@ -110,7 +108,10 @@ const CartScreen = ({route}: {route: routeProp}) => {
   useEffect(() => {
     const cartChecked = carts
       .filter(cart => cartChecks.some(cart_id => cart_id === cart._id))
-      .map(cart => cart.price * cart.quantity);
+      .map(
+        cart =>
+          (cart.price - (cart.price * cart.discount) / 100) * cart.quantity,
+      );
 
     const total = cartChecked.reduce((preValue, curentValue) => {
       return preValue + curentValue;
@@ -146,7 +147,9 @@ const CartScreen = ({route}: {route: routeProp}) => {
       title="My Cart"
       styleHeader={styles.header}
       back
-      style={styles.container}>
+      style={styles.container}
+      refreshing={isRefetching}
+      onRefresh={refetch}>
       <SpaceComponent height={10} />
       <SectionComponent flex={0} style={[styles.containerList]}>
         <FlatList
@@ -171,54 +174,53 @@ const CartScreen = ({route}: {route: routeProp}) => {
               });
             }, 100);
           }}
-          renderItem={({item}) => {
-            return (
-              <RowComponent style={styles.containerItemCart}>
-                <TouchableOpacity
-                  style={[
-                    styles.btnCheck,
-                    {
-                      backgroundColor: conditionChecked(item._id)
-                        ? colors.Primary_Color
-                        : colors.Gray_Light_Color,
-                      borderColor: conditionChecked(item._id)
-                        ? colors.Primary_Color
-                        : colors.Gray_Color,
-                    },
-                  ]}
-                  onPress={() => handleCheck(item._id)}>
-                  {conditionChecked(item._id) ? (
-                    <FontAwesome5
-                      name="check"
-                      color={colors.White_Color}
-                      size={15}
-                    />
-                  ) : (
-                    <View />
-                  )}
-                </TouchableOpacity>
-                <SpaceComponent width={7} />
-                <ItemCartComponent
-                  color={item.name_color}
-                  create_at={item.create_at}
-                  discount={0}
-                  image_url={item.thumb}
-                  name={item.name_product}
-                  price={item.price}
-                  quantity={item.quantity}
-                  size={item.size}
-                  cart_id={item._id}
-                  fnRefect={refetch}
-                  setisVisibleModal={setisVisibleModal}
-                  setcart_id_delete={setcart_id_delete}
-                  isFavorite={item.isFavorite}
-                  cart_id_select_menu={cart_id_select_menu}
-                  setcart_id_select_menu={setcart_id_select_menu}
-                  product_id={item.product_id}
-                />
-              </RowComponent>
-            );
-          }}
+          renderItem={({item, index}) => (
+            <RowComponent style={styles.containerItemCart}>
+              <TouchableOpacity
+                style={[
+                  styles.btnCheck,
+                  {
+                    backgroundColor: conditionChecked(item._id)
+                      ? colors.Primary_Color
+                      : colors.Gray_Light_Color,
+                    borderColor: conditionChecked(item._id)
+                      ? colors.Primary_Color
+                      : colors.Gray_Color,
+                  },
+                ]}
+                onPress={() => handleCheck(item._id)}>
+                {conditionChecked(item._id) ? (
+                  <FontAwesome5
+                    name="check"
+                    color={colors.White_Color}
+                    size={15}
+                  />
+                ) : (
+                  <View />
+                )}
+              </TouchableOpacity>
+              <SpaceComponent width={7} />
+              <ItemCartComponent
+                can_be_plus={item.can_be_plus}
+                color={item.name_color}
+                create_at={item.create_at}
+                discount={item.discount}
+                image_url={item.thumb}
+                name={item.name_product}
+                price={item.price}
+                quantity={item.quantity}
+                size={item.size}
+                cart_id={item._id}
+                fnRefect={refetch}
+                setisVisibleModal={setisVisibleModal}
+                setcart_id_delete={setcart_id_delete}
+                isFavorite={item.isFavorite}
+                cart_id_select_menu={cart_id_select_menu}
+                setcart_id_select_menu={setcart_id_select_menu}
+                product_id={item.product_id}
+              />
+            </RowComponent>
+          )}
           ItemSeparatorComponent={() => <SpaceComponent height={24} />}
         />
       </SectionComponent>
@@ -267,8 +269,8 @@ const CartScreen = ({route}: {route: routeProp}) => {
               />
               <SpaceComponent width={5} />
               <TextComponent
-                text={`${total_amount}$`}
-                size={18}
+                text={fotmatedAmount(total_amount)}
+                size={16}
                 font={fontFamilies.semiBold}
               />
             </RowComponent>
@@ -276,7 +278,12 @@ const CartScreen = ({route}: {route: routeProp}) => {
           <SpaceComponent height={10} />
           <ButtonComponent
             disable={cartChecks.length < 1}
-            onPress={() => {navigation.navigate('CheckoutScreen', {cart_ids: cartChecks, is_continue_checkout: false})}}
+            onPress={() => {
+              navigation.navigate('CheckoutScreen', {
+                cart_ids: cartChecks,
+                is_continue_checkout: false,
+              });
+            }}
             text="Checkout"
             style={[
               styles.btnCheckout,

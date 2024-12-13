@@ -1,10 +1,15 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {listSort} from '../../../models/listSort';
-import {district, province, shipping_address_chooose, ward} from '../../types/shippingaddress.type';
+import {listSort, valueSort} from '../../../models/listSort';
+import {
+  district,
+  province,
+  shipping_address_chooose,
+  ward,
+} from '../../types/shippingaddress.type';
 
 interface actionSetSort {
   title: string;
-  value: string;
+  value: valueSort;
 }
 
 export interface actionSetFilter {
@@ -36,8 +41,9 @@ const initialState = {
     },
     colors: [''],
     sizes: [''],
-    rating: 0,
+    rating: 5,
     brands: [''],
+    init: true,
   },
   isDiaLogLogin: false,
   province: {
@@ -80,14 +86,16 @@ const sortSlice = createSlice({
       state.filter.sizes = action.payload.sizes;
       state.filter.rating = action.payload.rating;
       state.filter.brands = action.payload.brands;
+      state.filter.init = false;
     },
     removeFilter: state => {
       state.filter.price.min = 0;
       state.filter.price.max = 0;
       state.filter.colors = [''];
       state.filter.sizes = [''];
-      state.filter.rating = 0;
+      state.filter.rating = 5;
       state.filter.brands = [''];
+      state.filter.init = true;
     },
     setDiaLogLogin: (state, action) => {
       state.isDiaLogLogin = action.payload;
@@ -122,28 +130,31 @@ const sortSlice = createSlice({
       state.ward.ward_code = '';
       state.ward.ward_name = '';
     },
-    set_address_choose: (state, action: PayloadAction<shipping_address_chooose>) => {
-      state.address_choose.full_name = action.payload.full_name
-      state.address_choose.phone = action.payload.phone
-      state.address_choose.province_id = action.payload.province_id
-      state.address_choose.province_name = action.payload.province_name
-      state.address_choose.district_id = action.payload.district_id
-      state.address_choose.district_name = action.payload.district_name
-      state.address_choose.ward_code = action.payload.ward_code
-      state.address_choose.ward_name = action.payload.ward_name
-      state.address_choose.specific_address = action.payload.specific_address
+    set_address_choose: (
+      state,
+      action: PayloadAction<shipping_address_chooose>,
+    ) => {
+      state.address_choose.full_name = action.payload.full_name;
+      state.address_choose.phone = action.payload.phone;
+      state.address_choose.province_id = action.payload.province_id;
+      state.address_choose.province_name = action.payload.province_name;
+      state.address_choose.district_id = action.payload.district_id;
+      state.address_choose.district_name = action.payload.district_name;
+      state.address_choose.ward_code = action.payload.ward_code;
+      state.address_choose.ward_name = action.payload.ward_name;
+      state.address_choose.specific_address = action.payload.specific_address;
     },
-    remove_address_choose: (state) => {
-      state.address_choose.full_name = ''
-      state.address_choose.phone = 0
-      state.address_choose.province_id = 0
-      state.address_choose.province_name = ''
-      state.address_choose.district_id = 0
-      state.address_choose.district_name = ''
-      state.address_choose.ward_code = ''
-      state.address_choose.ward_name = ''
-      state.address_choose.specific_address = ''
-    }
+    remove_address_choose: state => {
+      state.address_choose.full_name = '';
+      state.address_choose.phone = 0;
+      state.address_choose.province_id = 0;
+      state.address_choose.province_name = '';
+      state.address_choose.district_id = 0;
+      state.address_choose.district_name = '';
+      state.address_choose.ward_code = '';
+      state.address_choose.ward_name = '';
+      state.address_choose.specific_address = '';
+    },
   },
 });
 
@@ -158,5 +169,5 @@ export const {
   set_ward,
   remove_select_address,
   set_address_choose,
-  remove_address_choose
+  remove_address_choose,
 } = sortSlice.actions;

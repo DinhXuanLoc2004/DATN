@@ -62,6 +62,7 @@ import {fotmatedAmount} from '../../../../utils/fotmats';
 import {handleDate} from '../../../../utils/handleDate';
 import {handleSize} from '../../../../utils/handleSize';
 import DialogErrorIOS from '../../../../components/dialogs/DialogErrorIOS';
+import ItemProductCheckout from '../../../../components/layouts/items/ItemProductCheckout';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'CheckoutScreen'>;
 type routeProp = RouteProp<stackParamListMain, 'CheckoutScreen'>;
@@ -163,7 +164,11 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         }),
       );
       setpayment_name_choose(data.metadata.payment_method);
-      if (data.metadata.voucher_detail && data.metadata.voucher_user_id && !is_re_order) {
+      if (
+        data.metadata.voucher_detail &&
+        data.metadata.voucher_user_id &&
+        !is_re_order
+      ) {
         setvoucher_id(data.metadata.voucher_detail.voucher_id);
         setvoucher_code(data.metadata.voucher_detail.voucher_code);
         setvoucher_thumb(data.metadata.voucher_detail.voucher_thumb);
@@ -171,8 +176,8 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         setvoucher_type(data.metadata.voucher_detail.voucher_type);
         setvoucher_time_end(data.metadata.voucher_detail.time_end);
         setname_voucher(data.metadata.voucher_detail.voucher_name);
-        setvoucher_user_id(data.metadata.voucher_user_id)
-        setvoucher_quantity(data.metadata.voucher_detail.quantity)
+        setvoucher_user_id(data.metadata.voucher_user_id);
+        setvoucher_quantity(data.metadata.voucher_detail.quantity);
       }
     }
   };
@@ -204,7 +209,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     const data = await getAllVoucherUserAPI({
       user_id,
       is_used: is_continue_checkout && voucher_id ? 'all' : 'false',
-      min_order_value: total_amount.toString(),
+      min_order_value: (total_amount + delivery_fee).toString(),
     });
     if (data?.metadata) {
       setyour_vouchers(data.metadata);
@@ -234,7 +239,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     if (total_amount > 0) {
       getVouchersUserNotUsed();
     }
-  }, [total_amount, voucher_id]);
+  }, [total_amount, voucher_id, delivery_fee]);
 
   const bottomsheet = useRef<BottomSheetModal>(null);
 
@@ -343,7 +348,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
             leadtime: handleDate.convertTimestampToDate(leadtime).toJSON(),
             payment_method: payment_name_choose,
             total_amount: total_amount_final,
-          } 
+          };
           setisLoadingOrder(true);
           const data = await continueOrderAPI(order_id, body);
           console.log(data);
@@ -524,80 +529,11 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           <SectionComponent>
             {product_variant_carts &&
               product_variant_carts.map((item, index) => (
-                <SectionComponent
+                <ItemProductCheckout
+                  item={item}
+                  navigation={navigaiton}
                   key={item.product_variant_id}
-                  style={styles.itemProduct}>
-                  <TextComponent
-                    text={item.name_product}
-                    size={14}
-                    font={fontFamilies.semiBold}
-                  />
-                  <SpaceComponent height={5} />
-                  <RowComponent
-                    onPress={() =>
-                      navigaiton.navigate({
-                        name: 'DetailProductScreen',
-                        params: {
-                          product_id: item.product_id,
-                        },
-                        key: `${item.product_id}_${Date.now()}`,
-                      })
-                    }>
-                    <Image
-                      source={{uri: item.thumb}}
-                      style={styles.imgProduct}
-                    />
-                    <SpaceComponent width={5} />
-                    <SectionComponent style={styles.containerContentProduct}>
-                      <SectionComponent>
-                        <TextComponent
-                          text={`${item.name_brand} - ${item.name_category}`}
-                          size={14}
-                          font={fontFamilies.medium}
-                        />
-                        <SpaceComponent height={5} />
-                        <RowComponent justify="flex-start">
-                          <RowComponent
-                            justify="flex-start"
-                            style={{opacity: 0.75}}>
-                            <TextComponent
-                              text={`size: ${item.size} - color: ${item.name_color} `}
-                              size={13}
-                              font={fontFamilies.medium}
-                            />
-                            <View
-                              style={[
-                                styles.viewColor,
-                                {backgroundColor: item.hex_color},
-                              ]}
-                            />
-                          </RowComponent>
-                        </RowComponent>
-                      </SectionComponent>
-                      <RowComponent>
-                        <SalePriceComponent
-                          price={item.price}
-                          discount={item.total_discount}
-                        />
-                        <TextComponent
-                          text={`x${item.quantity}`}
-                          size={12}
-                          font={fontFamilies.semiBold}
-                          color={colors.Gray_Color}
-                        />
-                      </RowComponent>
-                    </SectionComponent>
-                  </RowComponent>
-                  <SpaceComponent height={7} />
-                  <RowComponent>
-                    <TextComponent text="Total amount of item: " size={13} />
-                    <SalePriceComponent
-                      price={item.quantity * item.price}
-                      discount={item.total_discount}
-                    />
-                  </RowComponent>
-                  <View style={styles.line} />
-                </SectionComponent>
+                />
               ))}
           </SectionComponent>
           <SpaceComponent height={10} />
@@ -607,7 +543,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
               size={15}
               font={fontFamilies.medium}
             />
-            <SalePriceComponent price={total_amount} discount={0} />
+            <SalePriceComponent
+              price={total_amount}
+              discount={0}
+              flex={0}
+              flex_left={0}
+            />
           </RowComponent>
         </SectionComponent>
 
@@ -907,6 +848,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                       text={item.voucher_name}
                       size={14}
                       font={fontFamilies.medium}
+                      numberOfLines={1}
                     />
                     <SpaceComponent height={7} />
                     <TextComponent
@@ -915,11 +857,15 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
                       font={fontFamilies.medium}
                     />
                     <TextComponent
-                      text={`Get up to ${item.voucher_value}${
-                        item.voucher_type === 'deduct_money' ? '$' : '%'
-                      } off on orders of at least $${item.min_order_value}.`}
+                      text={`Get up to ${
+                        item.voucher_type === 'deduct_money'
+                          ? fotmatedAmount(item.voucher_value)
+                          : `${item.voucher_value}%`
+                      } off on orders of at least ${fotmatedAmount(
+                        item.min_order_value,
+                      )}.`}
                       size={11}
-                      numberOfLines={3}
+                      numberOfLines={1}
                       lineHeight={15}
                     />
                   </SectionComponent>
@@ -1054,7 +1000,7 @@ const styles = StyleSheet.create({
     height: handleSize(80),
     borderRadius: handleSize(8),
     backgroundColor: colors.White_Color,
-    elevation: 5,
+    elevation: 3,
   },
   search: {
     flex: 0,
@@ -1091,24 +1037,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.Gray_Color,
     marginVertical: handleSize(10),
     opacity: 0.5,
-  },
-  viewColor: {
-    width: handleSize(14),
-    height: handleSize(14),
-    borderRadius: 100,
-    elevation: 3,
-  },
-  containerContentProduct: {
-    justifyContent: 'space-between',
-    paddingVertical: handleSize(5),
-  },
-  itemProduct: {
-    marginVertical: handleSize(3),
-  },
-  imgProduct: {
-    width: handleSize(70),
-    height: handleSize(70),
-    borderRadius: handleSize(10),
   },
   txtAddress: {
     opacity: 0.7,

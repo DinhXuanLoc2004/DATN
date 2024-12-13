@@ -154,6 +154,7 @@ const ReviewScreen = ({route}: {route: routeProp}) => {
             <TextComponent
               text={product_detail.name_product}
               font={fontFamilies.medium}
+              numberOfLines={1}
             />
             <SpaceComponent height={5} />
             <TextComponent

@@ -67,6 +67,8 @@ const styles = StyleSheet.create({
     paddingVertical: handleSize(11),
     borderTopWidth: 2.5,
     borderTopColor: colors.Gray_Light_Color,
+    padding: handleSize(10),
+    backgroundColor: colors.Transperen_Color
   },
   txtContent: {
     textAlign: 'center',

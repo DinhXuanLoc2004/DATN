@@ -17,7 +17,10 @@ import Animated, {
 } from 'react-native-reanimated';
 import {colors} from '../../../constants/colors';
 import {fontFamilies} from '../../../constants/fontFamilies';
-import {getAllCartQueryKey} from '../../../constants/queryKeys';
+import {
+  findProductVariantQueryKey,
+  getAllCartQueryKey,
+} from '../../../constants/queryKeys';
 import {addToCartAPI, getLengthCartAPI} from '../../../helper/apis/cart.api';
 import {getColorsSizesToProduct} from '../../../helper/apis/product.api';
 import {
@@ -39,12 +42,15 @@ import {set_length_cart} from '../../../helper/store/slices/auth.slice';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {stackParamListMain} from '../../../navigation/StackMainNavigation';
 import {useNavigation} from '@react-navigation/native';
+import {fotmatedAmount} from '../../../utils/fotmats';
 
 interface Props {
   product_id: string;
   bottomSheet: React.RefObject<BottomSheetModalMethods>;
   isBuyNow?: boolean;
   setisBuyNow?: (val: boolean) => void;
+  is_err_add_cart: boolean;
+  setis_err_add_cart: (val: boolean) => void
 }
 
 type stackProp = StackNavigationProp<stackParamListMain, 'DetailProductScreen'>;
@@ -54,6 +60,8 @@ const BottomSheetAddToCart: FC<Props> = ({
   bottomSheet,
   isBuyNow = false,
   setisBuyNow,
+  is_err_add_cart,
+  setis_err_add_cart
 }) => {
   const [dataColorsSizes, setdataColorsSizes] = useState<{
     thumb: string;
@@ -81,8 +89,13 @@ const BottomSheetAddToCart: FC<Props> = ({
   const [image_color_ids, setimage_color_ids] = useState<string[]>([]);
   const [inventoty, setinventoty] = useState<number>(0);
   const [errQuantity, seterrQuantity] = useState<string>('');
+  const [max_quantity, setmax_quantity] = useState(1);
 
   const navigation = useNavigation<stackProp>();
+
+  const dispatch = useAppDispatch();
+
+  const user_id = useAppSelector(state => state.auth.user.userId);
 
   const {
     data: data_colors_sizes,
@@ -99,7 +112,13 @@ const BottomSheetAddToCart: FC<Props> = ({
     isLoading: isLoading_product_variant,
     error: err_product_variant,
   } = useQuery({
-    queryKey: ['findProductVariant', product_id, image_color_id, size_id],
+    queryKey: [
+      findProductVariantQueryKey,
+      product_id,
+      image_color_id,
+      size_id,
+      user_id,
+    ],
     queryFn: findProductVariant,
     enabled: true,
   });
@@ -116,10 +135,14 @@ const BottomSheetAddToCart: FC<Props> = ({
     setproductVariant(data_product_variant?.metadata.variant);
     if (data_product_variant?.metadata.variant) {
       setinventoty(data_product_variant.metadata.variant.quantity);
+      setmax_quantity(data_product_variant.metadata.max_quantity);
     } else {
       setinventoty(data_colors_sizes?.metadata.variant.quantity_default ?? 0);
+      setmax_quantity(
+        data_colors_sizes?.metadata.variant.quantity_default ?? 0,
+      );
     }
-  }, [data_product_variant?.metadata.variant]);
+  }, [data_product_variant?.metadata]);
 
   const handleSetQuantity = (numUpdate: number) => {
     if (numUpdate > 0) {
@@ -223,17 +246,16 @@ const BottomSheetAddToCart: FC<Props> = ({
     );
   };
 
-  const dispatch = useAppDispatch();
-
-  const user_id = useAppSelector(state => state.auth.user.userId);
-
   const handleAddToCart = async () => {
     if (productVariant && productVariant !== null) {
       const dataAddToCart = await addToCartAPI({
         product_variant_id: productVariant._id,
         quantity: quantity,
       });
-      if (dataAddToCart) {
+      if (dataAddToCart?.status === 203 && dataAddToCart.message === 'Invalid product') {
+        setis_err_add_cart(true)
+      }
+      if (dataAddToCart?.status === 201) {
         handleAnimationBtnAddToCart();
         setTimeout(() => {
           if (isBuyNow) {
@@ -252,6 +274,14 @@ const BottomSheetAddToCart: FC<Props> = ({
         dispatch(set_length_cart(lengthCart));
       }
     }
+    setTimeout(() => {
+      setimage_color_id('');
+      setsize_id('');
+      setquantity(1);
+      setproductVariant(null)
+      setmax_quantity(1)
+      queryClient.invalidateQueries({queryKey: [findProductVariantQueryKey]});
+    }, DURATION_ANIMATION + 700);
   };
 
   const findSize = async () => {
@@ -292,8 +322,6 @@ const BottomSheetAddToCart: FC<Props> = ({
       } else {
         setquantity(val);
       }
-    } else {
-      setquantity(1);
     }
   };
 
@@ -306,6 +334,16 @@ const BottomSheetAddToCart: FC<Props> = ({
       seterrQuantity('');
     }
   }, [inventoty, quantity]);
+
+  useEffect(() => {
+    if (quantity > max_quantity) {
+      const err =
+        max_quantity > 0
+          ? `Because the product already has a quantity in the cart, you can only add ${max_quantity} more products!`
+          : 'The number of products already in the cart exceeds the inventory quantity, please go to the cart to check!';
+      seterrQuantity(err);
+    }
+  }, [quantity, max_quantity]);
 
   return (
     <CustomBottomSheet
@@ -364,38 +402,49 @@ const BottomSheetAddToCart: FC<Props> = ({
                   <TextComponent
                     text={
                       productVariant && productVariant !== undefined
-                        ? `${productVariant.price}$`
-                        : `${dataColorsSizes?.variant.price_min} - ${dataColorsSizes?.variant.price_max}$`
+                        ? fotmatedAmount(productVariant.price)
+                        : `${fotmatedAmount(
+                            dataColorsSizes?.variant.price_min ?? 0,
+                          )} - ${fotmatedAmount(
+                            dataColorsSizes?.variant.price_max ?? 0,
+                          )}`
                     }
-                    size={17}
+                    size={16}
                     font={fontFamilies.semiBold}
                   />
                   <SpaceComponent height={5} />
-                  <RowComponent justify="flex-start" style={{flexWrap: 'wrap'}}>
+                  <RowComponent
+                    justify="flex-start"
+                    style={{alignItems: 'flex-start'}}>
                     <TextComponent
                       text="Inventory: "
                       size={14}
                       color={colors.Gray_Color}
                     />
-                    <TextComponent
-                      text={
-                        !image_color_id && !size_id && dataColorsSizes?.variant
-                          ? dataColorsSizes.variant.quantity_default.toString()
-                          : !image_color_id || !size_id
-                          ? 'Please select both size and color!'
-                          : !image_color_id
-                          ? 'Please select color'
-                          : !size_id
-                          ? 'Please select size'
-                          : productVariant &&
-                            productVariant !== null &&
-                            productVariant.quantity > 0
-                          ? productVariant.quantity.toString()
-                          : 'Please select both size and color!'
-                      }
-                      size={14}
-                      font={fontFamilies.medium}
-                    />
+                    <SectionComponent>
+                      <TextComponent
+                        text={
+                          !image_color_id &&
+                          !size_id &&
+                          dataColorsSizes?.variant
+                            ? dataColorsSizes.variant.quantity_default.toString()
+                            : !image_color_id || !size_id
+                            ? 'Please select both size and color!'
+                            : !image_color_id
+                            ? 'Please select color'
+                            : !size_id
+                            ? 'Please select size'
+                            : productVariant &&
+                              productVariant !== null &&
+                              productVariant.quantity > 0
+                            ? productVariant.quantity.toString()
+                            : 'Please select both size and color!'
+                        }
+                        size={13}
+                        font={fontFamilies.medium}
+                        numberOfLines={2}
+                      />
+                    </SectionComponent>
                   </RowComponent>
                 </SectionComponent>
               </RowComponent>
@@ -446,17 +495,21 @@ const BottomSheetAddToCart: FC<Props> = ({
                         style={[
                           styles.containerSize,
                           {
-                            borderColor: conditionBtnSize(item._id)
-                              ? colors.Gray_Color
-                              : item._id === size_id
-                              ? colors.Primary_Color
-                              : colors.Gray_Color,
-                            opacity: conditionBtnSize(item._id) ? 0.3 : 1,
+                            borderColor:
+                              conditionBtnSize(item._id) || !image_color_id
+                                ? colors.Gray_Color
+                                : item._id === size_id
+                                ? colors.Primary_Color
+                                : colors.Gray_Color,
+                            opacity:
+                              conditionBtnSize(item._id) || !image_color_id
+                                ? 0.3
+                                : 1,
                           },
                         ]}
                         justify="center"
                         key={item._id}
-                        disable={conditionBtnSize(item._id)}
+                        disable={conditionBtnSize(item._id) || !image_color_id}
                         onPress={() =>
                           setsize_id(item._id === size_id ? '' : item._id)
                         }>
@@ -478,8 +531,8 @@ const BottomSheetAddToCart: FC<Props> = ({
                 <TextComponent
                   text={
                     productVariant && productVariant !== undefined
-                      ? `${productVariant.price * quantity}$`
-                      : '0$'
+                      ? fotmatedAmount(productVariant.price * quantity)
+                      : '0 đ'
                   }
                   font={fontFamilies.medium}
                 />
@@ -537,7 +590,8 @@ const BottomSheetAddToCart: FC<Props> = ({
                   !productVariant ||
                   productVariant === null ||
                   productVariant.quantity === 0 ||
-                  quantity > inventoty
+                  quantity > inventoty ||
+                  errQuantity.length > 0
                 }
                 style={[
                   styles.btnAddToCart,
@@ -546,7 +600,8 @@ const BottomSheetAddToCart: FC<Props> = ({
                       productVariant &&
                       productVariant !== null &&
                       productVariant.quantity > 0 &&
-                      quantity <= inventoty
+                      quantity <= inventoty &&
+                      errQuantity.length <= 0
                         ? colors.Primary_Color
                         : colors.Gray_Color,
                     borderColor:
