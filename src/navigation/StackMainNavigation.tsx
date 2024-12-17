@@ -57,7 +57,7 @@ export type stackParamListMain = {
   CancelOrderScreen: {order_id: string};
   ReviewProductsScreen: {order_id: string};
   ReviewScreen: {product_order_id: string};
-  ReviewsForProductScreen: {product_id: string};
+  ReviewsForProductScreen: {product_id: string, review_id?: string};
 };
 
 const Stack = createStackNavigator<stackParamListMain>();

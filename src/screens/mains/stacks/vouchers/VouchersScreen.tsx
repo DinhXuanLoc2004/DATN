@@ -1,36 +1,26 @@
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+import React, {useEffect, useState} from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Image,
   RefreshControl,
   StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
 import ContainerComponent from '../../../../components/layouts/ContainerComponent';
-import {colors} from '../../../../constants/colors';
-import {voucher} from '../../../../helper/types/voucher.type';
-import {useAppSelector} from '../../../../helper/store/store';
-import {getAllVoucherAPI} from '../../../../helper/apis/voucher.api';
-import SectionComponent from '../../../../components/layouts/SectionComponent';
-import RowComponent from '../../../../components/layouts/RowComponent';
-import {handleSize} from '../../../../utils/handleSize';
-import SpaceComponent from '../../../../components/layouts/SpaceComponent';
-import LinearGradientComponet from '../../../../components/layouts/LinearGradientComponet';
-import TextComponent from '../../../../components/texts/TextComponent';
-import {fontFamilies} from '../../../../constants/fontFamilies';
-import CountDownTime from '../../../../components/layouts/times/CountDownTime';
-import {color} from 'react-native-elements/dist/helpers';
-import {saveVoucherUserBody} from '../../../../helper/types/voucher_user.type';
-import {saveVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
-import {useNavigation} from '@react-navigation/native';
-import {globalStyles} from '../../../../styles/globalStyle';
 import SearchComponent from '../../../../components/layouts/SearchComponent';
+import SectionComponent from '../../../../components/layouts/SectionComponent';
+import SpaceComponent from '../../../../components/layouts/SpaceComponent';
 import ItemVoucherComponent from '../../../../components/layouts/items/ItemVoucherComponent';
+import {colors} from '../../../../constants/colors';
+import {getAllVoucherAPI} from '../../../../helper/apis/voucher.api';
+import {saveVoucherUserAPI} from '../../../../helper/apis/voucher_user.api';
+import {useAppSelector} from '../../../../helper/store/store';
+import {voucher} from '../../../../helper/types/voucher.type';
+import {saveVoucherUserBody} from '../../../../helper/types/voucher_user.type';
+import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
+import {globalStyles} from '../../../../styles/globalStyle';
+import {handleSize} from '../../../../utils/handleSize';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'VouchersScreen'>;
 
@@ -52,7 +42,7 @@ const VouchersScreen = () => {
     setisRefreshing(false);
     setisLoadingvouchers(false);
     if (data?.metadata) {
-      setvouchers(data.metadata)
+      setvouchers(data.metadata);
     }
   };
 
@@ -140,7 +130,10 @@ const VouchersScreen = () => {
             keyExtractor={item => item._id}
             showsVerticalScrollIndicator={false}
             renderItem={({item}) => (
-              <ItemVoucherComponent item={item} handleSaveVoucher={handleSaveVoucher}/>
+              <ItemVoucherComponent
+                item={item}
+                handleSaveVoucher={handleSaveVoucher}
+              />
             )}
             ItemSeparatorComponent={() => <SpaceComponent height={24} />}
           />

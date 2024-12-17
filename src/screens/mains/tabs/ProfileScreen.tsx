@@ -10,7 +10,7 @@ import {colors} from '../../../constants/colors';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {handleSize} from '../../../utils/handleSize';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {useAppDispatch} from '../../../helper/store/store';
+import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
 import {useNavigation} from '@react-navigation/native';
 import {log_out} from '../../../helper/store/slices/auth.slice';
 import {navigationRef} from '../../../navigation/RootNavigation';
@@ -34,6 +34,8 @@ const ProfileScreen = () => {
     });
   };
 
+  const email = useAppSelector(state => state.auth.user.email);
+
   return (
     <SectionComponent style={{backgroundColor: colors.Backgournd_Color}}>
       <SpaceComponent height={70} />
@@ -47,7 +49,7 @@ const ProfileScreen = () => {
       <RowComponent justify="flex-start">
         <Image
           source={{
-            uri: 'https://tse2.mm.bing.net/th?id=OIP.erwk0wdihtPHnii2ZGqaNgAAAA&pid=Api&P=0&h=180',
+            uri: 'https://i.pinimg.com/736x/9e/2d/0d/9e2d0d48d1dbf92ffd42de8de8c29627.jpg',
           }}
           style={styles.image}
         />
@@ -57,16 +59,9 @@ const ProfileScreen = () => {
           style={styles.containerName}>
           <SectionComponent>
             <TextComponent
-              text="Matilda Brown"
+              text={email ? email : 'Not logged in yet'}
               font={fontFamilies.semiBold}
-              size={18}
-            />
-            <SpaceComponent height={5} />
-            <TextComponent
-              text="matildabrown@mail.com"
-              font={fontFamilies.medium}
-              size={14}
-              color={colors.Secondary_Text_Color}
+              size={16}
             />
           </SectionComponent>
           <TouchableOpacity onPress={handleLogout}>
@@ -98,10 +93,10 @@ const ProfileScreen = () => {
         title="My vouchers"
         onPress={() => navigation.navigate('VouchersUserScreen')}
       />
-      <ButtonProfileComponent
+      {/* <ButtonProfileComponent
         title="My reviews"
         onPress={() => handlePress('Reviews')}
-      />
+      /> */}
       {/* <ButtonProfileComponent
         title="Settings"
         description="Notifications, password"

@@ -88,7 +88,7 @@ export interface reviews_order {
   price: number;
   discount: number;
   is_reviewed: boolean;
-  reivew_id: string;
+  review_id: string;
   name_product: string;
   name_category: string;
   name_brand: string;

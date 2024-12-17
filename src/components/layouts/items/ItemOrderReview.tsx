@@ -28,6 +28,10 @@ const ItemOrderReview: FC<Props> = ({item}) => {
   const navigaiton = useNavigation<stackProp>();
   const handleReview = () => {
     if (item.is_reviewed) {
+      navigaiton.navigate('ReviewsForProductScreen', {
+        product_id: item.product_id,
+        review_id: item.review_id,
+      });
     } else {
       navigaiton.navigate('ReviewScreen', {
         product_order_id: item.product_order_id,

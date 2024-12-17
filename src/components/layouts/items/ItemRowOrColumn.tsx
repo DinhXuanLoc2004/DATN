@@ -11,6 +11,18 @@ import ItemColumnComponent from './ItemColumnComponent';
 import ItemRowComponent from './ItemRowComponent';
 import {BottomSheetModal} from '@gorhom/bottom-sheet';
 import BottomSheetAddToCart from '../bottom_sheets/BottomSheetAddToCart';
+import {useQueryClient} from '@tanstack/react-query';
+import {
+  getAllFavoritesQueryKey,
+  getAllProductsHomeSreen,
+  getCategoryIdsToFavoritesQueryKey,
+  getLengthCartQuerykey,
+  getProductsQueryKey,
+  getProductsSaleQuerykey,
+  getProductsToCategoryScreen,
+  searchProductsQueryKey,
+} from '../../../constants/queryKeys';
+import DialogErrorIOS from '../../dialogs/DialogErrorIOS';
 
 interface Props {
   item: productResponse;
@@ -29,6 +41,21 @@ const ItemRowOrColumn: FC<Props> = ({
   const [is_err_add_to_cart, setis_err_add_to_cart] = useState(false);
   const openBottomSheet = () => {
     bottomSheetAddToCart.current?.present();
+  };
+  const queryClient = useQueryClient();
+  const handleErrorAddToCart = () => {
+    queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]});
+    queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]});
+    queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]});
+    queryClient.invalidateQueries({
+      queryKey: [getCategoryIdsToFavoritesQueryKey],
+    });
+    queryClient.invalidateQueries({queryKey: [searchProductsQueryKey]});
+    queryClient.invalidateQueries({queryKey: [getLengthCartQuerykey]});
+    queryClient.invalidateQueries({queryKey: [getProductsSaleQuerykey]});
+    queryClient.invalidateQueries({queryKey: [getProductsQueryKey]});
+    setis_err_add_to_cart(false);
+    navigation.navigate('BottomTab');
   };
   return (
     <SectionComponent flex={0}>
@@ -62,6 +89,12 @@ const ItemRowOrColumn: FC<Props> = ({
         product_id={item._id}
         is_err_add_cart={is_err_add_to_cart}
         setis_err_add_cart={setis_err_add_to_cart}
+      />
+      <DialogErrorIOS
+        isVisible={is_err_add_to_cart}
+        setIsvisble={setis_err_add_to_cart}
+        content="Product is no longer available!"
+        onPress={handleErrorAddToCart}
       />
     </SectionComponent>
   );

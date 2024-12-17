@@ -887,11 +887,24 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
               style={styles.search}
             />
             <SpaceComponent height={32} />
-            <TextComponent
-              text="Your voucher"
-              size={18}
-              font={fontFamilies.semiBold}
-            />
+            <RowComponent>
+              <TextComponent
+                text="Your voucher"
+                size={18}
+                font={fontFamilies.semiBold}
+              />
+              <TouchableOpacity
+                onPress={() => {
+                  bottomsheet.current?.close();
+                  navigaiton.navigate('VouchersScreen');
+                }}>
+                <TextComponent
+                  text="Get more vouchers"
+                  size={14}
+                  style={{textDecorationLine: 'underline'}}
+                />
+              </TouchableOpacity>
+            </RowComponent>
             <SpaceComponent height={18} />
             <FlatList
               data={your_vouchers}

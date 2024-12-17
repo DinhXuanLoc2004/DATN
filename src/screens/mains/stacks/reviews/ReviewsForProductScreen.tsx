@@ -17,7 +17,7 @@ import { handleSize } from '../../../../utils/handleSize';
 type routeProp = RouteProp<stackParamListMain, 'ReviewsForProductScreen'>;
 
 const ReviewsForProductScreen = ({route}: {route: routeProp}) => {
-  const {product_id} = route.params;
+  const {product_id, review_id} = route.params;
   const [reviews, setreviews] = useState<review[]>([]);
   const [avgRating, setavgRating] = useState<number>(0);
   const [count5Rating, setcount5Rating] = useState(0);
@@ -78,7 +78,7 @@ const ReviewsForProductScreen = ({route}: {route: routeProp}) => {
         sumRating={reviews.length}
       />
       <SpaceComponent height={10} />
-      <ListReviews reviews={reviews} />
+      <ListReviews reviews={reviews} review_id={review_id}/>
       <SpaceComponent height={20}/>
     </ContainerComponent>
   );

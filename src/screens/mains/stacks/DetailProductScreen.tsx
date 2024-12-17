@@ -1,50 +1,33 @@
-import {BottomSheetModal} from '@gorhom/bottom-sheet';
-import {RouteProp, useNavigation} from '@react-navigation/native';
-import {QueryKey, useQuery, useQueryClient} from '@tanstack/react-query';
-import React, {useEffect, useRef, useState} from 'react';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { RouteProp, useNavigation } from '@react-navigation/native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
-  FlatList,
-  GestureResponderEvent,
-  RefreshControl,
-  ScrollView,
   StyleSheet,
-  TouchableOpacity,
-  View,
+  TouchableOpacity
 } from 'react-native';
-import {NativeStackNavigationProp} from 'react-native-screens/lib/typescript/native-stack/types';
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import ButtonComponent from '../../../components/buttons/ButtonComponent';
+import DialogErrorIOS from '../../../components/dialogs/DialogErrorIOS';
 import ContainerComponent from '../../../components/layouts/ContainerComponent';
+import DisplayRating from '../../../components/layouts/DisplayRating';
+import IconBagOrFavoriteComponent from '../../../components/layouts/IconBagOrFavoriteComponent';
+import ProductsComponent from '../../../components/layouts/ProductsComponent';
 import RowComponent from '../../../components/layouts/RowComponent';
 import SectionComponent from '../../../components/layouts/SectionComponent';
 import SliderImageComponent from '../../../components/layouts/SliderImageComponent';
 import SpaceComponent from '../../../components/layouts/SpaceComponent';
-import StarComponent from '../../../components/layouts/StarComponent';
 import BottomSheetAddToCart from '../../../components/layouts/bottom_sheets/BottomSheetAddToCart';
-import ItemColumnComponent from '../../../components/layouts/items/ItemColumnComponent';
+import IconCart from '../../../components/layouts/icons/IconCart';
+import ListReviews from '../../../components/layouts/lists/ListReviews';
+import ListSaleProductDetail from '../../../components/layouts/lists/ListSaleProductDetail';
 import SalePriceComponent from '../../../components/texts/SalePriceComponent';
 import TextComponent from '../../../components/texts/TextComponent';
-import {colors} from '../../../constants/colors';
-import {fontFamilies} from '../../../constants/fontFamilies';
-import {
-  getAllProductAPI,
-  getDetailProductAPI,
-} from '../../../helper/apis/product.api';
-import {
-  getAllProductsResponse,
-  productDetailResponse,
-  productResponse,
-} from '../../../helper/types/product.type';
-import {stackParamListMain} from '../../../navigation/StackMainNavigation';
-import {handleSize} from '../../../utils/handleSize';
-import {useAppDispatch, useAppSelector} from '../../../helper/store/store';
-import {setDiaLogLogin} from '../../../helper/store/slices/sort.slice';
-import IconBagOrFavoriteComponent from '../../../components/layouts/IconBagOrFavoriteComponent';
-import IconCart from '../../../components/layouts/icons/IconCart';
-import ListSaleProductDetail from '../../../components/layouts/lists/ListSaleProductDetail';
-import DisplayRating from '../../../components/layouts/DisplayRating';
+import MediaViewing from '../../../components/viewers/MediaViewing';
+import { colors } from '../../../constants/colors';
+import { fontFamilies } from '../../../constants/fontFamilies';
 import {
   getAllFavoritesQueryKey,
   getAllProductsHomeSreen,
@@ -56,13 +39,20 @@ import {
   getProductsToCategoryScreen,
   searchProductsQueryKey,
 } from '../../../constants/queryKeys';
-import {globalStyles} from '../../../styles/globalStyle';
-import DialogErrorIOS from '../../../components/dialogs/DialogErrorIOS';
-import ProductsComponent from '../../../components/layouts/ProductsComponent';
-import MediaViewing from '../../../components/viewers/MediaViewing';
-import {review} from '../../../helper/types/review.type';
-import {getAllReviewForProduct} from '../../../helper/apis/review.api';
-import ListReviews from '../../../components/layouts/lists/ListReviews';
+import {
+  getAllProductAPI,
+  getDetailProductAPI,
+} from '../../../helper/apis/product.api';
+import { getAllReviewForProduct } from '../../../helper/apis/review.api';
+import { setDiaLogLogin } from '../../../helper/store/slices/sort.slice';
+import { useAppDispatch, useAppSelector } from '../../../helper/store/store';
+import {
+  productDetailResponse,
+  productResponse
+} from '../../../helper/types/product.type';
+import { review } from '../../../helper/types/review.type';
+import { stackParamListMain } from '../../../navigation/StackMainNavigation';
+import { handleSize } from '../../../utils/handleSize';
 
 type stackProp = NativeStackNavigationProp<
   stackParamListMain,
