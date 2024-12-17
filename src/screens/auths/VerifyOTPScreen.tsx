@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ButtonComponent from '../../components/buttons/ButtonComponent';
 import InputOTPComponent from '../../components/inputs/InputOTPComponent';
 import ContainerComponent from '../../components/layouts/ContainerComponent';
@@ -6,23 +6,20 @@ import RowComponent from '../../components/layouts/RowComponent';
 import SpaceComponent from '../../components/layouts/SpaceComponent';
 import TextComponent from '../../components/texts/TextComponent';
 import TitleComponent from '../../components/texts/TitleComponent';
-import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
-import {RouteProp} from '@react-navigation/native';
-import {
-  navigationRef,
-  RootStackParamList,
-} from '../../navigation/RootNavigation';
-import {useAppDispatch, useAppSelector} from '../../helper/store/store';
-import {verifyThunk} from '../../helper/store/thunk/auth.thunk';
-import {TextInput, TouchableOpacity} from 'react-native';
+import { colors } from '../../constants/colors';
+import { fontFamilies } from '../../constants/fontFamilies';
+import { RouteProp } from '@react-navigation/native';
+import { navigationRef, RootStackParamList } from '../../navigation/RootNavigation';
+import { useAppDispatch, useAppSelector } from '../../helper/store/store';
+import { verifyThunk } from '../../helper/store/thunk/auth.thunk';
+import { TextInput, TouchableOpacity } from 'react-native';
 import SectionComponent from '../../components/layouts/SectionComponent';
-import {resendOtpAPI} from '../../helper/apis/auth.api';
+import { resendOtpAPI } from '../../helper/apis/auth.api';
 
 type routeProp = RouteProp<RootStackParamList, 'VerifyOTPScreen'>;
 
-const VerifyOTPScreen = ({route}: {route: routeProp}) => {
-  const {email} = route.params;
+const VerifyOTPScreen = ({ route }: { route: routeProp }) => {
+  const { email, fromForgotPassword } = route.params;
   const [code, setCode] = useState<string[]>([]);
   const [newCode, setNewCode] = useState('');
   const [seconde, setseconde] = useState<number>(60);
@@ -63,27 +60,33 @@ const VerifyOTPScreen = ({route}: {route: routeProp}) => {
 
   const handleVerifyOtp = () => {
     if (newCode.length === 4) {
-      dispatch(verifyThunk({email, otp: newCode}))
+      dispatch(verifyThunk({ email, otp: newCode }))
         .unwrap()
         .then(res => {
-          console.log(res);
           if (res.metadata.status === 'active') {
-            navigationRef.reset({
-              index: 0,
-              routes: [{name: 'StackMainNavigation'}],
-            });
+            if (fromForgotPassword) {
+              // Redirect to NewPasswordScreen if coming from Forgot Password
+              navigationRef.reset({
+                index: 0,
+                routes: [{ name: 'NewPasswordScreen', params: { email } }],
+              });
+            } else {
+              // Otherwise, redirect to main navigation
+              navigationRef.reset({
+                index: 0,
+                routes: [{ name: 'StackMainNavigation' }],
+              });
+            }
           }
         })
         .catch(err => {
-          if (err.message === 'OTP is incorrect!')
-            seterrMes('OTP is incorrect!');
-          console.log('Error verify otp:: ', err.message);
+          if (err.message === 'OTP is incorrect!') seterrMes('OTP is incorrect!');
         });
     }
   };
 
   const handleResendOtp = async () => {
-    const data = await resendOtpAPI({email});
+    const data = await resendOtpAPI({ email });
     if (data?.metadata) {
       setCode([]);
       setNewCode('');
@@ -94,29 +97,18 @@ const VerifyOTPScreen = ({route}: {route: routeProp}) => {
   return (
     <ContainerComponent isHeader back isScroll>
       <SpaceComponent height={30} />
-      <TitleComponent
-        text="Verify account"
-        size={30}
-        font={fontFamilies.bold}
-      />
+      <TitleComponent text="Verify account" size={30} font={fontFamilies.bold} />
       <SpaceComponent height={102} />
-      <TextComponent
-        text="Please enter the OTP code sent to your email"
-        size={14}
-        color={colors.Text_Color}
-      />
+      <TextComponent text="Please enter the OTP code sent to your email" size={14} color={colors.Text_Color} />
       <SpaceComponent height={22} />
       <RowComponent justify="space-between">
         <InputOTPComponent
           ref={number1}
           onChangeText={val => {
             handleChangeCode(val, 0);
-            if (val.length > 0) {
-              number2.current?.focus();
-            }
+            if (val.length > 0) number2.current?.focus();
           }}
         />
-
         <InputOTPComponent
           ref={number2}
           onChangeText={val => {
@@ -125,7 +117,6 @@ const VerifyOTPScreen = ({route}: {route: routeProp}) => {
             if (val.length === 0) number1.current?.focus();
           }}
         />
-
         <InputOTPComponent
           ref={number3}
           onChangeText={val => {
@@ -134,7 +125,6 @@ const VerifyOTPScreen = ({route}: {route: routeProp}) => {
             if (val.length === 0) number2.current?.focus();
           }}
         />
-
         <InputOTPComponent
           ref={number4}
           onChangeText={val => {
@@ -147,11 +137,7 @@ const VerifyOTPScreen = ({route}: {route: routeProp}) => {
         <SectionComponent>
           <SpaceComponent height={10} />
           <RowComponent justify="center">
-            <TextComponent
-              text={errMes}
-              size={14}
-              color={colors.Primary_Color}
-            />
+            <TextComponent text={errMes} size={14} color={colors.Primary_Color} />
           </RowComponent>
         </SectionComponent>
       )}
@@ -166,8 +152,7 @@ const VerifyOTPScreen = ({route}: {route: routeProp}) => {
             : newCode.length < 4
             ? colors.Gray_Color
             : colors.Primary_Color,
-          borderColor:
-            newCode.length < 4 ? colors.Gray_Color : colors.Primary_Color,
+          borderColor: newCode.length < 4 ? colors.Gray_Color : colors.Primary_Color,
         }}
         onPress={() => {
           handleVerifyOtp();
@@ -178,13 +163,9 @@ const VerifyOTPScreen = ({route}: {route: routeProp}) => {
         <TouchableOpacity
           onPress={() => {
             handleResendOtp();
-          }}>
-          <TextComponent
-            text="Resend Otp"
-            color="blue"
-            style={{textDecorationLine: 'underline'}}
-            size={14}
-          />
+          }}
+        >
+          <TextComponent text="Resend Otp" color="blue" style={{ textDecorationLine: 'underline' }} size={14} />
         </TouchableOpacity>
       </RowComponent>
     </ContainerComponent>

@@ -12,6 +12,10 @@ import {
   signUpResponse,
   verifyOtpRequest,
   verifyOtpResponse,
+  forgotPasswordRequest,
+  forgotPasswordResponse,
+  resetPasswordRequest,
+  resetPasswordResponse,
 } from '../types/auth.type';
 
 const URL_AUTH = '/auth';
@@ -60,6 +64,22 @@ const verifyOtpAPI = async (body: verifyOtpRequest) => {
   );
 };
 
+// Added for forgot password
+const forgotPasswordAPI = async (body: forgotPasswordRequest) => {
+  return await axiosIntercreptor.post<
+    forgotPasswordRequest,
+    forgotPasswordResponse
+  >(`${URL_AUTH}/forgot_password`, body);
+};
+
+// Verify OTP and reset password
+const resetPasswordAPI = async (body: resetPasswordRequest) => {
+  return await axiosIntercreptor.post<
+    resetPasswordRequest,
+    resetPasswordResponse
+  >(`${URL_AUTH}/reset_password`, body);
+};
+
 const loginAPI = async (body: loginRequest) => {
   return await axiosIntercreptor.post<loginRequest, loginResponse>(
     `${URL_AUTH}/login`,
@@ -74,4 +94,13 @@ const ref_accessTokenAPI = async (body: {refreshToken: string}) => {
   >('token/ref_accessToken', body);
 };
 
-export {loginAPI, ref_accessTokenAPI, verifyOtpAPI, resendOtpAPI, signUpAPI, setFcmTokenAPI};
+export {
+  loginAPI,
+  ref_accessTokenAPI,
+  verifyOtpAPI,
+  resendOtpAPI,
+  signUpAPI,
+  forgotPasswordAPI,
+  resetPasswordAPI,
+  setFcmTokenAPI,
+};
