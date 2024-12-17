@@ -1,11 +1,26 @@
+import {createQueryString} from '../../utils/handleString';
 import axiosIntercreptor from '../config/axiosIntercreptor';
 import {
   addReviewResponse,
   bodyAddReview,
+  getAllReviewForProductResponse,
   propsAddReviewAPI,
 } from '../types/review.type';
 
 const URL_REVIEW = 'review';
+
+const getAllReviewForProduct = async (product_id: string) => {
+  try {
+    const queryString = createQueryString({product_id});
+    const data = await axiosIntercreptor.get<
+      undefined,
+      getAllReviewForProductResponse
+    >(`${URL_REVIEW}/get_review_for_product/?${queryString}`);
+    return data;
+  } catch (error) {
+    console.log('error get all review for product', error);
+  }
+};
 
 const addReviewAPI = async (
   props: propsAddReviewAPI,
@@ -46,4 +61,4 @@ const addReviewAPI = async (
   }
 };
 
-export {addReviewAPI};
+export {addReviewAPI, getAllReviewForProduct};

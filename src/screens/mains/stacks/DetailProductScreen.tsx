@@ -60,6 +60,9 @@ import {globalStyles} from '../../../styles/globalStyle';
 import DialogErrorIOS from '../../../components/dialogs/DialogErrorIOS';
 import ProductsComponent from '../../../components/layouts/ProductsComponent';
 import MediaViewing from '../../../components/viewers/MediaViewing';
+import {review} from '../../../helper/types/review.type';
+import {getAllReviewForProduct} from '../../../helper/apis/review.api';
+import ListReviews from '../../../components/layouts/lists/ListReviews';
 
 type stackProp = NativeStackNavigationProp<
   stackParamListMain,
@@ -79,10 +82,18 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
   const [is_err_add_cart, setis_err_add_cart] = useState(false);
   const [is_visible_viewing, setis_visible_viewing] = useState(false);
   const [index_viewing, setindex_viewing] = useState(0);
+  const [reviews, setreviews] = useState<review[]>([]);
 
   const dispatch = useAppDispatch();
 
   const userId = useAppSelector(state => state.auth.user.userId);
+
+  const setReviews = async () => {
+    const data = await getAllReviewForProduct(product_id);
+    if (data?.metadata) {
+      setreviews(data.metadata.slice(0, 2));
+    }
+  };
 
   const {data, isLoading, error, isRefetching, refetch} = useQuery({
     queryKey: [getDetailProductQueryKey, userId, product_id],
@@ -102,6 +113,7 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
     if (data?.metadata) {
       setproduct(data.metadata);
     }
+    setReviews();
   }, [data?.metadata]);
 
   useEffect(() => {
@@ -230,34 +242,6 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               font={fontFamilies.medium}
             />
           </RowComponent>
-          {/* <SpaceComponent height={5} />
-          <RowComponent justify="flex-start">
-            <TextComponent
-              text="- Color: "
-              size={13}
-              color={colors.Gray_Color}
-              font={fontFamilies.medium}
-            />
-            <TextComponent
-              text={`${product?.colors.map(item => item.name_color).join(', ')}`}
-              size={13}
-              font={fontFamilies.medium}
-            />
-          </RowComponent>
-          <SpaceComponent height={5} />
-          <RowComponent justify="flex-start">
-            <TextComponent
-              text="- Size: "
-              size={13}
-              color={colors.Gray_Color}
-              font={fontFamilies.medium}
-            />
-            <TextComponent
-              text={`${product?.sizes.map(item => item.size).join(', ')}`}
-              size={13}
-              font={fontFamilies.medium}
-            />
-          </RowComponent> */}
           <SpaceComponent height={7} />
           <DisplayRating
             avg_rating={product?.averageRating ?? 0}
@@ -279,7 +263,42 @@ const DetailProductScreen = ({route}: {route: routeProp}) => {
               ellipsizeMode="tail"
             />
           </TouchableOpacity>
-          <SpaceComponent height={24} />
+          {reviews.length > 0 && (
+            <SectionComponent>
+              <SpaceComponent height={10} />
+              <SpaceComponent
+                height={1}
+                width={'100%'}
+                style={{backgroundColor: colors.Line_Status_Order}}
+              />
+              <SpaceComponent height={10} />
+              <TextComponent text="Reviews" font={fontFamilies.medium} />
+              <SpaceComponent height={10} />
+              <ListReviews reviews={reviews} />
+              <SpaceComponent height={10} />
+              <RowComponent justify="flex-end">
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('ReviewsForProductScreen', {
+                      product_id: product?._id ?? '',
+                    });
+                  }}
+                  style={{padding: handleSize(10)}}>
+                  <TextComponent
+                    text="View all"
+                    size={11}
+                    style={{textDecorationLine: 'underline'}}
+                  />
+                </TouchableOpacity>
+              </RowComponent>
+            </SectionComponent>
+          )}
+          <SpaceComponent height={15} />
+          <SpaceComponent
+            height={1}
+            width={'100%'}
+            style={{backgroundColor: colors.Line_Status_Order}}
+          />
           <ProductsComponent
             title="You can also like this"
             products={Products}

@@ -13,6 +13,11 @@ export interface review {
   color: string;
   size: string;
   email: string;
+  createdAt: string;
+}
+
+export interface getAllReviewForProductResponse extends Response {
+  metadata: review[]
 }
 
 export interface addReviewResponse extends Response {

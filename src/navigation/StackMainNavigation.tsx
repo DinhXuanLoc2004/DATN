@@ -24,6 +24,7 @@ import PaymentFailScreen from '../screens/mains/stacks/orders/result_order/Payme
 import CancelOrderScreen from '../screens/mains/stacks/orders/CancelOrderScreen';
 import ReviewProductsScreen from '../screens/mains/stacks/reviews/ReviewProductsScreen';
 import ReviewScreen from '../screens/mains/stacks/reviews/ReviewScreen';
+import ReviewsForProductScreen from '../screens/mains/stacks/reviews/ReviewsForProductScreen';
 
 export type stackParamListMain = {
   BottomTab: undefined;
@@ -56,6 +57,7 @@ export type stackParamListMain = {
   CancelOrderScreen: {order_id: string};
   ReviewProductsScreen: {order_id: string};
   ReviewScreen: {product_order_id: string};
+  ReviewsForProductScreen: {product_id: string};
 };
 
 const Stack = createStackNavigator<stackParamListMain>();
@@ -105,6 +107,10 @@ export const StackMainNavigation = () => {
         component={ReviewProductsScreen}
       />
       <Stack.Screen name="ReviewScreen" component={ReviewScreen} />
+      <Stack.Screen
+        name="ReviewsForProductScreen"
+        component={ReviewsForProductScreen}
+      />
     </Stack.Navigator>
   );
 };

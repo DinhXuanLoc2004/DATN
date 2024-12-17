@@ -78,7 +78,7 @@ export interface bodyChangeQuantityCart {
 }
 
 export interface changeQuantityCartResponse extends Response {
-  metadata: cart;
+  metadata: cart | number;
 }
 
 export interface cart_delet {

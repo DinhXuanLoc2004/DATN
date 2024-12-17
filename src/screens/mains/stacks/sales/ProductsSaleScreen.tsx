@@ -92,15 +92,6 @@ const ProductsSaleScreen = ({route}: {route: routeProp}) => {
     getCategoriesSale();
   }, []);
 
-  const bottomSheet = useRef<BottomSheetModal>(null);
-
-  const handlePresentModalPress = useCallback(() => {
-    bottomSheet.current?.present();
-  }, []);
-
-  const isColumn = useAppSelector(
-    state => state.app.layoutItem.columnProductsCategory,
-  );
   const sort = useAppSelector(state => state.sort.sort);
 
   const user_id = useAppSelector(state => state.auth.user.userId);

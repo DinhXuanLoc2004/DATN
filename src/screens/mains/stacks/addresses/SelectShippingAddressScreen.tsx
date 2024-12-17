@@ -58,6 +58,21 @@ const SelectShippingAddressScreen = ({route}: {route: routeProp}) => {
     const response = await updateDefaultShippingAddress(_id);
     if (response?.status === 200) {
       refetch();
+      if (response.metadata.is_default === true) {
+        dispatch(
+          set_address_choose({
+            full_name: response.metadata.full_name,
+            phone: response.metadata.phone,
+            province_id: response.metadata.province_id,
+            province_name: response.metadata.province_name,
+            district_id: response.metadata.district_id,
+            district_name: response.metadata.district_name,
+            ward_code: response.metadata.ward_code,
+            ward_name: response.metadata.ward_name,
+            specific_address: response.metadata.specific_address,
+          }),
+        );
+      }
     }
   };
 
@@ -100,7 +115,7 @@ const SelectShippingAddressScreen = ({route}: {route: routeProp}) => {
         specific_address: item.specific_address,
       }),
     );
-    navigation.goBack()
+    navigation.goBack();
   };
 
   return (

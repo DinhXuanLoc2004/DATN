@@ -20,6 +20,7 @@ import {fontFamilies} from '../../../constants/fontFamilies';
 import {
   findProductVariantQueryKey,
   getAllCartQueryKey,
+  getColorsSizesToProductQueryKey,
 } from '../../../constants/queryKeys';
 import {addToCartAPI, getLengthCartAPI} from '../../../helper/apis/cart.api';
 import {getColorsSizesToProduct} from '../../../helper/apis/product.api';
@@ -50,7 +51,7 @@ interface Props {
   isBuyNow?: boolean;
   setisBuyNow?: (val: boolean) => void;
   is_err_add_cart: boolean;
-  setis_err_add_cart: (val: boolean) => void
+  setis_err_add_cart: (val: boolean) => void;
 }
 
 type stackProp = StackNavigationProp<stackParamListMain, 'DetailProductScreen'>;
@@ -61,7 +62,7 @@ const BottomSheetAddToCart: FC<Props> = ({
   isBuyNow = false,
   setisBuyNow,
   is_err_add_cart,
-  setis_err_add_cart
+  setis_err_add_cart,
 }) => {
   const [dataColorsSizes, setdataColorsSizes] = useState<{
     thumb: string;
@@ -102,7 +103,7 @@ const BottomSheetAddToCart: FC<Props> = ({
     isLoading: isLoading_colors_sizes,
     error: error_colors_sizes,
   } = useQuery({
-    queryKey: ['getColorsSizesToProduct', product_id],
+    queryKey: [getColorsSizesToProductQueryKey, product_id],
     queryFn: getColorsSizesToProduct,
     enabled: !!product_id,
   });
@@ -252,8 +253,11 @@ const BottomSheetAddToCart: FC<Props> = ({
         product_variant_id: productVariant._id,
         quantity: quantity,
       });
-      if (dataAddToCart?.status === 203 && dataAddToCart.message === 'Invalid product') {
-        setis_err_add_cart(true)
+      if (
+        dataAddToCart?.status === 203 &&
+        dataAddToCart.message === 'Invalid product'
+      ) {
+        setis_err_add_cart(true);
       }
       if (dataAddToCart?.status === 201) {
         handleAnimationBtnAddToCart();
@@ -278,8 +282,8 @@ const BottomSheetAddToCart: FC<Props> = ({
       setimage_color_id('');
       setsize_id('');
       setquantity(1);
-      setproductVariant(null)
-      setmax_quantity(1)
+      setproductVariant(null);
+      setmax_quantity(1);
       queryClient.invalidateQueries({queryKey: [findProductVariantQueryKey]});
     }, DURATION_ANIMATION + 700);
   };
@@ -342,6 +346,8 @@ const BottomSheetAddToCart: FC<Props> = ({
           ? `Because the product already has a quantity in the cart, you can only add ${max_quantity} more products!`
           : 'The number of products already in the cart exceeds the inventory quantity, please go to the cart to check!';
       seterrQuantity(err);
+    }else {
+      seterrQuantity('')
     }
   }, [quantity, max_quantity]);
 

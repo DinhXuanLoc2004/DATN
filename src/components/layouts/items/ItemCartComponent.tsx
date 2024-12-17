@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Image,
   StyleSheet,
+  TextInput,
   TouchableOpacity,
 } from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -19,10 +20,12 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import {colors} from '../../../constants/colors';
 import {fontFamilies} from '../../../constants/fontFamilies';
 import {
+  findProductVariantQueryKey,
   getAllCartQueryKey,
   getAllFavoritesQueryKey,
   getAllProductsHomeSreen,
   getCategoryIdsToFavoritesQueryKey,
+  getColorsSizesToProductQueryKey,
   getProductsToCategoryScreen,
 } from '../../../constants/queryKeys';
 import {changeQuantityCartAPI} from '../../../helper/apis/cart.api';
@@ -43,6 +46,9 @@ import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import {fotmatedAmount} from '../../../utils/fotmats';
 import {useAppSelector} from '../../../helper/store/store';
+import _ from 'lodash';
+import {Portal} from '@gorhom/portal';
+import DialogErrorIOS from '../../dialogs/DialogErrorIOS';
 
 type stackProp = StackNavigationProp<stackParamListMain, 'BottomTab'>;
 
@@ -89,15 +95,48 @@ const ItemCartComponent: React.FC<Props> = ({
 }) => {
   const [is_loadding_minus, setis_loadding_minus] = useState(false);
   const [is_loadding_plus, setis_loadding_plus] = useState(false);
+  const [quantity_local, setquantity_local] = useState(quantity);
   const navigation = useNavigation<stackProp>();
+  const user_id = useAppSelector(state => state.auth.user.userId);
+  const queryClient = useQueryClient();
+
   const updateQuantity = async (value: number) => {
+    const body: bodyChangeQuantityCart = {
+      cart_id,
+      value: quantity + value,
+    };
+    const data = await changeQuantityCartAPI(body);
+    if (data?.metadata) {
+      setquantity_local(data.metadata.quantity);
+      fnRefect();
+    }
+  };
+  const [err_change_quantity, seterr_change_quantity] = useState(false);
+
+  const updateQuantityWithTextInput = _.debounce(async (value: number) => {
     const body: bodyChangeQuantityCart = {
       cart_id,
       value,
     };
     const data = await changeQuantityCartAPI(body);
-    if (data?.metadata) fnRefect();
-  };
+    if (data?.metadata && data.status === 200) {
+      fnRefect();
+    } else {
+      if (
+        data &&
+        data.status === 203 &&
+        data.message === 'Invalid quantity' &&
+        typeof data.metadata === 'number'
+      ) {
+        setquantity_local(data.metadata);
+        seterr_change_quantity(true);
+      }
+    }
+    queryClient.invalidateQueries({queryKey: [findProductVariantQueryKey]});
+    queryClient.invalidateQueries({
+      queryKey: [getColorsSizesToProductQueryKey],
+    });
+  }, 1000);
 
   const handleChangeQuantity = (value: number) => {
     setcart_id_select_menu('');
@@ -124,9 +163,6 @@ const ItemCartComponent: React.FC<Props> = ({
       setcart_id_select_menu(cart_id);
     }
   };
-
-  const user_id = useAppSelector(state => state.auth.user.userId);
-  const queryClient = useQueryClient();
 
   const {mutate: toggleFavorite} = useMutation<
     addFavoriteResponse | undefined,
@@ -209,7 +245,11 @@ const ItemCartComponent: React.FC<Props> = ({
       <SectionComponent style={styles.containerContent}>
         <RowComponent justify="space-between">
           <SectionComponent>
-            <TextComponent text={name} font={fontFamilies.semiBold} numberOfLines={1}/>
+            <TextComponent
+              text={name}
+              font={fontFamilies.semiBold}
+              numberOfLines={1}
+            />
             <SpaceComponent height={4} />
             <TextColorAndSizeComponent color={color} size={size} />
             <SpaceComponent height={2} />
@@ -248,10 +288,24 @@ const ItemCartComponent: React.FC<Props> = ({
               )}
             </TouchableOpacity>
             <SpaceComponent width={12} />
-            <TextComponent
-              text={quantity.toString()}
-              size={14}
-              font={fontFamilies.medium}
+            <TextInput
+              value={quantity_local.toString()}
+              onChangeText={value => {
+                const numberValue = Number(value);
+                if (Number.isNaN(numberValue) || numberValue < 0) {
+                  seterr_change_quantity(true);
+                  setquantity_local(quantity);
+                } else {
+                  updateQuantityWithTextInput(numberValue);
+                  setquantity_local(numberValue);
+                }
+              }}
+              keyboardType="number-pad"
+              style={{
+                fontSize: handleSize(14),
+                fontFamily: fontFamilies.medium,
+                color: colors.Text_Color,
+              }}
             />
             <SpaceComponent width={12} />
             <TouchableOpacity
@@ -295,6 +349,13 @@ const ItemCartComponent: React.FC<Props> = ({
         top={5}
         left={4}
       />
+      <Portal>
+        <DialogErrorIOS
+          content="Invalid quantity, please try again later"
+          isVisible={err_change_quantity}
+          setIsvisble={seterr_change_quantity}
+        />
+      </Portal>
     </RowComponent>
   );
 };

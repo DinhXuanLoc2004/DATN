@@ -5,6 +5,7 @@ import {handleSelect} from '../../../utils/handleSelect';
 import TextCheckBoxComponent from '../../texts/TextCheckBoxComponent';
 import SpaceComponent from '../SpaceComponent';
 import {brandType} from '../../../helper/types/brand.type';
+import {BottomSheetFlashList} from '@gorhom/bottom-sheet';
 
 interface Props {
   data: Array<brandType>;
@@ -18,14 +19,18 @@ const SelectBrandsComponent: FC<Props> = ({
   set_arr_select,
 }) => {
   return (
-    <FlatList
+    <BottomSheetFlashList
       data={data}
-      keyExtractor={(_, index) => index.toString()}
-      renderItem={({item}) => (
+      extraData={arr_select}
+      estimatedItemSize={data.length}
+      keyExtractor={(item: brandType) => item._id}
+      renderItem={({item}: {item: brandType}) => (
         <TextCheckBoxComponent
-        thumb={item.thumb_brand}
+          thumb={item.thumb_brand}
           text={item.name_brand}
-          onPress={() => handleSelect(item._id, arr_select, set_arr_select)}
+          onPress={() => {
+            handleSelect(item._id, arr_select, set_arr_select);
+          }}
           isSelected={arr_select.includes(item._id)}
         />
       )}
@@ -35,4 +40,4 @@ const SelectBrandsComponent: FC<Props> = ({
   );
 };
 
-export default memo(SelectBrandsComponent);
+export default SelectBrandsComponent;

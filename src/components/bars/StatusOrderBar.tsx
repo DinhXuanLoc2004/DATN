@@ -115,7 +115,13 @@ const StatusOrderBar: FC<Props> = ({
               <SpaceComponent height={10} />
               <SectionComponent>
                 <TextComponent
-                  text={item}
+                  text={
+                    item === 'Delivered Successfully'
+                      ? 'Successfully'
+                      : item === 'Delivery Failed'
+                      ? 'Failed'
+                      : item
+                  }
                   numberOfLines={5}
                   style={{width: 120, textAlign: 'center'}}
                   size={11}

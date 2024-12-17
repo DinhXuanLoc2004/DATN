@@ -5,6 +5,7 @@ import {useQueryClient} from '@tanstack/react-query';
 import React, {useEffect, useRef, useState} from 'react';
 import {
   ActivityIndicator,
+  ActivityIndicatorComponent,
   Alert,
   FlatList,
   Image,
@@ -33,7 +34,18 @@ import {
   payment_methods,
   payment_name,
 } from '../../../../constants/payment_methods';
-import {getAllCartQueryKey} from '../../../../constants/queryKeys';
+import {
+  getAllCartQueryKey,
+  getAllFavoritesQueryKey,
+  getAllProductsHomeSreen,
+  getCategoryIdsToFavoritesQueryKey,
+  getDetailProductQueryKey,
+  getLengthCartQuerykey,
+  getProductsQueryKey,
+  getProductsSaleQuerykey,
+  getProductsToCategoryScreen,
+  searchProductsQueryKey,
+} from '../../../../constants/queryKeys';
 import {getCartChecksAPI} from '../../../../helper/apis/cart.api';
 import {
   continueOrderAPI,
@@ -58,7 +70,7 @@ import {
 import {voucher_user} from '../../../../helper/types/voucher_user.type';
 import {stackParamListMain} from '../../../../navigation/StackMainNavigation';
 import {globalStyles} from '../../../../styles/globalStyle';
-import {fotmatedAmount} from '../../../../utils/fotmats';
+import {formatOrder, fotmatedAmount} from '../../../../utils/fotmats';
 import {handleDate} from '../../../../utils/handleDate';
 import {handleSize} from '../../../../utils/handleSize';
 import DialogErrorIOS from '../../../../components/dialogs/DialogErrorIOS';
@@ -103,6 +115,8 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   const [leadtime, setleadtime] = useState<number>(0);
   const [is_visible_dialog_err, setis_visible_dialog_err] =
     useState<boolean>(false);
+  const [is_loading_products, setis_loading_products] = useState(false);
+  const [is_err_order, setis_err_order] = useState(false);
 
   useEffect(() => {
     if (voucher_id) {
@@ -134,6 +148,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
   }, []);
 
   const getProductsContinueOrder = async () => {
+    setis_loading_products(true);
     const data = await getProductsContinueOrderAPI(order_id ?? '');
     if (data?.metadata) {
       setproduct_variant_carts(data.metadata.products_order);
@@ -180,10 +195,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         setvoucher_quantity(data.metadata.voucher_detail.quantity);
       }
     }
+    setis_loading_products(false);
   };
 
   const getCartChecks = async () => {
     const str_cart_ids = JSON.stringify(cart_ids);
+    setis_loading_products(true);
     const data = await getCartChecksAPI({cart_ids: str_cart_ids});
     if (data?.metadata) {
       setproduct_variant_carts(data.metadata);
@@ -201,6 +218,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       settotal_amount(result.totalAmount);
       settotal_quantity(result.totalQuantity);
     }
+    setis_loading_products(false);
   };
 
   const user_id = useAppSelector(state => state.auth.user.userId);
@@ -351,7 +369,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           };
           setisLoadingOrder(true);
           const data = await continueOrderAPI(order_id, body);
-          console.log(data);
+          setisLoadingOrder(false);
           if (
             data &&
             data.status === 200 &&
@@ -360,14 +378,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           ) {
             const payZP = NativeModules.PayZaloBridge;
             payZP.payOrder(data.metadata.zp_trans_token);
-            setisLoadingOrder(false);
           } else if (
             data &&
             data.status === 200 &&
             data.metadata.payment_method === 'PayPal' &&
             data.metadata.approve
           ) {
-            setisLoadingOrder(false);
             navigaiton.navigate('PaypalWebview', {
               approve: data.metadata.approve,
             });
@@ -376,8 +392,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
             data.status === 200 &&
             data.metadata.payment_method === 'COD'
           ) {
-            setisLoadingOrder(false);
             navigaiton.navigate('OrderSuccessScreen');
+          } else if (data && data.status === 203) {
+            setis_err_order(true);
           }
         } else {
           const products_order: products_orderResquet[] =
@@ -414,7 +431,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           };
           setisLoadingOrder(true);
           const data = await orderAPI(body);
-          console.log(data);
+          setisLoadingOrder(false);
           queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
           if (
             data &&
@@ -424,14 +441,12 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           ) {
             const payZP = NativeModules.PayZaloBridge;
             payZP.payOrder(data.metadata.zp_trans_token);
-            setisLoadingOrder(false);
           } else if (
             data &&
             data.status === 201 &&
             data.metadata.payment_method === 'PayPal' &&
             data.metadata.approve
           ) {
-            setisLoadingOrder(false);
             navigaiton.navigate('PaypalWebview', {
               approve: data.metadata.approve,
             });
@@ -440,15 +455,36 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
             data.status === 201 &&
             data.metadata.payment_method === 'COD'
           ) {
-            setisLoadingOrder(false);
             navigaiton.navigate('OrderSuccessScreen');
+          } else if (data && data.status === 203) {
+            setis_err_order(true);
           }
         }
       }
     }
   };
 
+  const handleClickErrOrder = () => {
+    queryClient.invalidateQueries({queryKey: [getAllProductsHomeSreen]});
+    queryClient.invalidateQueries({queryKey: [getProductsToCategoryScreen]});
+    queryClient.invalidateQueries({queryKey: [getDetailProductQueryKey]});
+    queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]});
+    queryClient.invalidateQueries({
+      queryKey: [getCategoryIdsToFavoritesQueryKey],
+    });
+    queryClient.invalidateQueries({queryKey: [searchProductsQueryKey]});
+    queryClient.invalidateQueries({queryKey: [getLengthCartQuerykey]});
+    queryClient.invalidateQueries({queryKey: [getProductsSaleQuerykey]});
+    queryClient.invalidateQueries({queryKey: [getProductsQueryKey]});
+    queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
+    navigaiton.navigate('BottomTab');
+    setis_err_order(false);
+  };
+
+  const [is_loading_delivery, setis_loading_delivery] = useState(false);
+
   const getDeliveryFee = async () => {
+    setis_loading_delivery(true);
     const data = await getDeliveryFeeAPI({
       to_district_id: address_choose.district_id,
       to_ward_code: address_choose.ward_code,
@@ -457,6 +493,7 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       setdelivery_fee(data.metadata.delivery_fee);
       setleadtime(data.metadata.leadtime);
     }
+    setis_loading_delivery(false);
   };
 
   useEffect(() => {
@@ -464,6 +501,14 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       getDeliveryFee();
     }
   }, [address_choose]);
+
+  if (is_loading_products)
+    return (
+      <SectionComponent
+        style={{justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator color={colors.Primary_Color} size={handleSize(25)} />
+      </SectionComponent>
+    );
 
   return (
     <ContainerComponent
@@ -642,38 +687,47 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         <SectionComponent style={styles.section}>
           <TextComponent text="Delivery" size={15} font={fontFamilies.medium} />
           <SpaceComponent height={10} />
-          {delivery_fee > 0 && (
-            <RowComponent>
-              <TextComponent
-                text={'Delivery fee'}
-                size={13}
-                font={fontFamilies.regular}
-              />
-              <TextComponent
-                text={fotmatedAmount(delivery_fee)}
-                size={12}
-                font={fontFamilies.medium}
-              />
-            </RowComponent>
-          )}
-          <SpaceComponent height={10} />
-          {leadtime > 0 && (
-            <RowComponent>
-              <TextComponent
-                text={'Estimated delivery time'}
-                size={13}
-                font={fontFamilies.regular}
-              />
-              <TextComponent
-                text={handleDate
-                  .convertTimestampToDate(leadtime)
-                  .toDateString()}
-                size={13}
-                font={fontFamilies.medium}
-                color={colors.Success_Color}
-                style={{fontStyle: 'italic'}}
-              />
-            </RowComponent>
+          {is_loading_delivery ? (
+            <ActivityIndicator
+              color={colors.Primary_Color}
+              size={handleSize(16)}
+            />
+          ) : (
+            <SectionComponent>
+              {delivery_fee > 0 && (
+                <RowComponent>
+                  <TextComponent
+                    text={'Delivery fee'}
+                    size={13}
+                    font={fontFamilies.regular}
+                  />
+                  <TextComponent
+                    text={fotmatedAmount(delivery_fee)}
+                    size={12}
+                    font={fontFamilies.medium}
+                  />
+                </RowComponent>
+              )}
+              <SpaceComponent height={10} />
+              {leadtime > 0 && (
+                <RowComponent>
+                  <TextComponent
+                    text={'Estimated delivery time'}
+                    size={13}
+                    font={fontFamilies.regular}
+                  />
+                  <TextComponent
+                    text={handleDate
+                      .convertTimestampToDate(leadtime)
+                      .toDateString()}
+                    size={13}
+                    font={fontFamilies.medium}
+                    color={colors.Success_Color}
+                    style={{fontStyle: 'italic'}}
+                  />
+                </RowComponent>
+              )}
+            </SectionComponent>
           )}
         </SectionComponent>
 
@@ -782,24 +836,35 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
         <SpaceComponent height={10} />
         <SectionComponent flex={0} style={styles.containerBtnOder}>
           <RowComponent>
-            <RowComponent>
+            <RowComponent justify="flex-start">
               <TextComponent
                 text="Total amout: "
                 size={14}
                 font={fontFamilies.semiBold}
               />
               <TextComponent
-                text={fotmatedAmount(total_amount_final)}
+                text={formatOrder(total_amount_final)}
                 size={14}
                 font={fontFamilies.medium}
               />
             </RowComponent>
             <ButtonComponent
+              disable={is_loading_delivery || is_loading_products}
               text="Order"
               onPress={() => {
                 handleCheckout();
               }}
-              style={{width: '50%'}}
+              style={{
+                width: '50%',
+                backgroundColor:
+                  is_loading_delivery || is_loading_products
+                    ? colors.Gray_Color
+                    : colors.Primary_Color,
+                borderColor:
+                  is_loading_delivery || is_loading_products
+                    ? colors.Gray_Color
+                    : colors.Primary_Color,
+              }}
             />
           </RowComponent>
         </SectionComponent>
@@ -936,11 +1001,19 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
           />
         </SectionComponent>
       </Modal>
+
       <DialogErrorIOS
         isVisible={is_visible_dialog_err}
         setIsvisble={setis_visible_dialog_err}
         title="Voucher is not valid"
         content="Voucher is invalid, please choose another voucher or cancel voucher!"
+      />
+
+      <DialogErrorIOS
+        content="Please try again later"
+        isVisible={is_err_order}
+        setIsvisble={setis_err_order}
+        onPress={handleClickErrOrder}
       />
     </ContainerComponent>
   );

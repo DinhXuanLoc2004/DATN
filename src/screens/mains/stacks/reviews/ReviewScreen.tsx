@@ -310,8 +310,8 @@ const ReviewScreen = ({route}: {route: routeProp}) => {
             return media;
           })}
           is_visible={isVisible}
-          media_index={mediaIndex}
           set_isvisible={setisVisible}
+          media_index={mediaIndex}
           setmedia_index={setmediaIndex}
         />
       )}

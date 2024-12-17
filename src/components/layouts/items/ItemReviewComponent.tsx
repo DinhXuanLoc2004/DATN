@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React, {memo, useState} from 'react';
 import {
   FlatList,
   Image,
@@ -16,90 +16,152 @@ import RowComponent from '../RowComponent';
 import SectionComponent from '../SectionComponent';
 import SpaceComponent from '../SpaceComponent';
 import StarComponent from '../StarComponent';
+import {review} from '../../../helper/types/review.type';
+import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
+import Video from 'react-native-video';
+import TextColorAndSizeComponent from '../../texts/TextColorAndSizeComponent';
+import {Portal} from '@gorhom/portal';
+import MediaViewing from '../../viewers/MediaViewing';
 
 interface Props {
-  user_name: string;
-  avatar: string;
-  rating: number;
-  create_at: Date;
-  content: string;
-  arr_img_review?: string[];
-  like: boolean;
+  review: review;
 }
 
-const ItemReviewComponent: React.FC<Props> = ({
-  user_name,
-  avatar,
-  rating,
-  create_at,
-  content,
-  arr_img_review,
-  like,
-}) => {
+const ItemReviewComponent: React.FC<Props> = ({review}) => {
+  const [isVisible, setisVisible] = useState(false);
+  const [mediaIndex, setmediaIndex] = useState(0);
   return (
     <View style={styles.container}>
       <SectionComponent style={styles.containerContent}>
         <TextComponent
-          text={user_name}
+          text={review.email}
           size={14}
           font={fontFamilies.semiBold}
+          numberOfLines={1}
         />
         <SpaceComponent height={8.68} />
         <RowComponent justify="space-between">
-          <StarComponent star={rating} />
+          <StarComponent star={review.rating} />
           <TextComponent
-            text={handleDate.formatDate(create_at)}
+            text={handleDate.formatDate(new Date(review.createdAt))}
             size={11}
             color={colors.Gray_Color}
           />
         </RowComponent>
-        <SpaceComponent height={11.73} />
+        <SpaceComponent height={10} />
+        <RowComponent
+          justify="flex-start"
+          style={{width: '100%', marginBottom: 5}}>
+          <RowComponent justify="flex-start">
+            <TextComponent
+              text="Color: "
+              color={colors.Gray_Color}
+              font={fontFamilies.regular}
+              size={11}
+            />
+            <TextComponent
+              text={review.color}
+              size={11}
+              color={colors.Text_Color}
+              font={fontFamilies.regular}
+            />
+          </RowComponent>
+          <SpaceComponent width={7} />
+          <RowComponent justify="flex-start">
+            <TextComponent
+              text="Size: "
+              color={colors.Gray_Color}
+              font={fontFamilies.regular}
+              size={11}
+            />
+            <TextComponent
+              text={review.size}
+              size={11}
+              font={fontFamilies.regular}
+            />
+          </RowComponent>
+        </RowComponent>
         <TextComponent
-          text={content}
+          text={review.content}
           size={14}
           lineHeight={23}
           letterSpacing={-0.05}
         />
-        {arr_img_review && (
-          <View>
-            <SpaceComponent height={20} />
-            <FlatList
-              data={arr_img_review}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item}) => (
-                <Image source={{uri: item}} style={styles.reviewImage} />
-              )}
-              contentContainerStyle={styles.imageList}
-            />
-          </View>
+        {review.images_review && (
+          <RowComponent
+            justify="flex-start"
+            style={{flexWrap: 'wrap'}}
+            flex={1}>
+            {review.images_review.map((item, index) => {
+              return (
+                <TouchableOpacity
+                  key={index.toString()}
+                  onPress={() => {
+                    setmediaIndex(index);
+                    setisVisible(true);
+                  }}>
+                  <SpaceComponent height={10} />
+                  <View>
+                    {item.type.includes('image') ? (
+                      <Image source={{uri: item.url}} style={styles.media} />
+                    ) : (
+                      <View style={styles.media}>
+                        <FontAwesome5Icon
+                          name="play-circle"
+                          solid
+                          size={handleSize(25)}
+                          style={styles.icon_play}
+                          color={colors.White_Color}
+                        />
+                        <Video
+                          source={{uri: item.url}}
+                          style={styles.media}
+                          paused
+                          resizeMode="cover"
+                        />
+                      </View>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </RowComponent>
         )}
-        <SpaceComponent height={18} />
-        <RowComponent justify="flex-end">
-          <TouchableOpacity>
-            <RowComponent style={{alignItems: 'flex-end'}}>
-              <TextComponent
-                text="Helpful"
-                color={like ? colors.Primary_Color : colors.Gray_Color}
-                size={11}
-              />
-              <SpaceComponent width={10} />
-              <AntDesign
-                name="like1"
-                size={handleSize(15)}
-                color={like ? colors.Primary_Color : colors.Gray_Color}
-              />
-            </RowComponent>
-          </TouchableOpacity>
-        </RowComponent>
       </SectionComponent>
-      <Image source={{uri: avatar}} style={styles.avatar} />
+      <Image
+        source={{
+          uri: 'https://static.vecteezy.com/system/resources/previews/009/734/564/original/default-avatar-profile-icon-of-social-media-user-vector.jpg',
+        }}
+        style={styles.avatar}
+      />
+      <Portal>
+        <MediaViewing
+          medias={review.images_review}
+          is_visible={isVisible}
+          set_isvisible={setisVisible}
+          media_index={mediaIndex}
+          setmedia_index={setmediaIndex}
+        />
+      </Portal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  icon_play: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{translateX: -12.5}, {translateY: -12.5}],
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 100,
+  },
+  media: {
+    height: handleSize(70),
+    width: handleSize(70),
+    borderRadius: handleSize(6),
+    marginRight: handleSize(10),
+  },
   avatar: {
     width: handleSize(32),
     height: handleSize(32),

@@ -11,16 +11,16 @@ import StarComponent from './StarComponent';
 interface Props {
   avegare_star: number;
   arr_star: number[];
+  sumRating: number
 }
 
-const RatingComponent: FC<Props> = ({avegare_star, arr_star}) => {
-  const sumRating = arr_star.reduce((acc, curr) => acc + curr, 0);
+const RatingComponent: FC<Props> = ({avegare_star, arr_star, sumRating}) => {
   const maxRating = Math.max(...arr_star);
 
   return (
     <SectionComponent style={styles.container}>
       <RowComponent justify="space-between" style={styles.containerItem}>
-        <SectionComponent>
+        <SectionComponent flex={0.7}>
           <TextComponent
             font={fontFamilies.semiBold}
             text={`${avegare_star}`}
@@ -28,7 +28,7 @@ const RatingComponent: FC<Props> = ({avegare_star, arr_star}) => {
             color={colors.Text_Color}
           />
           <TextComponent
-            text={`${sumRating} ratings `}
+            text={`${sumRating} reviews`}
             size={14}
             color={colors.Gray_Color}
           />
