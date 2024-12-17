@@ -49,6 +49,23 @@ export interface verifyOtpResponse extends Response {
   };
 }
 
+export interface forgotPasswordRequest {
+  email: string;
+}
+
+export interface forgotPasswordResponse extends Response {
+  metadata: boolean;
+}
+
+export interface resetPasswordRequest {
+  email: string;
+  newPassword: string;
+}
+
+export interface resetPasswordResponse extends Response {
+  metadata: boolean;
+}
+
 export interface loginRequest {
   email: string;
   password: string;
