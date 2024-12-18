@@ -274,53 +274,55 @@ const ItemCartComponent: React.FC<Props> = ({
             <Entypo name="dots-three-vertical" style={styles.iconMenu} />
           </TouchableOpacity>
         </RowComponent>
-        <SpaceComponent height={5} />
-        <RowComponent>
+        <SectionComponent flex={0}>
           <RowComponent>
-            <TouchableOpacity
-              disabled={is_loadding_minus || is_loadding_plus}
-              onPress={() => handleChangeQuantity(-1)}
-              style={styles.iconButton}>
-              {is_loadding_minus ? (
-                <ActivityIndicator size={12} color={colors.Gray_Color} />
-              ) : (
-                <FontAwesome5 name="minus" style={styles.icon} />
-              )}
-            </TouchableOpacity>
-            <SpaceComponent width={12} />
-            <TextInput
-              value={quantity_local.toString()}
-              onChangeText={value => {
-                const numberValue = Number(value);
-                if (Number.isNaN(numberValue) || numberValue < 0) {
-                  seterr_change_quantity(true);
-                  setquantity_local(quantity);
-                } else {
-                  updateQuantityWithTextInput(numberValue);
-                  setquantity_local(numberValue);
-                }
-              }}
-              keyboardType="number-pad"
-              style={{
-                fontSize: handleSize(14),
-                fontFamily: fontFamilies.medium,
-                color: colors.Text_Color,
-              }}
-            />
-            <SpaceComponent width={12} />
-            <TouchableOpacity
-              disabled={is_loadding_minus || is_loadding_plus || !can_be_plus}
-              onPress={() => handleChangeQuantity(1)}
-              style={[styles.iconButton, {opacity: !can_be_plus ? 0.6 : 1}]}>
-              {is_loadding_plus ? (
-                <ActivityIndicator size={12} color={colors.Gray_Color} />
-              ) : (
-                <FontAwesome5 name="plus" style={styles.icon} />
-              )}
-            </TouchableOpacity>
+            <RowComponent>
+              <TouchableOpacity
+                disabled={is_loadding_minus || is_loadding_plus}
+                onPress={() => handleChangeQuantity(-1)}
+                style={styles.iconButton}>
+                {is_loadding_minus ? (
+                  <ActivityIndicator size={12} color={colors.Gray_Color} />
+                ) : (
+                  <FontAwesome5 name="minus" style={styles.icon} />
+                )}
+              </TouchableOpacity>
+              <SpaceComponent width={12} />
+              <TextInput
+                value={quantity_local.toString()}
+                onChangeText={value => {
+                  const numberValue = Number(value);
+                  if (Number.isNaN(numberValue) || numberValue < 0) {
+                    seterr_change_quantity(true);
+                    setquantity_local(quantity);
+                  } else {
+                    updateQuantityWithTextInput(numberValue);
+                    setquantity_local(numberValue);
+                  }
+                }}
+                keyboardType="number-pad"
+                style={{
+                  fontSize: handleSize(14),
+                  fontFamily: fontFamilies.medium,
+                  color: colors.Text_Color,
+                  textAlign: 'center',
+                }}
+              />
+              <SpaceComponent width={12} />
+              <TouchableOpacity
+                disabled={is_loadding_minus || is_loadding_plus || !can_be_plus}
+                onPress={() => handleChangeQuantity(1)}
+                style={[styles.iconButton, {opacity: !can_be_plus ? 0.6 : 1}]}>
+                {is_loadding_plus ? (
+                  <ActivityIndicator size={12} color={colors.Gray_Color} />
+                ) : (
+                  <FontAwesome5 name="plus" style={styles.icon} />
+                )}
+              </TouchableOpacity>
+            </RowComponent>
+            <SpaceComponent width={10} />
           </RowComponent>
-          <SpaceComponent width={10} />
-        </RowComponent>
+        </SectionComponent>
       </SectionComponent>
       {cart_id_select_menu === cart_id && (
         <SectionComponent style={styles.menu}>
