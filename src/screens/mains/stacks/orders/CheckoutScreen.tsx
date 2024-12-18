@@ -258,7 +258,9 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
       getVouchersUserNotUsed();
     }
   }, [total_amount, voucher_id, delivery_fee]);
-
+  
+  getVouchersUserNotUsed();
+  
   const bottomsheet = useRef<BottomSheetModal>(null);
 
   const handleBottomSheet = () => {
@@ -896,7 +898,10 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
               <TouchableOpacity
                 onPress={() => {
                   bottomsheet.current?.close();
-                  navigaiton.navigate('VouchersScreen');
+                  navigaiton.navigate({
+                    name: 'VouchersScreen',
+                    key: Date.now.toString()
+                  });
                 }}>
                 <TextComponent
                   text="Get more vouchers"
