@@ -48,9 +48,7 @@ const ProfileScreen = () => {
       <SpaceComponent height={24} />
       <RowComponent justify="flex-start">
         <Image
-          source={{
-            uri: 'https://i.pinimg.com/736x/9e/2d/0d/9e2d0d48d1dbf92ffd42de8de8c29627.jpg',
-          }}
+          source={require('../../../assets/images/avatar.jpg')}
           style={styles.image}
         />
         <RowComponent
@@ -64,6 +62,7 @@ const ProfileScreen = () => {
               size={16}
             />
           </SectionComponent>
+          <SpaceComponent width={5}/>
           <TouchableOpacity onPress={handleLogout}>
             <Ionicons
               name="log-out-outline"

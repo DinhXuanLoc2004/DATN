@@ -129,9 +129,7 @@ const ItemReviewComponent: React.FC<Props> = ({review}) => {
         )}
       </SectionComponent>
       <Image
-        source={{
-          uri: 'https://static.vecteezy.com/system/resources/previews/009/734/564/original/default-avatar-profile-icon-of-social-media-user-vector.jpg',
-        }}
+        source={require('../../../assets/images/avatar.jpg')}
         style={styles.avatar}
       />
       <Portal>

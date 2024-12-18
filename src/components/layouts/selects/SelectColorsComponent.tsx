@@ -19,7 +19,7 @@ const SelectColorsComponent: React.FC<Props> = ({
   data,
 }) => {
   return (
-    <RowComponent justify="center" style={{flexWrap: 'wrap'}}>
+    <RowComponent justify="center">
       <FlatList
         data={data}
         keyExtractor={(_, index) => index.toString()}
