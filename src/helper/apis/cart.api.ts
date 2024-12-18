@@ -15,7 +15,6 @@ import {
 const URL_CART = '/cart';
 
 const getStore = store.getState();
-const user_id = getStore.auth.user.userId;
 
 const getCartChecksAPI = async ({cart_ids}: {cart_ids: string}) => {
   try {
@@ -81,9 +80,11 @@ const getAllCartAPI = async ({queryKey}: {queryKey: [string, string]}) => {
 const addToCartAPI = async ({
   product_variant_id,
   quantity,
+  user_id
 }: {
   product_variant_id: string;
   quantity: number;
+  user_id: string
 }) => {
   const body: bodyAddToCart = {
     product_variant_id,

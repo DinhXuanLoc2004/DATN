@@ -252,6 +252,7 @@ const BottomSheetAddToCart: FC<Props> = ({
       const dataAddToCart = await addToCartAPI({
         product_variant_id: productVariant._id,
         quantity: quantity,
+        user_id
       });
       if (
         dataAddToCart?.status === 203 &&

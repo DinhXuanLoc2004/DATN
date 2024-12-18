@@ -259,8 +259,6 @@ const CheckoutScreen = ({route}: {route: routeProp}) => {
     }
   }, [total_amount, voucher_id, delivery_fee]);
   
-  getVouchersUserNotUsed();
-  
   const bottomsheet = useRef<BottomSheetModal>(null);
 
   const handleBottomSheet = () => {
