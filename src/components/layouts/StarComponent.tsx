@@ -2,13 +2,13 @@ import React, {FC, memo} from 'react';
 import {
   StyleProp,
   StyleSheet,
+  Text,
   TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
 import IonIcon from 'react-native-vector-icons/Ionicons';
 import {colors} from '../../constants/colors';
-import {fontFamilies} from '../../constants/fontFamilies';
 import {handleSize} from '../../utils/handleSize';
 import TextComponent from '../texts/TextComponent';
 import RowComponent from './RowComponent';
@@ -23,6 +23,8 @@ interface Props {
   flex?: number;
   itemRating?: boolean;
   style?: StyleProp<ViewStyle>;
+  spaceStar?: number;
+  allowZero?: boolean;
 }
 
 const StarComponent: FC<Props> = ({
@@ -34,8 +36,10 @@ const StarComponent: FC<Props> = ({
   flex,
   itemRating,
   style,
+  spaceStar,
+  allowZero = false,
 }) => {
-  const roudingStar = Math.floor(star ?? 1);
+  const roudingStar = Math.floor(star ?? 0);
   const lengthListStar = maxStar ?? 5;
 
   return (
@@ -45,7 +49,12 @@ const StarComponent: FC<Props> = ({
           key={index}
           disabled={onPress ? false : true}
           onPress={() => {
-            onPress && onPress(index + 1);
+            onPress &&
+              onPress(
+                allowZero && roudingStar >= 1 && index + 1 === roudingStar
+                  ? index
+                  : index + 1,
+              );
           }}>
           {!itemRating ? (
             <View>
@@ -53,15 +62,19 @@ const StarComponent: FC<Props> = ({
                 <IonIcon
                   name="star"
                   color={colors.Star_Color}
-                  size={size ? handleSize(size) : handleSize(14)}
-                  style={styles.icon}
+                  size={handleSize(size ?? 14)}
+                  style={{
+                    marginEnd: index === 4 ? 0 : handleSize(spaceStar ?? 3.5),
+                  }}
                 />
               ) : (
                 <IonIcon
                   name="star-outline"
                   color={colors.Gray_Color}
-                  size={size ? handleSize(size) : handleSize(14)}
-                  style={styles.icon}
+                  size={handleSize(size ?? 14)}
+                  style={{
+                    marginEnd: index === 4 ? 0 : handleSize(spaceStar ?? 3.5),
+                  }}
                 />
               )}
             </View>
@@ -71,8 +84,10 @@ const StarComponent: FC<Props> = ({
                 <IonIcon
                   name="star"
                   color={colors.Star_Color}
-                  size={size ? handleSize(size) : handleSize(14)}
-                  style={styles.icon}
+                  size={handleSize(size ?? 14)}
+                  style={{
+                    marginEnd: index === 4 ? 0 : handleSize(spaceStar ?? 3.5),
+                  }}
                 />
               ) : (
                 <SpaceComponent />
@@ -81,17 +96,12 @@ const StarComponent: FC<Props> = ({
           )}
         </TouchableOpacity>
       ))}
-      {numberReviews && (
-        <RowComponent>
-          <View>
-            <TextComponent
-              text={` (${numberReviews})`}
-              size={10}
-              font={fontFamilies.regular}
-              color={colors.Gray_Color}
-            />
-          </View>
-        </RowComponent>
+      {numberReviews !== undefined && numberReviews !== null && (
+        <TextComponent
+          text={` (${numberReviews})`}
+          size={10}
+          color={colors.Gray_Color}
+        />
       )}
     </RowComponent>
   );
@@ -99,8 +109,4 @@ const StarComponent: FC<Props> = ({
 
 export default memo(StarComponent);
 
-const styles = StyleSheet.create({
-  icon: {
-    marginEnd: 3.5,
-  },
-});
+const styles = StyleSheet.create({});

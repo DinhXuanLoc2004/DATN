@@ -113,14 +113,13 @@ const TextInputAnimationComponent: FC<Props> = ({
             style={styles.textInput}
             secureTextEntry={hidePassword}
             onFocus={() => {
-              triggerAnimation(-16 * 2, true);
+              triggerAnimation(handleSize(-16) * 2, true);
             }}
             onBlur={() => {
               triggerAnimation(0, false);
             }}
           />
         </View>
-
         {isPassword ? (
           <TouchableOpacity onPress={() => sethidePassword(!hidePassword)}>
             {!hidePassword ? (
@@ -167,9 +166,8 @@ const TextInputAnimationComponent: FC<Props> = ({
         <TextComponent
           text={errorMessage}
           color={colors.Error_Color}
-          font={fontFamilies.regular}
           size={11}
-          style={{marginTop: 5}}
+          style={{marginTop: handleSize(5)}}
         />
       )}
     </View>

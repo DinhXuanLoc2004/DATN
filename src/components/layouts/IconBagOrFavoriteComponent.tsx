@@ -1,29 +1,275 @@
-import React, { FC } from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
+import React, {FC, useState} from 'react';
+import {ActivityIndicator, StyleSheet, ViewStyle} from 'react-native';
 import FontAwesome5Icon from 'react-native-vector-icons/FontAwesome5';
 import IonIcon from 'react-native-vector-icons/Ionicons';
-import { colors } from '../../constants/colors';
+import {colors} from '../../constants/colors';
 import SectionComponent from './SectionComponent';
-import { handleSize } from '../../utils/handleSize';
+import {handleSize} from '../../utils/handleSize';
+import {useAppDispatch, useAppSelector} from '../../helper/store/store';
+import {QueryKey, useMutation, useQueryClient} from '@tanstack/react-query';
+import {addFavoriteResponse} from '../../helper/types/favorite.type';
+import {addFavoriteAPI} from '../../helper/apis/favorite.api';
+import {
+  getAllProductsResponse,
+  getDetailProductResponse,
+} from '../../helper/types/product.type';
+import {setDiaLogLogin} from '../../helper/store/slices/sort.slice';
+import {
+  getAllCartQueryKey,
+  getAllFavoritesQueryKey,
+  getAllProductsHomeSreen,
+  getCategoryIdsToFavoritesQueryKey,
+  getDetailProductQueryKey,
+  getProductsQueryKey,
+  getProductsSaleQuerykey,
+  getProductsToCategoryScreen,
+  searchProductsQueryKey,
+} from '../../constants/queryKeys';
+import {getProductsSaleResponse} from '../../helper/types/sale.type';
 
 interface Props {
   isItemFavorite?: boolean;
   isFavorite?: boolean;
-  onPress?: () => void;
-  styleContainer?: ViewStyle
+  styleContainer?: ViewStyle;
+  product_id: string;
+  onPressBag?: () => void;
 }
 
 const IconBagOrFavoriteComponent: FC<Props> = ({
   isItemFavorite,
   isFavorite,
-  onPress,
-  styleContainer
+  styleContainer,
+  product_id,
+  onPressBag,
 }) => {
+  const userId = useAppSelector(state => state.auth.user.userId);
+  const dispath = useAppDispatch();
+
+  const queryClient = useQueryClient();
+
+  const {mutate: toggleFavorite, isPending} = useMutation<
+    addFavoriteResponse | undefined,
+    Error,
+    string,
+    {
+      preProductsHome: [QueryKey, unknown][];
+      preProductsToCate: [QueryKey, unknown][];
+      preProductDetail: [QueryKey, unknown][];
+      perSearchProducts: [QueryKey, unknown][];
+      preProductsSale: [QueryKey, unknown][];
+      preProducts: [QueryKey, unknown][];
+    }
+  >({
+    mutationFn: (product_id: string) => {
+      return addFavoriteAPI({product_id, user_id: userId});
+    },
+    onMutate: async (product_id: string) => {
+      await queryClient.cancelQueries({queryKey: [getAllProductsHomeSreen]});
+      await queryClient.cancelQueries({
+        queryKey: [getProductsToCategoryScreen],
+      });
+      await queryClient.cancelQueries({queryKey: [getDetailProductQueryKey]});
+
+      const preProductsHome = queryClient.getQueriesData({
+        queryKey: [getAllProductsHomeSreen],
+      });
+
+      const preProductsToCate = queryClient.getQueriesData({
+        queryKey: [getProductsToCategoryScreen],
+      });
+
+      const preProductDetail = queryClient.getQueriesData({
+        queryKey: [getDetailProductQueryKey],
+      });
+
+      const perSearchProducts = queryClient.getQueriesData({
+        queryKey: [searchProductsQueryKey],
+      });
+
+      const preProductsSale = queryClient.getQueriesData({
+        queryKey: [getProductsSaleQuerykey],
+      });
+
+      const preProducts = queryClient.getQueriesData({
+        queryKey: [getProductsQueryKey],
+      });
+
+      queryClient.setQueriesData(
+        {queryKey: [getAllProductsHomeSreen]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [getProductsToCategoryScreen]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [getDetailProductQueryKey]},
+        (
+          old_data: getDetailProductResponse | undefined,
+        ): getDetailProductResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              ...old_data.metadata,
+              isFavorite:
+                old_data.metadata._id === product_id
+                  ? !old_data.metadata.isFavorite
+                  : old_data.metadata.isFavorite,
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [searchProductsQueryKey]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [getProductsSaleQuerykey]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      queryClient.setQueriesData(
+        {queryKey: [getProductsQueryKey]},
+        (
+          old_data: getAllProductsResponse | undefined,
+        ): getAllProductsResponse | undefined => {
+          if (!old_data) return undefined;
+          return {
+            ...old_data,
+            metadata: {
+              products: old_data.metadata.products.map(product =>
+                product._id === product_id
+                  ? {...product, isFavorite: !product.isFavorite}
+                  : product,
+              ),
+            },
+          };
+        },
+      );
+
+      return {
+        preProductsHome,
+        preProductsToCate,
+        preProductDetail,
+        perSearchProducts,
+        preProductsSale,
+        preProducts,
+      };
+    },
+
+    onError(error, variables, context) {
+      queryClient.setQueriesData(
+        {queryKey: [getAllProductsHomeSreen]},
+        context?.preProductsHome,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [getProductsToCategoryScreen]},
+        context?.preProductsToCate,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [getDetailProductQueryKey]},
+        context?.preProductDetail,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [searchProductsQueryKey]},
+        context?.perSearchProducts,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [getProductsSaleQuerykey]},
+        context?.preProductsSale,
+      );
+      queryClient.setQueriesData(
+        {queryKey: [getProductsQueryKey]},
+        context?.preProducts,
+      );
+    },
+
+    onSettled(data, error, variables, context) {
+      queryClient.invalidateQueries({queryKey: [getAllFavoritesQueryKey]});
+      queryClient.invalidateQueries({
+        queryKey: [getCategoryIdsToFavoritesQueryKey],
+      });
+      queryClient.invalidateQueries({queryKey: [getAllCartQueryKey]});
+    },
+  });
+
+  const handleIconBagOrFavorite = async () => {
+    if (!isItemFavorite) {
+      if (!userId) dispath(setDiaLogLogin(true));
+      else {
+        toggleFavorite(product_id);
+      }
+    }
+    if (isItemFavorite && onPressBag) {
+      onPressBag();
+    }
+  };
+
   return (
     <SectionComponent
-      onPress={() => {
-        onPress;
-      }}
+      disabled={isPending}
+      onPress={() => handleIconBagOrFavorite()}
       style={[
         styles.containerIconShopping,
         {
@@ -34,7 +280,7 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
             ? colors.Primary_Color
             : colors.Gray_Color,
         },
-        styleContainer
+        styleContainer,
       ]}>
       {isItemFavorite ? (
         <FontAwesome5Icon
@@ -42,10 +288,14 @@ const IconBagOrFavoriteComponent: FC<Props> = ({
           size={handleSize(16)}
           color={colors.White_Color}
         />
-      ) : isFavorite ? (
-        <IonIcon name="heart" color={colors.Primary_Color} size={handleSize(18)} />
+      ) : isPending ? (
+        <ActivityIndicator color={colors.Primary_Color} />
       ) : (
-        <IonIcon name="heart-outline" color={colors.Gray_Color} size={handleSize(18)} />
+        <IonIcon
+          name={isFavorite ? 'heart' : 'heart-outline'}
+          color={isFavorite ? colors.Primary_Color : colors.Gray_Color}
+          size={handleSize(18)}
+        />
       )}
     </SectionComponent>
   );

@@ -7,6 +7,7 @@ import {handleSize} from '../../utils/handleSize';
 import TitleComponent from '../texts/TitleComponent';
 import RowComponent from './RowComponent';
 import SectionComponent from './SectionComponent';
+import { fotmatedAmount } from '../../utils/fotmats';
 
 interface Props {
   min: number;
@@ -31,12 +32,12 @@ const RangeSliderComponent: FC<Props> = ({
         <TitleComponent
           size={14}
           font={fontFamilies.medium}
-          text={`$${minSelected}`}
+          text={fotmatedAmount(minSelected)}
         />
         <TitleComponent
           size={14}
           font={fontFamilies.medium}
-          text={`$${maxSelected}`}
+          text={fotmatedAmount(maxSelected)}
         />
       </RowComponent>
       <SectionComponent>

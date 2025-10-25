@@ -11,7 +11,7 @@ import TextComponent from '../texts/TextComponent';
 
 type Props = {
   title: string;
-  description: string;
+  description?: string;
   onPress: () => void;
 };
 
@@ -25,14 +25,22 @@ const ButtonProfileComponent: React.FC<Props> = ({
       <RowComponent justify="space-between">
         <SectionComponent>
           <TextComponent text={title} font={fontFamilies.semiBold} />
-          <SpaceComponent height={9} />
-          <TextComponent
-            color={colors.Secondary_Text_Color}
-            text={description}
-            size={11}
-          />
+          {description && (
+            <SectionComponent>
+              <SpaceComponent height={9} />
+              <TextComponent
+                color={colors.Secondary_Text_Color}
+                text={description}
+                size={11}
+              />
+            </SectionComponent>
+          )}
         </SectionComponent>
-        <Icon name="chevron-forward" size={handleSize(24)} color={colors.Gray_Color} />
+        <Icon
+          name="chevron-forward"
+          size={handleSize(24)}
+          color={colors.Gray_Color}
+        />
       </RowComponent>
     </TouchableOpacity>
   );
